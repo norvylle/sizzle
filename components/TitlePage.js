@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Font } from 'expo';
-import { StyleSheet, Text, View, Button, Alert } from 'react-native';
-import { TextInput } from 'react-native-gesture-handler';
+import { StyleSheet, Text, View, Alert } from 'react-native';
+import { Form, Item, Input, Label, Button } from 'native-base';
 
 const autoBind = require('auto-bind');
 
@@ -30,7 +30,10 @@ class TitlePage extends Component {
   
   async componentWillMount(){
     await Font.loadAsync({
-      'fantastic': require('../assets/fonts/fantastic.ttf')
+      'fantastic': require('../assets/fonts/fantastic.ttf'),
+      'geoSansLight': require('../assets/fonts/geoSansLight.ttf'),
+      'roboto': require('native-base/Fonts/Roboto.ttf'),
+      'roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
     });
     this.setState({fontOK: true})
   }
@@ -40,15 +43,29 @@ class TitlePage extends Component {
       <View style={styles.view}>
       {
       this.state.fontOK ? (
-      <Text style={styles.text}>Sizzle</Text>
+      <View>
+      <Text style={styles.title}>Sizzle</Text>
+      <Text style={styles.text}>Login to Sizzle.</Text>
+      </View>
       ) : null
+      } 
+      <Form>
+      <Item stackedLabel >
+      <Label style={styles.label}>Username</Label>
+      <Input style={styles.label} onChangeText={(username)=> this.setState({username})} maxLength={50}/>
+      </Item>
+      <Item stackedLabel >
+      <Label style={styles.label}>Password</Label>
+      <Input style={styles.label} secureTextEntry={true} onChangeText={(password)=> this.setState({password})} maxLength={32}/>
+      </Item>
+      </Form>
+      <Text style={{paddingTop:10}}/>
+      <Button default block rounded onPress={this.handleLogin}>
+      {
+        this.state.fontOK ? (<Text style={styles.button}>LOGIN</Text>) : (<Text>LOGIN</Text>)
       }
-      <Text style={{padding: 10}}/>
-      <TextInput style={styles.input} placeholder="Username" placeholderTextColor="#ff5733" onChangeText={(username)=> this.setState({username})} underlineColorAndroid='#fff' maxLength={10}/>
-      <Text style={{padding: 5}}/>
-      <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#ff5733" onChangeText={(password)=> this.setState({password})} underlineColorAndroid='#fff' secureTextEntry={true} maxLength={16}/>
-      <Text style={{padding: 5}}/>
-      <Button onPress={this.handleLogin} title="Login"/>
+      
+      </Button>
       </View>
     );
   }
@@ -58,25 +75,30 @@ const styles = StyleSheet.create({
   view: {
     flex: 1,
     backgroundColor: '#ff5733',
-    alignItems: 'center',
+    alignItems: 'stretch',
     justifyContent: 'center',
+  },
+  title:{
+    color:'#fff',
+    fontFamily:'fantastic', 
+    fontSize:40,
+    textAlign:"center",
+    paddingBottom:30
   },
   text:{
     color:'#fff',
-    fontFamily:'fantastic', 
-    fontSize:72,
+    fontFamily:'roboto', 
+    fontSize:20,
+    textAlign:"left",
+    paddingLeft:15,
+    paddingBottom:10
   },
-  input:{
-    height:50,
-    width:220,
-    color:'#000',
-    fontSize:25,
-    textAlign:'center',
-    backgroundColor:'#fff',
-    alignItems:"center",
-    borderColor:'#fff',
-    borderWidth:1,
-    borderRadius:20,
+  label:{
+    color:'#fff'
+  },
+  button:{
+    fontFamily:'roboto_medium',
+    color:'#fff'
   }
 });
 

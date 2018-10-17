@@ -1,5 +1,4 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import TitlePage from './components/TitlePage';
 
 export default class App extends React.Component {
@@ -7,15 +6,6 @@ export default class App extends React.Component {
     super(props)
     this.state = {
     }
-    /*
-        <View style={styles.view}>
-      {
-      this.state.fontOK ? (
-      <Text style={styles.text}>{this.state.text}</Text>
-      ) : null
-      }
-      </View>
-        */
   }
 
   render() {
@@ -24,17 +14,3 @@ export default class App extends React.Component {
     );
   }
 }
-
-// const styles = StyleSheet.create({
-//   view: {
-//     flex: 1,
-//     backgroundColor: '#ff5733',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-//   text:{
-//     color:'#fff',
-//     fontFamily:'fantastic', 
-//     fontSize:72,
-//   }
-// });
