@@ -26,6 +26,7 @@ class TitlePage extends Component {
       ],
       { cancelable: true }
     )
+    this.setState({username:"",password:""})
   }
   
   async componentWillMount(){
@@ -52,11 +53,11 @@ class TitlePage extends Component {
       <Form>
       <Item stackedLabel >
       <Label style={styles.label}>Username</Label>
-      <Input style={styles.label} onChangeText={(username)=> this.setState({username})} maxLength={50}/>
+      <Input style={styles.label} value={this.state.username} onChangeText={(username)=> this.setState({username})} maxLength={50}/>
       </Item>
       <Item stackedLabel >
       <Label style={styles.label}>Password</Label>
-      <Input style={styles.label} secureTextEntry={true} onChangeText={(password)=> this.setState({password})} maxLength={32}/>
+      <Input style={styles.label} value={this.state.password} secureTextEntry={true} onChangeText={(password)=> this.setState({password})} maxLength={32}/>
       </Item>
       </Form>
       <Text style={{paddingTop:10}}/>
