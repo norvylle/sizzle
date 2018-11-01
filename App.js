@@ -1,4 +1,4 @@
-import './components/Export';
+import { TitlePage, CreatePage, HomePage } from './components/Export';
 import { createStackNavigator, createSwitchNavigator} from 'react-navigation';
 
 const AppStack = createStackNavigator({ 

@@ -26,7 +26,6 @@ export default class TitlePage extends Component {
     //   ],
     //   { cancelable: true }
     // )
-    // this.setState({username:"",password:""})
     this.props.navigation.navigate('App');
   }
 
@@ -36,8 +35,8 @@ export default class TitlePage extends Component {
   
   async componentWillMount(){
     await Font.loadAsync({
-      'fantastic': require('../assets/fonts/fantastic.ttf'),
-      'geoSansLight': require('../assets/fonts/geoSansLight.ttf'),
+      'fantastic': require('../../assets/fonts/fantastic.ttf'),
+      'geoSansLight': require('../../assets/fonts/geoSansLight.ttf'),
       'roboto': require('native-base/Fonts/Roboto.ttf'),
       'roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
     });
