@@ -4,6 +4,7 @@ import { createStackNavigator, createSwitchNavigator} from 'react-navigation';
 const AppStack = createStackNavigator({ 
   Home: HomePage 
 },{
+  initialRouteName: 'Home',
   navigationOptions: {
     headerTitle: "Home",
   }
@@ -14,6 +15,7 @@ const AuthStack = createStackNavigator({
   Create: CreatePage
 },{ 
   headerMode: 'none',
+  initialRouteName: 'Login',
   navigationOptions: {
     headerVisible: false,
   }
