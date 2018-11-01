@@ -1,7 +1,4 @@
-import React from 'react';
-import TitlePage from './components/TitlePage';
-import CreatePage from './components/CreatePage';
-import HomePage from './components/Home';
+import './components/Export';
 import { createStackNavigator, createSwitchNavigator} from 'react-navigation';
 
 const AppStack = createStackNavigator({ 
