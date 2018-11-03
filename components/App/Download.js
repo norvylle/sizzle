@@ -3,14 +3,14 @@ import { Text, View } from 'react-native';
 
 // const autoBind = require('auto-bind');
 
-export default class HomePage extends Component {
+export default class DownloadPage extends Component {
     constructor(props){
         super(props)
     }
     render() {
         return(
             <View>
-            <Text>Welcome Home!</Text>
+            <Text>This is where offline downloads will soon show up.</Text>
             </View>
         );
     }

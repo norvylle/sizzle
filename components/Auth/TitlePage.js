@@ -17,15 +17,6 @@ export default class TitlePage extends Component {
   }
 
   handleLogin(){
-    // Alert.alert(
-    //   'Alert',
-    //   'You entered\n'+this.state.username+'\n'+this.state.password,
-    //   [
-    //     {text: 'OK', onPress: () => console.log('OK Pressed')},
-    //     {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-    //   ],
-    //   { cancelable: true }
-    // )
     this.props.navigation.navigate('App');
   }
 
@@ -72,7 +63,7 @@ export default class TitlePage extends Component {
       </Button>
       <Text style={{paddingTop:50}}/>
       <Button transparent style={styles.create} onPress={this.handleCreate}>
-        <Text>Create Account</Text>
+        <Text style={styles.createText}>Create Account</Text>
       </Button>
       </View>
     );
@@ -119,5 +110,9 @@ const styles = StyleSheet.create({
   create:{
     paddingVertical: 10,
     alignSelf: "center",
+  },
+  createText:{
+    color: '#fff',
+    textDecorationLine: "underline"
   }
 });
