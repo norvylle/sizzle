@@ -1,26 +1,52 @@
 import React, { Component } from 'react';
 import { Text, Image, ScrollView, StyleSheet } from 'react-native';
-import { Card, CardItem, Left, Right, Thumbnail, Body, Icon, Button } from 'native-base';
+import { Card, CardItem, Left, Right, Thumbnail, Body, Icon, Button, Toast, Root } from 'native-base';
 import { recipes } from '../Service/Database';
+import { loadAssets } from '../Service/Assets';
 
 const autoBind = require('auto-bind');
 
 export default class HomePage extends Component {
     constructor(props){
         super(props)
+        this.state = {
+            showToast: false,
+            image: false,
+        }
         autoBind(this);
     }
 
     handleStar(id){
         if(!recipes[id].isStarred){
             recipes[id].stars += 1;
-            recipes[id].isStarred = true;
             this.forceUpdate()
+        }else{
+            recipes[id].stars -= 1;
         }
+        recipes[id].isStarred = !recipes[id].isStarred;
+        this.forceUpdate()
+    }
+
+    handleDownload(id){
+        recipes[id].isDownloaded = !recipes[id].isDownloaded;
+        this.forceUpdate()
+        Toast.show({
+            text: "Downloading...",
+            duration: 3000
+        })
+    }
+
+    handleImage(){
+        this.setState({})
+    }
+
+    async componentWillMount(){
+        await loadAssets();
     }
 
     render() {
         return(
+            <Root>
             <ScrollView>
             <Text style={styles.text}>What's Hot!</Text>
             {
@@ -29,12 +55,15 @@ export default class HomePage extends Component {
                         <Card key={item.id}>
                             <CardItem>
                                 <Left>
-                                    <Thumbnail source={{uri: item.icon}}/>
+                                    <Thumbnail source={{uri: item.icon}} onLoad={()=>this.handleImage}/>
                                     <Body>
                                         <Text>{item.title}</Text>
                                         <Text note>{item.user}</Text>
                                     </Body>
                                 </Left>
+                                <Right>
+                                    <Text>8h ago</Text>
+                                </Right>
                             </CardItem>
                             <CardItem cardBody>
                                 <Image source={{uri: item.image}} style={{height: 200, width: null, flex: 1}}/>
@@ -42,12 +71,17 @@ export default class HomePage extends Component {
                             <CardItem>
                                 <Left>
                                 <Button transparent onPress={() => this.handleStar(item.id)}>
-                                    <Icon active type='FontAwesome' name='star' style={ item.isStarred ? (styles.icon) : (styles.icon1) }/>
-                                    <Text>  {item.stars} Stars</Text>
+                                    <Icon type='FontAwesome' name='star' style={ item.isStarred ? (styles.icon) : (styles.icon1) }/>
                                 </Button>
+                                <Text>{item.stars} Stars</Text>
                                 </Left>
+                                <Body>
+                                    <Text>{item.calories} calories per 100 grams</Text>
+                                </Body>
                                 <Right>
-                                    <Text>8h ago</Text>
+                                <Button transparent onPress={() => this.handleDownload(item.id)}>
+                                    <Icon type='Feather' name='download' style={ item.isDownloaded ? (styles.icon) : (styles.icon1) }/>
+                                </Button>
                                 </Right>
                             </CardItem>
                         </Card>
@@ -55,6 +89,7 @@ export default class HomePage extends Component {
                 })
             }
             </ScrollView>
+            </Root>
         );
     }
 }

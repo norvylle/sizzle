@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Font } from 'expo';
 import { StyleSheet, Text, View, Alert } from 'react-native';
 import { Form, Item, Input, Label, Button, Icon } from 'native-base';
+import { loadAssets } from '../Service/Assets';
 
 const autoBind = require('auto-bind');
 
@@ -30,12 +30,7 @@ export default class TitlePage extends Component {
   }
   
   async componentWillMount(){
-    await Font.loadAsync({
-      'fantastic': require('../../assets/fonts/fantastic.ttf'),
-      'geoSansLight': require('../../assets/fonts/geoSansLight.ttf'),
-      'roboto': require('native-base/Fonts/Roboto.ttf'),
-      'roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
-    });
+    await loadAssets()
     this.setState({fontOK: true})
   }
 
@@ -86,7 +81,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   buttonText:{
-    fontFamily:'roboto_medium',
+    fontFamily:'Roboto_medium',
     color:'#fff'
   },
   create:{
@@ -122,7 +117,7 @@ const styles = StyleSheet.create({
   },
   text:{
     color:'#fff',
-    fontFamily:'roboto', 
+    fontFamily:'Roboto', 
     fontSize:20,
     textAlign:"left",
     paddingLeft:15,

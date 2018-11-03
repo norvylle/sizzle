@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
-import { Button } from 'native-base';
+import { View, ScrollView, StyleSheet } from 'react-native';
+import { Text, Button, Thumbnail, Tabs, Tab, Picker, Icon } from 'native-base';
+import { loadAssets } from '../Service/Assets';
+import { users } from '../Service/Database';
 
 const autoBind = require('auto-bind');
 
@@ -11,29 +13,84 @@ export default class ProfilePage extends Component {
     }
 
     handlePress(){
-        this.props.navigation.navigate('Auth');
+        this.props.navigation.navigate('Settings')
+    }
+
+    async componentWillMount(){
+        await loadAssets();
     }
 
     render() {
         return(
-            <View>
-            <Text>Welcome to your profile</Text>
-            <Button onPress={this.handlePress} style={styles.button}>
-                <Text style={styles.buttonText}>Logout</Text>
-            </Button>
+        <View>
+            <View style={styles.header}>
+                <Thumbnail large source={{uri: users.icon}}/>
+                <View style={styles.details}>
+                    <Text style={styles.name}>{users.firstName} {users.lastName}</Text>
+                    <Text style={{paddingTop:10}}/>
+                    <Text style={styles.follow}>{users.following} Following {users.followers} Followers</Text>
+                </View>
+                <Button rounded onPress={this.handlePress}>
+                    <Icon type='MaterialCommunityIcons' name='settings'/>
+                </Button>
             </View>
+            <View style={styles.scroll}>
+                <Tabs>
+                    <Tab heading="My Recipes" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
+                        <ScrollView>
+                        </ScrollView>
+                    </Tab>
+                    <Tab heading="Starred" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
+                        <ScrollView>
+                        </ScrollView>
+                    </Tab>
+                    <Tab heading="Cooked" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
+                        <ScrollView>
+                        </ScrollView>
+                    </Tab>
+                </Tabs>
+            </View>
+        </View>
         );
     }
 }
 
 const styles = StyleSheet.create({
+    activeTabs:{
+        backgroundColor:'#fff'
+    },
+    activeTabsText:{
+        color: '#ff5733'
+    },
     button:{
-        width: 200,
-        alignSelf: "center",
-        alignItems: "center"
+        alignSelf: 'stretch',
     },
-    buttonText:{
-        fontFamily:'roboto_medium',
-        color:'#fff',
+    detailsText:{
+        fontFamily: 'Roboto'
     },
+    follow:{
+        flexDirection:'column',
+        marginLeft: 20,
+        fontSize: 16
+    },
+    header:{
+        flexDirection: 'row',
+        marginTop: 20,
+        marginLeft: 20
+    },
+    name:{
+        flexDirection:'column',
+        marginLeft: 20,
+        fontSize: 20
+    },
+    scroll:{
+        height: '83%',
+        marginTop: 10
+    },
+    tabs:{
+        backgroundColor: '#ff5733'
+    },
+    tabsText:{
+        color: '#fff'
+    }
 })

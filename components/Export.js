@@ -4,6 +4,7 @@ import HomePage from './App/Home';
 import SearchPage from './App/Search';
 import DownloadPage from './App/Download';
 import ProfilePage from './App/Profile';
+import SettingsPage from './App/Settings';
 
 export {
     TitlePage,
@@ -11,5 +12,6 @@ export {
     HomePage,
     SearchPage,
     DownloadPage,
-    ProfilePage
+    ProfilePage,
+    SettingsPage
 }

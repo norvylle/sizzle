@@ -1,14 +1,15 @@
-import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage } from './components/Export';
+import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage, SettingsPage } from './components/Export';
 import { createStackNavigator, createSwitchNavigator, createBottomTabNavigator } from 'react-navigation';
 import { StyleSheet } from 'react-native';
 import { Icon } from 'native-base';
 import React from 'react';
 
-const styles = newFunction()
+const styles = loadStyles()
+
 
 const HomeStack = createStackNavigator(
   { 
-    Home: HomePage 
+    Home: HomePage
   },
   {
     initialRouteName: 'Home',
@@ -65,13 +66,13 @@ const DownloadStack = createStackNavigator(
 
 const ProfileStack = createStackNavigator(
   { 
-    Profile: ProfilePage
+    Profile: ProfilePage,
+    Settings: SettingsPage
   },
   {
     initialRouteName: 'Profile',
     headerLayoutPreset: 'center',
     navigationOptions: {
-      // headerTitle: "Settings",
       headerStyle:{
         backgroundColor: '#ff5733',
       },
@@ -132,17 +133,17 @@ const AuthStack = createStackNavigator(
   }
 );
 
-export default  createSwitchNavigator(
+export default createSwitchNavigator(
   {
     Auth: AuthStack,
-    App: AppStack,
+    App: AppStack
   },
   {
     initialRouteName: 'Auth',
   },
 );
 
-function newFunction() {
+function loadStyles() {
   return StyleSheet.create({
     icon: {
       color: '#fff',
