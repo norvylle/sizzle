@@ -86,7 +86,7 @@ const AppStack = createBottomTabNavigator(
   {
     Home: HomeStack,
     Search: SearchStack,
-    Download: DownloadStack,
+    Downloads: DownloadStack,
     Profile: ProfileStack,
   },
   {
@@ -107,7 +107,7 @@ const AppStack = createBottomTabNavigator(
           return (<Icon type='Octicons' name='home' style={styles.icon}/>)
         }else if( routeName === 'Profile'){
           return (<Icon type='MaterialIcons' name='person' style={styles.icon}/>)
-        }else if( routeName === 'Download'){
+        }else if( routeName === 'Downloads'){
           return (<Icon type='Feather' name='download' style={styles.icon}/>)
         }else if( routeName === 'Search'){
           return (<Icon type='Feather' name='search' style={styles.icon}/>)

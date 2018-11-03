@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Font } from 'expo';
 import { StyleSheet, Text, View, Alert } from 'react-native';
-import { Form, Item, Input, Label, Button } from 'native-base';
+import { Form, Item, Input, Label, Button, Icon } from 'native-base';
 
 const autoBind = require('auto-bind');
 
@@ -11,7 +11,8 @@ export default class TitlePage extends Component {
     this.state = {
       fontOK: false,
       username:"",
-      password:""
+      password:"",
+      showPassword: true
     }
     autoBind(this);
   }
@@ -22,6 +23,10 @@ export default class TitlePage extends Component {
 
   handleCreate(){
     this.props.navigation.navigate('Create');
+  }
+
+  handleShowPassword(){
+    this.setState({ showPassword: !this.state.showPassword })
   }
   
   async componentWillMount(){
@@ -46,14 +51,19 @@ export default class TitlePage extends Component {
       ) : null
       } 
       <Form>
-      <Item stackedLabel >
-      <Label style={styles.label}>Username</Label>
-      <Input style={styles.input} value={this.state.username} onChangeText={(username)=> this.setState({username})} maxLength={50}/>
-      </Item>
-      <Item stackedLabel >
-      <Label style={styles.label}>Password</Label>
-      <Input style={styles.input} value={this.state.password} secureTextEntry={true} onChangeText={(password)=> this.setState({password})} maxLength={32}/>
-      </Item>
+        <Item stackedLabel >
+          <Label style={styles.label}>Username</Label>
+          <Input style={styles.input} value={this.state.username} onChangeText={(username)=> this.setState({username})} maxLength={50}/>
+        </Item>
+        <Item stackedLabel >
+          <Label style={styles.label}>Password</Label>
+          <Input style={styles.input2} value={this.state.password} secureTextEntry={this.state.showPassword} onChangeText={(password)=> this.setState({password})} maxLength={32}/>
+          <Button transparent style={styles.passwordButton} onPress={this.handleShowPassword}>
+            {
+              this.state.showPassword ? (<Icon type='Ionicons' name='ios-eye' style={styles.label}/>) : (<Icon type='Ionicons' name='ios-eye-off' style={styles.label}/>)
+            }
+        </Button>
+        </Item>
       </Form>
       <Text style={{paddingTop:10}}/>
       <Button default block rounded style={styles.button} onPress={this.handleLogin}>
@@ -71,11 +81,37 @@ export default class TitlePage extends Component {
 }
 
 const styles = StyleSheet.create({
-  view: {
-    flex: 1,
-    backgroundColor: '#ff5733',
-    alignItems: 'stretch',
-    justifyContent: 'center',
+  button:{
+    width: 200,
+    alignSelf: "center",
+  },
+  buttonText:{
+    fontFamily:'roboto_medium',
+    color:'#fff'
+  },
+  create:{
+    paddingVertical: 10,
+    alignSelf: "center",
+  },
+  createText:{
+    color: '#fff',
+    textDecorationLine: "underline"
+  },
+  label:{
+    color:'#fff',
+  },
+  input:{
+    color:'#fff',
+    fontSize: 18,
+  },
+  input2:{
+    color:'#fff',
+    fontSize: 18
+  },
+  passwordButton:{
+    alignSelf:'flex-end',
+    position: 'absolute',
+    marginTop: 15
   },
   title:{
     color:'#fff',
@@ -92,27 +128,10 @@ const styles = StyleSheet.create({
     paddingLeft:15,
     paddingBottom:10
   },
-  label:{
-    color:'#fff',
-  },
-  input:{
-    color:'#fff',
-    fontSize: 18,
-  },
-  button:{
-    width: 200,
-    alignSelf: "center",
-  },
-  buttonText:{
-    fontFamily:'roboto_medium',
-    color:'#fff'
-  },
-  create:{
-    paddingVertical: 10,
-    alignSelf: "center",
-  },
-  createText:{
-    color: '#fff',
-    textDecorationLine: "underline"
+  view: {
+    flex: 1,
+    backgroundColor: '#ff5733',
+    alignItems: 'stretch',
+    justifyContent: 'center',
   }
 });
