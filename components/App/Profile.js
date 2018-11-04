@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { Text, Button, Thumbnail, Tabs, Tab, Picker, Icon } from 'native-base';
+import { Text, Button, Thumbnail, Tabs, Tab, Icon, Accordion } from 'native-base';
 import { loadAssets } from '../Service/Assets';
-import { users } from '../Service/Database';
+import { users,recipes } from '../Service/Database';
 
 const autoBind = require('auto-bind');
 
@@ -16,6 +16,26 @@ export default class ProfilePage extends Component {
         this.props.navigation.navigate('Settings')
     }
 
+    loadHeaders(index,expanded){
+        return(
+            <View style={styles.header}>
+            <Text style={{fontWeight: "600"}}>{recipes[index].title}</Text>
+            {expanded ? <Icon style={{ fontSize: 18 }} name="remove-circle" />
+            : <Icon style={{ fontSize: 18 }} name="add-circle" />}
+            </View>
+        );
+    }
+
+    loadContents(index){
+        return(
+            <Text style={styles.content}>
+                Creator: {users[recipes[index].userId].firstName} {users[recipes[index].userId].lastName+"\n"}
+                Stars: {recipes[index].stars+"\n"}
+                Calories: {recipes[index].calories}
+            </Text>
+        );
+    }
+
     async componentWillMount(){
         await loadAssets();
     }
@@ -23,14 +43,14 @@ export default class ProfilePage extends Component {
     render() {
         return(
         <View>
-            <View style={styles.header}>
-                <Thumbnail large source={{uri: users.icon}}/>
+            <View style={styles.heading}>
+                <Thumbnail large source={{uri: users[0].icon}}/>
                 <View style={styles.details}>
-                    <Text style={styles.name}>{users.firstName} {users.lastName}</Text>
+                    <Text style={styles.name}>{users[0].firstName} {users[0].lastName}</Text>
                     <Text style={{paddingTop:10}}/>
-                    <Text style={styles.follow}>{users.following} Following {users.followers} Followers</Text>
+                    <Text style={styles.follow}>{users[0].following} Following {users[0].followers} Followers</Text>
                 </View>
-                <Button rounded onPress={this.handlePress}>
+                <Button bordered rounded dark onPress={this.handlePress}>
                     <Icon type='MaterialCommunityIcons' name='settings'/>
                 </Button>
             </View>
@@ -38,14 +58,25 @@ export default class ProfilePage extends Component {
                 <Tabs>
                     <Tab heading="My Recipes" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
                         <ScrollView>
+                            <Accordion dataArray={users[0].recipes} 
+                            renderHeader={this.loadHeaders} renderContent={this.loadContents}/>
+                            <Button bordered full>
+                                <Text>Add</Text>
+                            </Button>
+                        </ScrollView>
+                    </Tab>
+                    <Tab heading="My Meals" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
+                        <ScrollView>
+                            <Text>Coming Soon!</Text>
+                            <Button bordered full>
+                                <Text>Add</Text>
+                            </Button>
                         </ScrollView>
                     </Tab>
                     <Tab heading="Starred" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
                         <ScrollView>
-                        </ScrollView>
-                    </Tab>
-                    <Tab heading="Cooked" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
-                        <ScrollView>
+                            <Accordion dataArray={users[0].starred} 
+                            renderHeader={this.loadHeaders} renderContent={this.loadContents}/>
                         </ScrollView>
                     </Tab>
                 </Tabs>
@@ -65,6 +96,10 @@ const styles = StyleSheet.create({
     button:{
         alignSelf: 'stretch',
     },
+    content:{
+        backgroundColor: "#e3f1f1", 
+        padding: 10,
+    },
     detailsText:{
         fontFamily: 'Roboto'
     },
@@ -73,10 +108,22 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         fontSize: 16
     },
-    header:{
+    heading:{
         flexDirection: 'row',
         marginTop: 20,
         marginLeft: 20
+    },
+    header:{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 10,
+        backgroundColor: '#A9DAD6',
+        alignItems: 'center'
+    },
+    image:{
+        height: 200, 
+        width: 300, 
+        flex: 1
     },
     name:{
         flexDirection:'column',
