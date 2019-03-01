@@ -1,7 +1,6 @@
 import * as firebase from 'firebase';
-let googleServices = require('../../google-services.json');
 
-const config = require("config.json");
+const config = require("./config.json");
 
 firebase.initializeApp(config)
 
