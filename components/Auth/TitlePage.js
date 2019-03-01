@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { StyleSheet, Text, View, Alert } from 'react-native';
 import { Form, Item, Input, Label, Button, Icon } from 'native-base';
 import { loadAssets } from '../Service/Assets';
+import { signInWithEmail } from '../Service/Firebase';
 
 const autoBind = require('auto-bind');
 
@@ -17,8 +18,18 @@ export default class TitlePage extends Component {
     autoBind(this);
   }
 
-  handleLogin(){
-    this.props.navigation.navigate('App');
+  async handleLogin(){
+    if(validateEmail(this.state.username)){
+      if(signInWithEmail(this.state.username,this.state.password)){
+        this.props.navigation.navigate('App');
+      }
+      Alert.alert(
+        "Sizzle",
+        "Account information provided not found. Please double-check and try again."
+      )
+    }else{
+      this.props.navigation.navigate('App');
+    }
   }
 
   handleCreate(){
@@ -47,17 +58,17 @@ export default class TitlePage extends Component {
       } 
       <Form>
         <Item stackedLabel >
-          <Label style={styles.label}>Username</Label>
+          <Label style={styles.label}>Username/Email</Label>
           <Input style={styles.input} value={this.state.username} onChangeText={(username)=> this.setState({username})} maxLength={50}/>
         </Item>
         <Item stackedLabel >
           <Label style={styles.label}>Password</Label>
-          <Input style={styles.input2} value={this.state.password} secureTextEntry={this.state.showPassword} onChangeText={(password)=> this.setState({password})} maxLength={32}/>
+          <Input style={styles.input} value={this.state.password} secureTextEntry={this.state.showPassword} onChangeText={(password)=> this.setState({password})} maxLength={32}/>
           <Button transparent style={styles.passwordButton} onPress={this.handleShowPassword}>
             {
               this.state.showPassword ? (<Icon type='Ionicons' name='ios-eye' style={styles.label}/>) : (<Icon type='Ionicons' name='ios-eye-off' style={styles.label}/>)
             }
-        </Button>
+          </Button>
         </Item>
       </Form>
       <Text style={{paddingTop:10}}/>
@@ -99,10 +110,6 @@ const styles = StyleSheet.create({
     color:'#fff',
     fontSize: 18,
   },
-  input2:{
-    color:'#fff',
-    fontSize: 18
-  },
   passwordButton:{
     alignSelf:'flex-end',
     position: 'absolute',
@@ -130,3 +137,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   }
 });
+
+function validateEmail(email) {
+  return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
+}

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "570830960829",
+    "firebase_url": "https://sizzle-nsuy.firebaseio.com",
+    "project_id": "sizzle-nsuy",
+    "storage_bucket": "sizzle-nsuy.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:570830960829:android:c5498ea1608e46d8",
+        "android_client_info": {
+          "package_name": "com.norvylle.sizzle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "570830960829-a4lcnh469s4qtjlihdu36ei8eo2n6o8i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9Ba7E3wjdhbx9D1um_34AWMU182JCpmQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
