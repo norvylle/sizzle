@@ -1,14 +1,7 @@
 import * as firebase from 'firebase';
 let googleServices = require('../../google-services.json');
 
-const config = {
-    apiKey: "AIzaSyA81Tv23hyRzQTrexg52Eo34e_2togP6f4",
-    authDomain: "sizzle-nsuy.firebaseapp.com",
-    databaseURL: "https://sizzle-nsuy.firebaseio.com",
-    projectId: "sizzle-nsuy",
-    storageBucket: "sizzle-nsuy.appspot.com",
-    messagingSenderId: "570830960829"
-};
+const config = require("config.json");
 
 firebase.initializeApp(config)
 
