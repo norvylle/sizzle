@@ -22,11 +22,12 @@ export default class TitlePage extends Component {
     if(validateEmail(this.state.username)){
       if(signInWithEmail(this.state.username,this.state.password)){
         this.props.navigation.navigate('App');
+      }else{
+        Alert.alert(
+          "Sizzle",
+          "Account information provided not found. Please double-check and try again."
+        )
       }
-      Alert.alert(
-        "Sizzle",
-        "Account information provided not found. Please double-check and try again."
-      )
     }else{
       this.props.navigation.navigate('App');
     }

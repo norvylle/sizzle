@@ -12,29 +12,29 @@ function insert(data){
     .set(data.data)
     .then(() => {
         console.log(data.link+": INSERT SUCCESS");
-        return true;
     })
     .catch((error) => {
         console.log(error); return false;
     })
+    return true;
 }
 
 function registerEmail(email, password){
     auth.createUserWithEmailAndPassword(email,password)
     .then(() => {
         console.log("REGISTERED "+email);
-        return true;
     })
     .catch((error) => {console.log(error); return false;})
+    return true;
 }
 
 function signInWithEmail(email, password){
     auth.signInWithEmailAndPassword(email,password)
     .then(() => {
-        console.log("VALIDATED "+email);
-        return true;
+        console.log("VALIDATED "+email);        
     })
     .catch((error) => {console.log(error); return false;})
+    return true;
 }
 
 export{

@@ -37,7 +37,7 @@ export default class TitlePage extends Component {
                 return
             }
         }
-        if(insert({link:"users/"+clone.username,data:clone})){
+        if(insert({link:"users/"+clone.firstName+"_"+clone.lastName,data:clone})){
             registerEmail(clone.email,clone.password);
         }
     }
