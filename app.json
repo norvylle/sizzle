@@ -4,7 +4,7 @@
     "description": "Application for Nutrition Management and Cooking",
     "slug": "Sizzle",
     "privacy": "public",
-    "sdkVersion": "30.0.0",
+    "sdkVersion": "32.0.0",
     "platforms": ["android"],
     "android":{
       "package":"com.norvylle.sizzle"
@@ -22,6 +22,6 @@
     },
     "assetBundlePatterns": [
       "**/*"
-    ],
+    ]
   }
 }

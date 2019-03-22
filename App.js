@@ -1,8 +1,10 @@
 import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage, SettingsPage } from './components/Export';
-import { createStackNavigator, createSwitchNavigator, createBottomTabNavigator } from 'react-navigation';
+import { createStackNavigator, createSwitchNavigator, createBottomTabNavigator, createAppContainer } from 'react-navigation';
 import { StyleSheet } from 'react-native';
-import { Icon } from 'native-base';
-import React from 'react';
+import { Icon, Root,Text } from 'native-base';
+import { Font, AppLoading } from 'expo';
+import React, { Component } from 'react';
+
 
 const styles = loadStyles()
 
@@ -133,7 +135,7 @@ const AuthStack = createStackNavigator(
   }
 );
 
-export default createSwitchNavigator(
+const MainSwitch = createSwitchNavigator(
   {
     Auth: AuthStack,
     App: AppStack
@@ -143,6 +145,7 @@ export default createSwitchNavigator(
   },
 );
 
+
 function loadStyles() {
   return StyleSheet.create({
     icon: {
@@ -150,4 +153,45 @@ function loadStyles() {
       fontSize: 20
     },
   });
+}
+
+export default class App extends Component{
+  constructor(props){
+    super(props)
+    this.state={
+      loading: true
+    }
+  }
+
+  async componentWillMount(){
+    await Font.loadAsync({
+      'fantastic': require('./assets/fonts/fantastic.ttf'),
+      'geoSansLight': require('./assets/fonts/geoSansLight.ttf'),
+      'Roboto': require('native-base/Fonts/Roboto.ttf'),
+      'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
+      'Ionicons': require('@expo/vector-icons/fonts/Ionicons.ttf'),
+      'Feather': require("@expo/vector-icons/fonts/Feather.ttf"),
+      'FontAwesome': require("@expo/vector-icons/fonts/FontAwesome.ttf"),
+      'MaterialIcons': require("@expo/vector-icons/fonts/MaterialIcons.ttf"),
+      'MaterialCommunityIcons': require("@expo/vector-icons/fonts/MaterialCommunityIcons.ttf"),
+      'Octicons': require('@expo/vector-icons/fonts/Octicons.ttf'),
+    });
+    this.setState({loading: false})
+  }
+
+  render(){
+    if(this.state.loading){
+      return(
+        <Root>
+          <AppLoading/>
+        </Root>
+      )
+    }
+    return(
+      <Root>
+        <MainSwitch/>
+      </Root>
+    )
+  }
+
 }

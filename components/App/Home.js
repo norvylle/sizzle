@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { Text, Image, ScrollView, StyleSheet } from 'react-native';
 import { Card, CardItem, Left, Right, Thumbnail, Body, Icon, Button, Toast, Root } from 'native-base';
-import { recipes,users } from '../Service/Database';
-import { loadAssets } from '../Service/Assets';
+
+const database = require("../Service/database.json")
+let recipes = database.recipes;
+let users = database.users;
 
 const autoBind = require('auto-bind');
 
@@ -38,10 +40,6 @@ export default class HomePage extends Component {
                 duration: 3000
             })
         }
-    }
-
-    async componentWillMount(){
-        await loadAssets();
     }
 
     render() {

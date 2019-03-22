@@ -1,4 +1,4 @@
-node_modules/**/*
+node_modules/
 .expo/*
 npm-debug.*
-components/Service/*.json
+components/Service/database.json

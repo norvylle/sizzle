@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, Button, Thumbnail, Tabs, Tab, Icon, Accordion } from 'native-base';
-import { loadAssets } from '../Service/Assets';
-import { users,recipes } from '../Service/Database';
+
+const database = require("../Service/database.json")
+let recipes = database.recipes;
+let users = database.users;
 
 const autoBind = require('auto-bind');
 
@@ -34,10 +36,6 @@ export default class ProfilePage extends Component {
                 Calories: {recipes[index].calories}
             </Text>
         );
-    }
-
-    async componentWillMount(){
-        await loadAssets();
     }
 
     render() {

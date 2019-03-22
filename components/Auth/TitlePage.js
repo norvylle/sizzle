@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Alert } from 'react-native';
 import { Form, Item, Input, Label, Button, Icon } from 'native-base';
-import { loadAssets } from '../Service/Assets';
 import { signInWithEmail } from '../Service/Firebase';
 
 const autoBind = require('auto-bind');
@@ -40,23 +39,14 @@ export default class TitlePage extends Component {
   handleShowPassword(){
     this.setState({ showPassword: !this.state.showPassword })
   }
-  
-  async componentWillMount(){
-    await loadAssets()
-    this.setState({fontOK: true})
-  }
 
   render() {
     return (
       <View style={styles.view}>
-      {
-      this.state.fontOK ? (
       <View>
-      <Text style={styles.title}>Sizzle</Text>
-      <Text style={styles.text}>Login to Sizzle.</Text>
+        <Text style={styles.title}>Sizzle</Text>
+        <Text style={styles.text}>Login to Sizzle.</Text>
       </View>
-      ) : null
-      } 
       <Form>
         <Item stackedLabel >
           <Label style={styles.label}>Username/Email</Label>
@@ -74,9 +64,7 @@ export default class TitlePage extends Component {
       </Form>
       <Text style={{paddingTop:10}}/>
       <Button default block rounded style={styles.button} onPress={this.handleLogin}>
-      {
-        this.state.fontOK ? (<Text style={styles.buttonText}>LOGIN</Text>) : (<Text>LOGIN</Text>)
-      }
+        <Text style={styles.buttonText}>LOGIN</Text>
       </Button>
       <Text style={{paddingTop:50}}/>
       <Button transparent style={styles.create} onPress={this.handleCreate}>
