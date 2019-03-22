@@ -2,3 +2,4 @@ node_modules/
 .expo/*
 npm-debug.*
 components/Service/database.json
+package-lock.json
