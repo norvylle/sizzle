@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { Text, Button, Thumbnail, Tabs, Tab, Icon, Accordion } from 'native-base';
+import { Text, Button, Thumbnail, Tabs, Tab, Icon, Accordion, Root } from 'native-base';
 
 const database = require("../Service/database.json")
 let recipes = database.recipes;

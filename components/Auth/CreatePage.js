@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { View, StyleSheet,Text, Alert } from 'react-native';
-import { Form, Item, Input, Label, Button, Icon, DatePicker} from 'native-base';
+import { Form, Item, Input, Label, Button, Icon, DatePicker, Root, Spinner} from 'native-base';
 import { insert, registerEmail } from '../Service/Firebase';
+import { Font, AppLoading } from 'expo';
 
 const autoBind = require('auto-bind');
 

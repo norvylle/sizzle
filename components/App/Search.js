@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
-import { Input, Form, Item, Button, Icon, Left, Radio, Text, } from 'native-base';
+import { Input, Form, Item, Button, Icon, Left, Radio, Text, Root } from 'native-base';
+import { Font, AppLoading } from 'expo';
 
 const autoBind = require('auto-bind');
 
@@ -10,12 +11,20 @@ export default class SearchPage extends Component {
         this.state={
             text: "",
             selected: 0,
+            loaded: false
         }
         autoBind(this)
     }
 
     handleSearch(){
         
+    }
+
+    async componentWillMount(){
+        await Font.loadAsync({
+            'Octicons': require('@expo/vector-icons/fonts/Octicons.ttf'),
+        });
+        this.setState({loaded: true})
     }
 
     render() {

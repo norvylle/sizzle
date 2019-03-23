@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Alert } from 'react-native';
-import { Form, Item, Input, Label, Button, Icon } from 'native-base';
+import { Form, Item, Input, Label, Button, Icon, Root, Spinner } from 'native-base';
 import { signInWithEmail } from '../Service/Firebase';
+import { Font, AppLoading } from 'expo';
 
 const autoBind = require('auto-bind');
 
@@ -9,7 +10,7 @@ export default class TitlePage extends Component {
   constructor(props){
     super(props)
     this.state = {
-      fontOK: false,
+      loaded: false,
       username:"",
       password:"",
       showPassword: true
@@ -40,7 +41,31 @@ export default class TitlePage extends Component {
     this.setState({ showPassword: !this.state.showPassword })
   }
 
+  async componentWillMount(){
+    await Font.loadAsync({
+      'fantastic': require('../../assets/fonts/fantastic.ttf'),
+      'geoSansLight': require('../../assets/fonts/geoSansLight.ttf'),
+      'Roboto': require('native-base/Fonts/Roboto.ttf'),
+      'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
+      'Ionicons': require('@expo/vector-icons/fonts/Ionicons.ttf'),
+      'Feather': require("@expo/vector-icons/fonts/Feather.ttf"),
+      'FontAwesome': require("@expo/vector-icons/fonts/FontAwesome.ttf"),
+      'MaterialIcons': require("@expo/vector-icons/fonts/MaterialIcons.ttf"),
+      'MaterialCommunityIcons': require("@expo/vector-icons/fonts/MaterialCommunityIcons.ttf"),
+      'Octicons': require('@expo/vector-icons/fonts/Octicons.ttf'),
+  });
+    this.setState({loaded: true});
+  }
+
   render() {
+    if(!this.state.loaded){
+      return(
+        <Root>
+          <AppLoading/>
+        </Root>
+      )
+    }
+    
     return (
       <View style={styles.view}>
       <View>

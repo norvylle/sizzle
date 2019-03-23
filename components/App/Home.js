@@ -13,7 +13,7 @@ export default class HomePage extends Component {
         super(props)
         this.state = {
             showToast: false,
-            active: false
+            active: false,
         }
         autoBind(this);
     }
@@ -45,134 +45,134 @@ export default class HomePage extends Component {
     render() {
         return(
             <Root>
-            <ScrollView>
-            <Text style={styles.text}>What's Hot!</Text>                
-            <ScrollView horizontal={true}>
-            {
-                recipes.map((item) =>{
-                    return(
-                        <Card key={item.id} style={styles.card}>
-                            <CardItem>
-                                <Left>
-                                    <Thumbnail source={{uri: users[item.userId].icon}}/>
-                                    <Body>
-                                        <Text>{item.title}</Text>
-                                        <Text note>{users[item.userId].firstName} {users[item.userId].lastName}</Text>
-                                    </Body>
-                                </Left>
-                                <Right>
-                                    <Text>8h ago</Text>
-                                </Right>
-                            </CardItem>
-                            <CardItem cardBody>
-                                <Image source={{uri: item.image}} style={styles.image}/>
-                            </CardItem>
-                            <CardItem>
-                                <Left>
-                                <Button transparent onPress={() => this.handleStar(item.id)}>
-                                    <Icon type='FontAwesome' name='star' style={ item.isStarred ? (styles.icon) : (styles.icon1) }/>
-                                </Button>
-                                <Text>{item.stars} Stars</Text>
-                                </Left>
-                                <Body>
-                                    <Text>{item.calories} cal{'\n'}per{'\n'}100 g</Text>
-                                </Body>
-                                <Right>
-                                <Button transparent onPress={() => this.handleDownload(item.id)}>
-                                    <Icon type='Feather' name='download' style={ item.isDownloaded ? (styles.icon) : (styles.icon1) }/>
-                                </Button>
-                                </Right>
-                            </CardItem>
-                        </Card>
-                    )
-                })
-            }
-            </ScrollView>
-            <Text style={styles.text}>Let's Get Fit!</Text>                
-            <ScrollView horizontal={true}>
-            {
-                recipes.map((item) =>{
-                    return(
-                        <Card key={item.id} style={styles.card}>
-                            <CardItem>
-                                <Left>
-                                    <Thumbnail source={{uri: users[item.userId].icon}}/>
-                                    <Body>
-                                        <Text>{item.title}</Text>
-                                        <Text note>{users[item.userId].firstName} {users[item.userId].lastName}</Text>
-                                    </Body>
-                                </Left>
-                                <Right>
-                                    <Text>8h ago</Text>
-                                </Right>
-                            </CardItem>
-                            <CardItem cardBody>
-                                <Image source={{uri: item.image}} style={styles.image}/>
-                            </CardItem>
-                            <CardItem>
-                                <Left>
-                                <Button transparent onPress={() => this.handleStar(item.id)}>
-                                    <Icon type='FontAwesome' name='star' style={ item.isStarred ? (styles.icon) : (styles.icon1) }/>
-                                </Button>
-                                <Text>{item.stars} Stars</Text>
-                                </Left>
-                                <Body>
-                                    <Text>{item.calories} cal{'\n'}per{'\n'}100 g</Text>
-                                </Body>
-                                <Right>
-                                <Button transparent onPress={() => this.handleDownload(item.id)}>
-                                    <Icon type='Feather' name='download' style={ item.isDownloaded ? (styles.icon) : (styles.icon1) }/>
-                                </Button>
-                                </Right>
-                            </CardItem>
-                        </Card>
-                    )
-                })
-            }
-            </ScrollView>
-            <Text style={styles.text}>Vegan Life.</Text>                
-            <ScrollView horizontal={true}>
-            {
-                recipes.map((item) =>{
-                    return(
-                        <Card key={item.id} style={styles.card}>
-                            <CardItem>
-                                <Left>
-                                    <Thumbnail source={{uri: users[item.userId].icon}}/>
-                                    <Body>
-                                        <Text>{item.title}</Text>
-                                        <Text note>{users[item.userId].firstName} {users[item.userId].lastName}</Text>
-                                    </Body>
-                                </Left>
-                                <Right>
-                                    <Text>8h ago</Text>
-                                </Right>
-                            </CardItem>
-                            <CardItem cardBody>
-                                <Image source={{uri: item.image}} style={styles.image}/>
-                            </CardItem>
-                            <CardItem>
-                                <Left>
-                                <Button transparent onPress={() => this.handleStar(item.id)}>
-                                    <Icon type='FontAwesome' name='star' style={ item.isStarred ? (styles.icon) : (styles.icon1) }/>
-                                </Button>
-                                <Text>{item.stars} Stars</Text>
-                                </Left>
-                                <Body>
-                                    <Text>{item.calories} cal{'\n'}per{'\n'}100 g</Text>
-                                </Body>
-                                <Right>
-                                <Button transparent onPress={() => this.handleDownload(item.id)}>
-                                    <Icon type='Feather' name='download' style={ item.isDownloaded ? (styles.icon) : (styles.icon1) }/>
-                                </Button>
-                                </Right>
-                            </CardItem>
-                        </Card>
-                    )
-                })
-            }
-            </ScrollView>
-            </ScrollView>
+                <ScrollView>
+                    <Text style={styles.text}>What's Hot!</Text>                
+                    <ScrollView horizontal={true}>
+                    {
+                        recipes.map((item) =>{
+                            return(
+                                <Card key={item.id} style={styles.card}>
+                                    <CardItem>
+                                        <Left>
+                                            <Thumbnail source={{uri: users[item.userId].icon}}/>
+                                            <Body>
+                                                <Text>{item.title}</Text>
+                                                <Text note>{users[item.userId].firstName} {users[item.userId].lastName}</Text>
+                                            </Body>
+                                        </Left>
+                                        <Right>
+                                            <Text>8h ago</Text>
+                                        </Right>
+                                    </CardItem>
+                                    <CardItem cardBody>
+                                        <Image source={{uri: item.image}} style={styles.image}/>
+                                    </CardItem>
+                                    <CardItem>
+                                        <Left>
+                                        <Button transparent onPress={() => this.handleStar(item.id)}>
+                                            <Icon type='FontAwesome' name='star' style={ item.isStarred ? (styles.icon) : (styles.icon1) }/>
+                                        </Button>
+                                        <Text>{item.stars} Stars</Text>
+                                        </Left>
+                                        <Body>
+                                            <Text>{item.calories} cal{'\n'}per{'\n'}100 g</Text>
+                                        </Body>
+                                        <Right>
+                                        <Button transparent onPress={() => this.handleDownload(item.id)}>
+                                            <Icon type='Feather' name='download' style={ item.isDownloaded ? (styles.icon) : (styles.icon1) }/>
+                                        </Button>
+                                        </Right>
+                                    </CardItem>
+                                </Card>
+                            )
+                        })
+                    }
+                    </ScrollView>
+                    <Text style={styles.text}>Let's Get Fit!</Text>                
+                    <ScrollView horizontal={true}>
+                    {
+                        recipes.map((item) =>{
+                            return(
+                                <Card key={item.id} style={styles.card}>
+                                    <CardItem>
+                                        <Left>
+                                            <Thumbnail source={{uri: users[item.userId].icon}}/>
+                                            <Body>
+                                                <Text>{item.title}</Text>
+                                                <Text note>{users[item.userId].firstName} {users[item.userId].lastName}</Text>
+                                            </Body>
+                                        </Left>
+                                        <Right>
+                                            <Text>8h ago</Text>
+                                        </Right>
+                                    </CardItem>
+                                    <CardItem cardBody>
+                                        <Image source={{uri: item.image}} style={styles.image}/>
+                                    </CardItem>
+                                    <CardItem>
+                                        <Left>
+                                        <Button transparent onPress={() => this.handleStar(item.id)}>
+                                            <Icon type='FontAwesome' name='star' style={ item.isStarred ? (styles.icon) : (styles.icon1) }/>
+                                        </Button>
+                                        <Text>{item.stars} Stars</Text>
+                                        </Left>
+                                        <Body>
+                                            <Text>{item.calories} cal{'\n'}per{'\n'}100 g</Text>
+                                        </Body>
+                                        <Right>
+                                        <Button transparent onPress={() => this.handleDownload(item.id)}>
+                                            <Icon type='Feather' name='download' style={ item.isDownloaded ? (styles.icon) : (styles.icon1) }/>
+                                        </Button>
+                                        </Right>
+                                    </CardItem>
+                                </Card>
+                            )
+                        })
+                    }
+                    </ScrollView>
+                    <Text style={styles.text}>Vegan Life.</Text>                
+                    <ScrollView horizontal={true}>
+                    {
+                        recipes.map((item) =>{
+                            return(
+                                <Card key={item.id} style={styles.card}>
+                                    <CardItem>
+                                        <Left>
+                                            <Thumbnail source={{uri: users[item.userId].icon}}/>
+                                            <Body>
+                                                <Text>{item.title}</Text>
+                                                <Text note>{users[item.userId].firstName} {users[item.userId].lastName}</Text>
+                                            </Body>
+                                        </Left>
+                                        <Right>
+                                            <Text>8h ago</Text>
+                                        </Right>
+                                    </CardItem>
+                                    <CardItem cardBody>
+                                        <Image source={{uri: item.image}} style={styles.image}/>
+                                    </CardItem>
+                                    <CardItem>
+                                        <Left>
+                                        <Button transparent onPress={() => this.handleStar(item.id)}>
+                                            <Icon type='FontAwesome' name='star' style={ item.isStarred ? (styles.icon) : (styles.icon1) }/>
+                                        </Button>
+                                        <Text>{item.stars} Stars</Text>
+                                        </Left>
+                                        <Body>
+                                            <Text>{item.calories} cal{'\n'}per{'\n'}100 g</Text>
+                                        </Body>
+                                        <Right>
+                                        <Button transparent onPress={() => this.handleDownload(item.id)}>
+                                            <Icon type='Feather' name='download' style={ item.isDownloaded ? (styles.icon) : (styles.icon1) }/>
+                                        </Button>
+                                        </Right>
+                                    </CardItem>
+                                </Card>
+                            )
+                        })
+                    }
+                    </ScrollView>
+                </ScrollView>
             </Root>
         );
     }
