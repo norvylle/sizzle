@@ -1,31 +1,54 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Input, Form, Item, Button, Icon, Left, Radio, Text, Root } from 'native-base';
-import { Font, AppLoading } from 'expo';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { Input, Form, Item, Button, Icon, Left, Right, Radio, Text, Card, Body, Thumbnail } from 'native-base';
+import { usda } from '../Service/secret';
 
 const autoBind = require('auto-bind');
+const axios = require('axios');
 
 export default class SearchPage extends Component {
     constructor(props){
         super(props)
         this.state={
             text: "",
+            searched:"",
             selected: 0,
-            loaded: false
+            data: null,
         }
         autoBind(this)
     }
 
     handleSearch(){
-        
+        if(this.state.text === ""){
+            Alert.alert("Sizzle","Please enter search on empty field");
+        }else if(this.state.selected === 0){
+            // Alert.alert("Sizzle","Recipes coming soon");
+        }
+        else{  
+            axios.get(usda.search,
+                {
+                    params:{
+                        api_key: usda.api_key,
+                        format: "json",
+                        max: 20,
+                        q: this.state.text,
+                    }
+                }
+            )
+            .then(function(response){
+                if(response.status === 200){
+                    this.setState({data: response.data,searched: this.state.text})
+                    console.log("INGREDIENT: Search success.")
+                }
+            }.bind(this))
+            .then(function(error){
+                if(error != undefined){
+                    console.log("Error: "+error);
+                }
+            })
+        }
     }
 
-    async componentWillMount(){
-        await Font.loadAsync({
-            'Octicons': require('@expo/vector-icons/fonts/Octicons.ttf'),
-        });
-        this.setState({loaded: true})
-    }
 
     render() {
         return(
@@ -52,6 +75,25 @@ export default class SearchPage extends Component {
                         </Item>
                     </Item>
                 </Form>
+                <ScrollView>
+                    {
+                        this.state.data === null ? null : 
+                        this.state.data.list.item.map((item)=>{
+                            return(
+                                <Card key={item.ndbno}>
+                                    <Body>
+                                            <Text>{item.name}</Text>
+                                            <Text note>{item.group}</Text>
+                                    </Body>
+                                </Card>
+                            )
+                        })
+                    }
+                    {
+                        this.state.data === null ? null :
+                        (<Text style={{paddingBottom: 120, textAlign: "center", color: "gray"}}>Showing 1-50 of "{this.state.searched}"</Text>)   
+                    }
+                </ScrollView>
             </View>
         );
     }
@@ -71,5 +113,5 @@ const styles = StyleSheet.create({
     },
     right:{
         width: "60%"
-    }
+    },
 })
