@@ -53,6 +53,8 @@ export default class TitlePage extends Component {
       'MaterialIcons': require("@expo/vector-icons/fonts/MaterialIcons.ttf"),
       'MaterialCommunityIcons': require("@expo/vector-icons/fonts/MaterialCommunityIcons.ttf"),
       'Octicons': require('@expo/vector-icons/fonts/Octicons.ttf'),
+      'SimpleLineIcons': require('@expo/vector-icons/fonts/SimpleLineIcons.ttf'),
+      'Entypo': require('@expo/vector-icons/fonts/Entypo.ttf'),
   });
     this.setState({loaded: true});
   }

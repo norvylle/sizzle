@@ -1,4 +1,4 @@
-import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage, SettingsPage } from './components/Export';
+import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage, SettingsPage, NewRecipePage } from './components/Export';
 import { createStackNavigator, createSwitchNavigator, createBottomTabNavigator, createAppContainer } from 'react-navigation';
 import { StyleSheet } from 'react-native';
 import { Icon, } from 'native-base';
@@ -93,6 +93,18 @@ const ProfileStack = createStackNavigator(
           backgroundColor: '#ff5733',
         }
       }
+    },
+    Recipe:{
+      screen: NewRecipePage,
+      navigationOptions:{
+        headerTitle: "Add Recipe",
+        headerStyle:{
+          backgroundColor: '#ff5733',
+        },
+        headerTitleStyle:{
+          color: "#fff",
+        }
+      }
     }
   },
   {
@@ -147,8 +159,12 @@ const AppStack = createBottomTabNavigator(
 
 const AuthStack = createStackNavigator(
   { 
-    Login: TitlePage,
-    Create: CreatePage
+    Login:{
+      screen: TitlePage
+    },
+    Create:{
+      screen: CreatePage
+    }
   },
   { 
     headerMode: 'none',

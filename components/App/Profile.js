@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { Text, Button, Thumbnail, Tabs, Tab, Icon, Accordion, Root } from 'native-base';
+import { Text, Button, Thumbnail, Tabs, Tab, Icon, Accordion, Fab, } from 'native-base';
 
 const database = require("../Service/database.json")
 let recipes = database.recipes;
@@ -11,12 +11,21 @@ const autoBind = require('auto-bind');
 export default class ProfilePage extends Component {
     constructor(props){
         super(props)
+        this.state={
+            active: false
+        }
         autoBind(this)
     }
 
-    handlePress(){
+    handleSettings(){
         this.props.navigation.navigate('Settings')
     }
+
+    handleRecipe(){
+        this.props.navigation.navigate('Recipe')
+    }
+    handleMealPlan(){}
+    handleWeekPlan(){}
 
     loadHeaders(index,expanded){
         return(
@@ -48,7 +57,7 @@ export default class ProfilePage extends Component {
                     <Text style={{paddingTop:10}}/>
                     <Text style={styles.follow}>{users[0].following} Following {users[0].followers} Followers</Text>
                 </View>
-                <Button bordered rounded dark onPress={this.handlePress}>
+                <Button bordered rounded dark onPress={this.handleSettings}>
                     <Icon type='MaterialCommunityIcons' name='settings'/>
                 </Button>
             </View>
@@ -79,6 +88,18 @@ export default class ProfilePage extends Component {
                     </Tab>
                 </Tabs>
             </View>
+            <Fab active={this.state.active} direction="up" position="bottomRight" onPress={()=> this.setState({active: !this.state.active})}>
+                <Icon type="MaterialCommunityIcons" name="fire"/>
+                    <Button onPress={this.handleWeekPlan}>
+                        <Icon type="MaterialCommunityIcons" name="calendar-week"/>
+                    </Button>
+                    <Button onPress={this.handleMealPlan}>
+                        <Icon type="SimpleLineIcons" name="notebook"/>
+                    </Button>
+                    <Button onPress={this.handleRecipe}>
+                        <Icon type="MaterialCommunityIcons" name="silverware-spoon"/>
+                    </Button>              
+                </Fab>
         </View>
         );
     }
@@ -137,5 +158,5 @@ const styles = StyleSheet.create({
     },
     tabsText:{
         color: '#fff'
-    }
+    },
 })
