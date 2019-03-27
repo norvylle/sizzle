@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Input, Form, Item, Button, Icon, Left, Right, Radio, Text, Card, Body, Thumbnail } from 'native-base';
+import { View, StyleSheet, ScrollView, Alert, Keyboard, TouchableOpacity } from 'react-native';
+import { Input, Form, Item, Button, Icon, Left, Radio, Text, Card, Body, Spinner } from 'native-base';
 import { usda } from '../Service/secret';
 
 const autoBind = require('auto-bind');
@@ -14,21 +14,30 @@ export default class SearchPage extends Component {
             searched:"",
             selected: 0,
             data: null,
+            searching: false
         }
         autoBind(this)
     }
 
-    handleSearch(){
+    async handleSearch(){
         if(this.state.text === ""){
             Alert.alert("Sizzle","Please enter search on empty field");
-        }else if(this.state.selected === 0){
-            // Alert.alert("Sizzle","Recipes coming soon");
+            return
         }
-        else{  
-            axios.get(usda.search,
+
+        this.setState({searching: true, data:null});
+        Keyboard.dismiss();
+
+        if(this.state.selected === 0){
+            await Alert.alert("Sizzle","Recipes coming soon");
+            this.setState({searching: false});
+        }
+        else{    
+            await axios.get(usda.search,
                 {
                     params:{
                         api_key: usda.api_key,
+                        ds: 'Standard Reference',
                         format: "json",
                         max: 20,
                         q: this.state.text,
@@ -37,18 +46,45 @@ export default class SearchPage extends Component {
             )
             .then(function(response){
                 if(response.status === 200){
-                    this.setState({data: response.data,searched: this.state.text})
+                    this.setState({data: response.data, searched: this.state.text})
                     console.log("INGREDIENT: Search success.")
                 }
             }.bind(this))
             .then(function(error){
                 if(error != undefined){
                     console.log("Error: "+error);
+                    Alert.alert("Sizzle",error);
                 }
             })
+            this.setState({searching: false});
         }
     }
 
+    handleInfo(ndbno){
+        axios.get(usda.report,
+            {
+                params:{
+                    api_key: usda.api_key,
+                    ndbno: ndbno
+                }
+            }
+        ).then(async function(response){
+            if(response.status === 200){
+                let data = response.data.report.food;
+                let info = "Nutrient\t|\tValue per 100g"
+                await data.nutrients.forEach(nutrient=>{
+                    info = info+"\n"+nutrient.name+"\t|\t"+nutrient.value+" "+nutrient.unit;
+                })
+                Alert.alert(data.name+" Nutrional Facts",info);
+            }
+        }.bind(this))
+        .then(function(error){
+            if(error != undefined){
+                console.log("Error: "+error);
+                Alert.alert("Sizzle",error);
+            }
+        })
+    }
 
     render() {
         return(
@@ -77,15 +113,21 @@ export default class SearchPage extends Component {
                 </Form>
                 <ScrollView>
                     {
-                        this.state.data === null ? null : 
+                        this.state.data === null ? 
+                        (this.state.searching === true ? <Spinner color="blue" style={{paddingTop: 50}}/> : null) 
+                        : 
                         this.state.data.list.item.map((item)=>{
                             return(
-                                <Card key={item.ndbno}>
-                                    <Body>
-                                            <Text>{item.name}</Text>
-                                            <Text note>{item.group}</Text>
-                                    </Body>
-                                </Card>
+                                <TouchableOpacity key={item.ndbno} onPress={()=>this.handleInfo(item.ndbno)}>
+                                    <Card  pointerEvents="none">
+                                        <Left>
+                                            <Body>
+                                                    <Text>{item.name}</Text>
+                                                    <Text note>{item.group}</Text>
+                                            </Body>
+                                        </Left>
+                                    </Card>
+                                </TouchableOpacity>
                             )
                         })
                     }

@@ -8,10 +8,18 @@ export default class NewRecipePage extends Component{
     constructor(props){
         super(props)
         this.state={
-            recipeName: ""
+            recipeName: "",
+            ingredients:[{qty: 2, unit: "pc", name: "chickenjoy", desc: "langhap sarap", nutrients:[]}],
+            steps:[]
         }
         autoBind(this)
     }
+
+    handleIngredients(){
+        this.props.navigation.navigate("Ingredients",this.state.ingredients)
+    }
+
+    handleSteps(){}
 
     render(){
         return(
@@ -21,13 +29,11 @@ export default class NewRecipePage extends Component{
                         <Label>Recipe Name</Label>
                         <Input style={styles.input} value={this.state.recipeName} onChangeText={(recipeName)=> this.setState({recipeName})} maxLength={50}/>
                     </Item>
-                    <Button iconRight success block style={styles.button}>
-                        <Text>Add Ingredient</Text>
-                        <Icon type="MaterialCommunityIcons" name="basket"/>
+                    <Button iconRight success block style={styles.button} onPress={this.handleIngredients}>
+                        <Text>Ingredients</Text>
                     </Button>
                     <Button iconRight info block style={styles.button}>
-                        <Text>Add Step</Text>
-                        <Icon type="Entypo" name="add-to-list"/>
+                        <Text>Steps</Text>
                     </Button>
                 </Form>
             </View>
