@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Keyboard, TouchableOpacity } from 'react-native';
-import { Input, Form, Item, Button, Icon, Left, Radio, Text, Card, Body, Spinner } from 'native-base';
+import { Input, Form, Item, Button, Icon, Left, Radio, Text, Card, Body, Spinner, InputGroup } from 'native-base';
 import { usda } from '../Service/secret';
 
 const autoBind = require('auto-bind');
@@ -14,7 +14,7 @@ export default class SearchPage extends Component {
             searched:"",
             selected: 0,
             data: null,
-            searching: false
+            searching: false,
         }
         autoBind(this)
     }
@@ -46,16 +46,18 @@ export default class SearchPage extends Component {
             )
             .then(function(response){
                 if(response.status === 200){
-                    this.setState({data: response.data, searched: this.state.text})
-                    console.log("INGREDIENT: Search success.")
+                    if(response.data.errors.error[0].status === 400){
+                        Alert.alert("Sizzle","Your searched returned 0 results. Try again.");
+                    }else{
+                        this.setState({data: response.data, searched: this.state.text})
+                        console.log("INGREDIENT: Search success.")
+                    }
                 }
             }.bind(this))
-            .then(function(error){
-                if(error != undefined){
-                    console.log("Error: "+error);
-                    Alert.alert("Sizzle",error);
-                }
+            .catch(function(error){
+                Alert.alert("Sizzle","An error occurred.")
             })
+
             this.setState({searching: false});
         }
     }
@@ -78,10 +80,10 @@ export default class SearchPage extends Component {
                 Alert.alert(data.name+" Nutrional Facts",info);
             }
         }.bind(this))
-        .then(function(error){
+        .catch(function(error){
             if(error != undefined){
                 console.log("Error: "+error);
-                Alert.alert("Sizzle",error);
+                // Alert.alert("Sizzle",error);
             }
         })
     }

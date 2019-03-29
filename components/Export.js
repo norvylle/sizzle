@@ -6,7 +6,6 @@ import DownloadPage from './App/Download';
 import ProfilePage from './App/Profile';
 import SettingsPage from './App/Settings';
 import NewRecipePage from './App/NewRecipe';
-import IngredientsPage from './App/Ingredients';
 
 export {
     TitlePage,
@@ -16,6 +15,5 @@ export {
     DownloadPage,
     ProfilePage,
     SettingsPage,
-    NewRecipePage,
-    IngredientsPage
+    NewRecipePage
 }
