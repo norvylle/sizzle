@@ -23,6 +23,7 @@ export default class NewRecipePage extends Component{
             searching: false,
             quantity: "",
             unit: "c",
+            search: "",
             ingredient: {ndbno: -1},
 
             StepVisible: false,
@@ -36,17 +37,17 @@ export default class NewRecipePage extends Component{
         autoBind(this)
     }
 
-    async handleAddIngredient(){
+    async handleButtonIngredient(){
+        if(this.state.ingredient.ndbno === -1){
+           await this.setState({ingredient: {ndbno: -1,name: this.state.search}}) 
+        }
         await this.state.ingredients.push({qty: this.state.quantity, unit: this.state.unit, ingredient: this.state.ingredient})
-       this.setState({IngredientVisible: false, searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: undefined, ingredient: {ndbno: -1}})
-       console.log(this.state.ingredients)
+        this.setState({IngredientVisible: false, searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: undefined, ingredient: {ndbno: -1}})
     }
 
-    handleAddStep(){
-
-    }
 
     async handleSearch(value){
+        this.setState({search: value});
         if(value.length > 2){
             await this.setState({searching: true, searchResults: null});
             axios.get(usda.search,
@@ -67,7 +68,7 @@ export default class NewRecipePage extends Component{
                             //empty results
                         }
                     }catch (error) {
-                        this.setState({searchResults: response.data})
+                        this.setState({searchResults: response.data.list.item})
                         console.log("SEARCH:",value)
                     }
                 }
@@ -83,6 +84,20 @@ export default class NewRecipePage extends Component{
         this.setState({ingredient: item})
     }
 
+    async handleEditIngredient(data){
+        this.state.ingredients.splice(this.state.ingredients.indexOf(data),1);
+        await this.setState({quantity: data.qty, unit: data.unit, searchResults: [data.ingredient], ingredient: data.ingredient});
+        this.setState({header: "Edit Ingredient", IngredientVisible: true})
+    }
+
+    handleDeleteIngredient(data){
+        this.state.ingredients.splice(this.state.ingredients.indexOf(data),1);
+        this.forceUpdate()
+    }
+
+    handleAddStep(){
+
+    }
 
     async convertNum (text) {
         let dot = false;
@@ -101,7 +116,7 @@ export default class NewRecipePage extends Component{
     render(){
         return(
             <ScrollView>
-                <Overlay isVisible={this.state.IngredientVisible} onBackdropPress={()=>this.setState({IngredientVisible: false})} style={styles.overlay}>
+                <Overlay isVisible={this.state.IngredientVisible} style={styles.overlay}>
                     <View>
                         <H2>{this.state.header}</H2>
                         <Form style={styles.form}>
@@ -124,9 +139,10 @@ export default class NewRecipePage extends Component{
                                 </Item>
                             </View>
                             <Item stackedLabel rounded style={styles.formIngredient}>
-                                <Label>  Search Ingredient</Label>
+                                <Label>  Ingredient</Label>
                                 <Input value={this.state.search} onChangeText={(value)=>{this.handleSearch(value)}}/>
                             </Item>
+                            <Text style={{alignSelf:"center", color: "gray"}}>Suggestions</Text>
                             <ScrollView style={styles.formScroll}>
                                 {
                                     this.state.searchResults === null ? 
@@ -135,7 +151,7 @@ export default class NewRecipePage extends Component{
                                     (
                                         <List>
                                         {
-                                            this.state.searchResults.list.item.map((item)=>{
+                                            this.state.searchResults.map((item)=>{
                                                 return(
                                                         <ListItem key={item.ndbno} selected={item.ndbno === this.state.ingredient.ndbno} button={true} onPress={()=>this.handleSelectIngredient(item)}>
                                                             <Text>{item.name}</Text>
@@ -153,12 +169,27 @@ export default class NewRecipePage extends Component{
                             <Button transparent onPress={()=>this.setState({IngredientVisible: false})}>
                                 <Text>Back</Text>
                             </Button>
-                            <Button transparent onPress={()=>this.handleAddIngredient()} style={styles.formButton}>
-                                <Text>Add</Text>
+                            <Button transparent onPress={()=>this.handleButtonIngredient()} style={styles.formButton}>
+                                <Text>Submit</Text>
                             </Button>
                         </View>
                     </View>
                 </Overlay>
+
+                <Overlay isVisible={this.state.StepVisible} style={styles.overlay}>
+                    <View>
+                            <H2>{this.state.header}</H2>
+                    </View>
+                    <View style={styles.formView}>
+                        <Button transparent onPress={()=>this.setState({StepVisible: false})}>
+                            <Text>Back</Text>
+                        </Button>
+                        <Button transparent style={styles.formButton}>
+                            <Text>Submit</Text>
+                        </Button>
+                    </View>
+                </Overlay>
+
                 <Form>
                     <Item stackedLabel>
                         <Label>Recipe Name</Label>
@@ -169,6 +200,7 @@ export default class NewRecipePage extends Component{
                         {
                             this.state.ingredients.length === 0 ? null :
                             <List
+                            leftOpenValue={75}
                             rightOpenValue={-75}
                             dataSource={this.ds.cloneWithRows(this.state.ingredients)}
                             renderRow={
@@ -177,22 +209,27 @@ export default class NewRecipePage extends Component{
                                         <Text>{data.qty+data.unit+" "+data.ingredient.name}</Text>
                                     </ListItem>
                             }
+                            renderLeftHiddenRow={data =>
+                                <Button full onPress={() =>this.handleEditIngredient(data)}>
+                                <Icon active type="Feather" name="edit" />
+                                </Button>
+                            }
                             renderRightHiddenRow={data=>
-                                <Button full danger onPress={() => Alert.alert("Sizzle","Delete "+data.ingredient.name+"?")}>
+                                <Button full danger onPress={() => Alert.alert("Sizzle", "Delete "+data.name+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => this.handleDeleteIngredient(data)},],{cancelable: true})}>
                                 <Icon active name="trash" />
                                 </Button>
                             }
                             style={{borderWidth: 0.5, borderColor: "green", width: "100%"}}
                             />
                         }
-                        <Button iconRight success block style={styles.button} onPress={()=>this.setState({header: "Add Ingredient",IngredientVisible: true})} style={styles.button}>
+                        <Button iconRight success block style={styles.button} onPress={()=>this.setState({header: "Add Ingredient", IngredientVisible: true})} style={styles.button}>
                             <Text>Add Ingredient</Text>
                             <Icon active type="FontAwesome" name="shopping-basket"/>
                         </Button>
                     </View>                        
                     <View style={styles.view}>
                         <Text style={styles.viewHeader}>Steps</Text>
-                        <Button iconRight info block style={styles.button} onPress={()=>this.setState({header: "Add Step", IngredientVisible: true})}>
+                        <Button iconRight info block style={styles.button} onPress={()=>this.setState({header: "Add Step", StepVisible: true})}>
                             <Text>Add Step</Text>
                             <Icon active type="FontAwesome" name="list-ol"/>
                         </Button>
@@ -244,7 +281,7 @@ const styles = StyleSheet.create({
         height: 250,
         borderWidth: 1,
         borderColor: "gray",
-        marginTop: 20
+        marginTop: 10
     },
     overlay:{
         width: 400

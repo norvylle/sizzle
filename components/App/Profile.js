@@ -90,9 +90,9 @@ export default class ProfilePage extends Component {
             </View>
             <Fab active={this.state.active} direction="up" position="bottomRight" onPress={()=> this.setState({active: !this.state.active})}>
                 <Icon type="MaterialCommunityIcons" name="fire"/>
-                    <Button onPress={this.handleWeekPlan}>
+                    {/* <Button onPress={this.handleWeekPlan}>
                         <Icon type="MaterialCommunityIcons" name="calendar-week"/>
-                    </Button>
+                    </Button> */}
                     <Button onPress={this.handleMealPlan}>
                         <Icon type="SimpleLineIcons" name="notebook"/>
                     </Button>
