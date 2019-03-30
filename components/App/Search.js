@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Keyboard, TouchableOpacity } from 'react-native';
 import { Input, Form, Item, Button, Icon, Left, Radio, Text, Card, Body, Spinner, InputGroup } from 'native-base';
 import { usda } from '../Service/secret';
+import {Spinner as SpinnerOverlay} from 'react-native-loading-spinner-overlay';
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
@@ -15,6 +16,7 @@ export default class SearchPage extends Component {
             selected: 0,
             data: null,
             searching: false,
+            clickedInfo: false,
         }
         autoBind(this)
     }
@@ -37,18 +39,20 @@ export default class SearchPage extends Component {
                 {
                     params:{
                         api_key: usda.api_key,
-                        ds: 'Standard Reference',
+                        ds: "Standard Reference",
                         format: "json",
-                        max: 20,
+                        max: 50,
                         q: this.state.text,
                     }
                 }
             )
             .then(function(response){
                 if(response.status === 200){
-                    if(response.data.errors.error[0].status === 400){
-                        Alert.alert("Sizzle","Your searched returned 0 results. Try again.");
-                    }else{
+                    try {
+                        if(response.data.errors.error[0].status === 400){
+                            Alert.alert("Sizzle","Your searched returned 0 results. Try again.");
+                        }
+                    }catch (error) {
                         this.setState({data: response.data, searched: this.state.text})
                         console.log("INGREDIENT: Search success.")
                     }
@@ -63,6 +67,7 @@ export default class SearchPage extends Component {
     }
 
     handleInfo(ndbno){
+        // this.setState({clickedInfo: true}) // spinner overlay
         axios.get(usda.report,
             {
                 params:{
@@ -71,21 +76,28 @@ export default class SearchPage extends Component {
                 }
             }
         ).then(async function(response){
-            if(response.status === 200){
-                let data = response.data.report.food;
-                let info = "Nutrient\t|\tValue per 100g"
-                await data.nutrients.forEach(nutrient=>{
-                    info = info+"\n"+nutrient.name+"\t|\t"+nutrient.value+" "+nutrient.unit;
-                })
-                Alert.alert(data.name+" Nutrional Facts",info);
+            try {
+                if(response.data.errors.error[0].status === 400){
+                    Alert.alert("Sizzle","Your searched returned 0 results. Try again.");
+                }
+            }catch (error) {
+                if(response.status === 200){
+                    let data = response.data.report.food;
+                    let info = "Nutrient\t|\tValue per 100g"
+                    await data.nutrients.forEach(nutrient=>{
+                        info = info+"\n"+nutrient.name+"\t|\t"+nutrient.value+" "+nutrient.unit;
+                    })
+                    Alert.alert("Nutrional Facts",info);
+                }
             }
-        }.bind(this))
+        })
         .catch(function(error){
             if(error != undefined){
                 console.log("Error: "+error);
-                // Alert.alert("Sizzle",error);
             }
         })
+
+        // this.setState({clickedInfo: false})
     }
 
     render() {
@@ -135,7 +147,7 @@ export default class SearchPage extends Component {
                     }
                     {
                         this.state.data === null ? null :
-                        (<Text style={{paddingBottom: 120, textAlign: "center", color: "gray"}}>Showing 1-50 of "{this.state.searched}"</Text>)   
+                        (<Text style={{paddingBottom: 120, textAlign: "center", color: "gray"}}>Showing 1-50 of 50 results"{this.state.searched}"</Text>)   
                     }
                 </ScrollView>
             </View>
@@ -158,4 +170,13 @@ const styles = StyleSheet.create({
     right:{
         width: "60%"
     },
+    spinner: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
 })
