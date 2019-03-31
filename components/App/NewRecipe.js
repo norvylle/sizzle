@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { StyleSheet, ScrollView, ListView, Alert } from 'react-native';
 import { Text, Form, Item, Label, Input, Button, Icon, List, View, H2, Picker, Spinner, ListItem, Textarea, Radio, Left, Body, Right } from 'native-base';
 import { Overlay } from 'react-native-elements';
+import ColorPalette from 'react-native-color-palette';
 import { units, usda } from './../Service/secret';
+import { insert } from './../Service/Firebase'
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
@@ -14,9 +16,10 @@ export default class NewRecipePage extends Component{
             recipeName: "",
             ingredients:[],
             steps:[],
-
+            selectedColor: '#ce0e0e',
+            //overlay
             header: "",
-
+            //ingredient overlay
             IngredientVisible: false,
             searchIngredient: [],
             searchResults: null,
@@ -25,28 +28,34 @@ export default class NewRecipePage extends Component{
             unit: "c",
             search: "",
             ingredient: {ndbno: -1},
-
+            //step overlay
             StepVisible: false,
             direction: "",
             duration: "",
             radio: "none",
-
-            
+            stepID: null,
+            deleting: false
         }
         this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         autoBind(this)
     }
 
-    async handleButtonIngredient(){
-        if(this.state.ingredient.ndbno === -1){
-           await this.setState({ingredient: {ndbno: -1,name: this.state.search}}) 
-        }
-        await this.state.ingredients.push({qty: this.state.quantity, unit: this.state.unit, ingredient: this.state.ingredient})
-        this.setState({IngredientVisible: false, searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: "c", search: "", ingredient: {ndbno: -1}})
-    }
-
     handleOnOpenIngredient(){
         this.setState({IngredientVisible: true, header: "Add Ingredient", searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: "c", search: "", ingredient: {ndbno: -1}})
+    }
+
+    async handleSubmitIngredient(){
+        if(this.state.ingredient.ndbno === -1){
+            if(this.state.ingredient.name == null && this.state.search != ""){
+                await this.setState({ingredient: {ndbno: 0,name: this.state.search}})
+            }
+        }
+        if((this.state.search === "" && this.state.ingredient.ndbno === -1) || this.state.quantity === ""){
+            Alert.alert("Sizzle","Please input on the missing field/s.")
+        }else{
+            await this.state.ingredients.push({qty: this.state.quantity, unit: this.state.unit, ingredient: this.state.ingredient})
+            this.setState({IngredientVisible: false, searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: "c", search: "", ingredient: {ndbno: -1}})
+        }
     }
 
 
@@ -104,21 +113,39 @@ export default class NewRecipePage extends Component{
         this.forceUpdate()
     }
 
-    async handleAddStep(){
+    async handleSubmitStep(){
         let timeObject
-        if(this.state.radio === "none"){
+        if(this.state.duration === "" || this.state.radio === "none"){
             timeObject = null
         }else{
             timeObject = {duration: this.state.duration, unit: this.state.radio}
         }
-        await this.state.steps.push({id: this.state.steps.length+1, direction: this.state.direction, time: timeObject})
-        this.setState({StepVisible: false, direction: "", duration: "", radio: -1 })
+
+        if(this.state.stepID === null){
+            await this.state.steps.push({direction: this.state.direction, time: timeObject})
+        }else{
+            this.state.steps[this.state.stepID] = {direction: this.state.direction, time: timeObject};
+        }
+        
+        this.setState({StepVisible: false, direction: "", duration: "", radio: "none",stepID: null})
     }
 
     handleOnOpenStep(){
-        this.setState({StepVisible: true, header: "Add Step (Step "+(this.state.steps.length+1)+")", direction: "", duration: "", radio: -1 })
+        this.setState({StepVisible: true, header: "Add Step (Step "+(this.state.steps.length+1)+")", direction: "", duration: "", radio: "none", stepID: null})
     }
 
+    async handleEditStep(data){
+        if(data.time != null){
+            await this.setState({duration: data.time.duration, radio: data.time.unit})
+        }
+        await this.setState({header: "Edit Step (Step "+(this.state.steps.indexOf(data)+1)+")", direction: data.direction})
+        this.setState({StepVisible: true, stepID: (this.state.steps.indexOf(data)+1) })
+    }
+
+    async handleDeleteStep(data){
+        this.state.steps.splice(this.state.steps.indexOf(data),1);
+        this.forceUpdate()
+    }
 
     async convertNum (text,mode) {
         let dot = false;
@@ -150,7 +177,11 @@ export default class NewRecipePage extends Component{
         }
     }
 
-    render(){
+    handleAddRecipe(){
+
+    }
+
+    render(){    
         return(
             <ScrollView>
                 <Overlay isVisible={this.state.IngredientVisible}>
@@ -206,7 +237,7 @@ export default class NewRecipePage extends Component{
                             <Button transparent onPress={()=>this.setState({IngredientVisible: false})}>
                                 <Text>Back</Text>
                             </Button>
-                            <Button transparent onPress={()=>this.handleButtonIngredient()} style={styles.formButton}>
+                            <Button transparent onPress={()=>this.handleSubmitIngredient()} style={styles.formButton}>
                                 <Text>Submit</Text>
                             </Button>
                         </View>
@@ -245,7 +276,7 @@ export default class NewRecipePage extends Component{
                             <Button transparent onPress={()=>this.setState({StepVisible: false})}>
                                 <Text>Back</Text>
                             </Button>
-                            <Button transparent style={styles.formButton} onPress={()=>this.handleAddStep()}>
+                            <Button transparent style={styles.formButton} onPress={()=>this.handleSubmitStep()}>
                                 <Text>Submit</Text>
                             </Button>
                         </View>
@@ -292,7 +323,7 @@ export default class NewRecipePage extends Component{
                     <View style={styles.view}>
                         <Text style={styles.viewHeader}>Steps</Text>
                         {
-                            this.state.steps.length === 0 ? null :
+                            (this.state.steps.length === 0)  ? null :
                             <List
                             leftOpenValue={75}
                             rightOpenValue={-75}
@@ -300,16 +331,16 @@ export default class NewRecipePage extends Component{
                             renderRow={
                                 data=>
                                     <ListItem>
-                                        <Text>{data.id+") "+(data.direction.length > 50 ? data.direction.slice(0,50)+"..." : data.direction)}</Text>
+                                        <Text>{(this.state.steps.indexOf(data)+1)+") "+(data.direction.length > 50 ? data.direction.slice(0,50)+"..." : data.direction)}</Text>
                                     </ListItem>
                             }
                             renderLeftHiddenRow={data =>
-                                <Button full onPress={() => console.log("edit step")}>
+                                <Button full onPress={() => this.handleEditStep(data)}>
                                 <Icon active type="Feather" name="edit" />
                                 </Button>
                             }
                             renderRightHiddenRow={data=>
-                                <Button full danger onPress={() => Alert.alert("Sizzle", "Delete Step "+data.id+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => console.log("delete step")}],{cancelable: true})}>
+                                <Button full danger onPress={() => Alert.alert("Sizzle", "Delete Step "+(this.state.steps.indexOf(data)+1)+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => this.handleDeleteStep(data)}],{cancelable: true})}>
                                 <Icon active name="trash" />
                                 </Button>
                             }
@@ -319,6 +350,23 @@ export default class NewRecipePage extends Component{
                         <Button iconRight info block style={styles.button} onPress={()=>this.handleOnOpenStep()}>
                             <Text>Add Step</Text>
                             <Icon active type="FontAwesome" name="list-ol"/>
+                        </Button>
+                    </View>
+                    <View style={styles.view}>
+                        <Text style={styles.viewHeader}>Step Card Color</Text>
+                        <ColorPalette
+                            onChange={selectedColor => this.setState({selectedColor})}
+                            value={this.state.selectedColor}
+                            colors={['#ce0e0e','#dd6808', '#afb207', '#109cb5', '#23187a', '#a33a89', '#000000']}
+                            title={""}
+                            icon={
+                                <Icon type="Feather" name="check" style={{color:"white"}} />
+                            }
+                        />
+                    </View>
+                    <View style={styles.view}>
+                        <Button rounded style={{justifyContent: "center", alignSelf: "center", width: 200}}>
+                            <Text>Add Ingredient</Text>
                         </Button>
                     </View>
                 </Form>

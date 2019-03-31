@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Keyboard, TouchableOpacity } from 'react-native';
 import { Input, Form, Item, Button, Icon, Left, Radio, Text, Card, Body, Spinner, InputGroup } from 'native-base';
 import { usda } from '../Service/secret';
-import {Spinner as SpinnerOverlay} from 'react-native-loading-spinner-overlay';
+import { searchSingle } from '../Service/Firebase';
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
@@ -31,7 +31,10 @@ export default class SearchPage extends Component {
         Keyboard.dismiss();
 
         if(this.state.selected === 0){
-            await Alert.alert("Sizzle","Recipes coming soon");
+            // searchSingle({link: "users",child: "username",search: this.state.text})
+            // .then((snapshot)=>{
+            //     console.log(snapshot)
+            // })
             this.setState({searching: false});
         }
         else{    
