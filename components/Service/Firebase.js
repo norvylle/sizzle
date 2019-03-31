@@ -7,9 +7,16 @@ firebase.initializeApp(config)
 const database = firebase.database();
 const auth = firebase.auth();
 
+/*
+    data={
+        link,
+        data
+    }
+*/
+
 function insert(data){
     database.ref(data.link)
-    .set(data.data)
+    .push(data.data)
     .then(() => {
         console.log(data.link+": INSERT SUCCESS");
     })
@@ -17,6 +24,32 @@ function insert(data){
         console.log(error); return false;
     })
     return true;
+}
+
+function update(data){
+    database.ref(data.link)
+    .set(data.data)
+    .then(() => {
+        console.log(data.link+": UPDATE SUCCESS");
+    })
+    .catch((error) => {
+        console.log(error); return false;
+    })
+    return true;
+}
+
+function searchMulti(data){
+    return database.ref(data.link)
+    .orderByChild(data.child)
+    .equalTo(data.search)
+    .on("child_added")
+}
+
+function searchSingle(data){
+    return database.ref(data.link)
+    .orderByChild(data.child)
+    .equalTo(data.search)
+    .once("value")
 }
 
 function registerEmail(email, password){
@@ -39,6 +72,9 @@ function signInWithEmail(email, password){
 
 export{
     insert,
+    update,
+    searchMulti,
+    searchSingle,
     registerEmail,
     signInWithEmail,
 }
