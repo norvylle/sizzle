@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, StyleSheet,Text, Alert } from 'react-native';
 import { Form, Item, Input, Label, Button, Icon, DatePicker, } from 'native-base';
-import { insert, registerEmail } from '../Service/Firebase';
+import { insert, searchSingle, registerEmail } from '../Service/Firebase';
 
 const autoBind = require('auto-bind');
 
@@ -16,6 +16,7 @@ export default class TitlePage extends Component {
             username:"",
             password:"",
             showPassword: true,
+            exists: false
           }
         autoBind(this);
     }
@@ -24,7 +25,7 @@ export default class TitlePage extends Component {
         this.setState({ showPassword: !this.state.showPassword })
     }
 
-    handleCreate(){
+    async handleCreate(){
         let clone = JSON.parse(JSON.stringify(this.state));
         delete clone["showPassword"]
         for(data in clone){
@@ -37,9 +38,19 @@ export default class TitlePage extends Component {
                 return
             }
         }
-        if(insert({link:"users/"+clone.firstName+"_"+clone.lastName,data:clone})){
-            registerEmail(clone.email,clone.password);
+
+        await searchSingle({link: "users",child: "username",search: this.state.username})
+        .then((snapshot) =>{ this.setState({exists: snapshot.exists()})})
+        
+        if(this.state.exists){
+            Alert.alert("Sizzle","Username already exists");
         }
+        else{
+            if(insert({link:"users/",data:clone})){
+                registerEmail(clone.email,clone.password);
+            }
+        }
+        
     }
 
     render() {
