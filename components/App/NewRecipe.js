@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, ScrollView, ListView, Alert } from 'react-native';
-import { Text, Form, Item, Label, Input, Button, Icon, List, View, H2, Picker, Spinner, ListItem } from 'native-base';
+import { Text, Form, Item, Label, Input, Button, Icon, List, View, H2, Picker, Spinner, ListItem, Textarea, Radio, Left, Body, Right } from 'native-base';
 import { Overlay } from 'react-native-elements';
 import { units, usda } from './../Service/secret';
 
@@ -27,9 +27,9 @@ export default class NewRecipePage extends Component{
             ingredient: {ndbno: -1},
 
             StepVisible: false,
-            info: "",
             direction: "",
-            time: "",
+            duration: "",
+            radio: "none",
 
             
         }
@@ -42,7 +42,11 @@ export default class NewRecipePage extends Component{
            await this.setState({ingredient: {ndbno: -1,name: this.state.search}}) 
         }
         await this.state.ingredients.push({qty: this.state.quantity, unit: this.state.unit, ingredient: this.state.ingredient})
-        this.setState({IngredientVisible: false, searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: undefined, ingredient: {ndbno: -1}})
+        this.setState({IngredientVisible: false, searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: "c", search: "", ingredient: {ndbno: -1}})
+    }
+
+    handleOnOpenIngredient(){
+        this.setState({IngredientVisible: true, header: "Add Ingredient", searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: "c", search: "", ingredient: {ndbno: -1}})
     }
 
 
@@ -81,7 +85,12 @@ export default class NewRecipePage extends Component{
     }
 
     handleSelectIngredient(item){
-        this.setState({ingredient: item})
+        if(item === this.state.ingredient){
+            this.setState({ingredient: {ndbno: -1}})
+        }
+        else{
+            this.setState({ingredient: item})
+        }
     }
 
     async handleEditIngredient(data){
@@ -95,35 +104,63 @@ export default class NewRecipePage extends Component{
         this.forceUpdate()
     }
 
-    handleAddStep(){
-
+    async handleAddStep(){
+        let timeObject
+        if(this.state.radio === "none"){
+            timeObject = null
+        }else{
+            timeObject = {duration: this.state.duration, unit: this.state.radio}
+        }
+        await this.state.steps.push({id: this.state.steps.length+1, direction: this.state.direction, time: timeObject})
+        this.setState({StepVisible: false, direction: "", duration: "", radio: -1 })
     }
 
-    async convertNum (text) {
+    handleOnOpenStep(){
+        this.setState({StepVisible: true, header: "Add Step (Step "+(this.state.steps.length+1)+")", direction: "", duration: "", radio: -1 })
+    }
+
+
+    async convertNum (text,mode) {
         let dot = false;
-        this.setState({
-            quantity: text.replace(/[^0-9]/g, function(match){
-                if(!dot && match === "."){
-                    dot = true;
-                    return match
-                }else{
-                    return ""
-                }
-            })
-        });
+        switch(mode){
+            case 0:
+                this.setState({
+                    quantity: text.replace(/[^0-9]/g, function(match){
+                        if(!dot && match === "."){
+                            dot = true;
+                            return match
+                        }else{
+                            return ""
+                        }
+                    })
+                });
+            break;
+            case 1:
+                this.setState({
+                    duration: text.replace(/[^0-9]/g, function(match){
+                        if(!dot && match === "."){
+                            dot = true;
+                            return match
+                        }else{
+                            return ""
+                        }
+                    })
+                });
+            break;
+        }
     }
 
     render(){
         return(
             <ScrollView>
-                <Overlay isVisible={this.state.IngredientVisible} style={styles.overlay}>
+                <Overlay isVisible={this.state.IngredientVisible}>
                     <View>
                         <H2>{this.state.header}</H2>
                         <Form style={styles.form}>
                             <View style={styles.formView}>
                                 <Item stackedLabel rounded style={{width: 100}}>
                                     <Label style={styles.formLabel}>Quantity</Label>
-                                    <Input value={this.state.quantity} keyboardType="numeric" maxLength={8} onChangeText={(value)=>this.convertNum(value)}/>
+                                    <Input value={this.state.quantity} keyboardType="numeric" maxLength={8} onChangeText={(value)=>this.convertNum(value,0)}/>
                                 </Item>
                                 <Item rounded style={{width: 180}}>
                                     <Label>Unit</Label>
@@ -153,9 +190,9 @@ export default class NewRecipePage extends Component{
                                         {
                                             this.state.searchResults.map((item)=>{
                                                 return(
-                                                        <ListItem key={item.ndbno} selected={item.ndbno === this.state.ingredient.ndbno} button={true} onPress={()=>this.handleSelectIngredient(item)}>
-                                                            <Text>{item.name}</Text>
-                                                        </ListItem>
+                                                    <ListItem key={item.ndbno} selected={item.ndbno === this.state.ingredient.ndbno} button={true} onPress={()=>this.handleSelectIngredient(item)}>
+                                                        <Text>{item.name}</Text>
+                                                    </ListItem>
                                                 )
                                             })   
                                         }
@@ -176,17 +213,42 @@ export default class NewRecipePage extends Component{
                     </View>
                 </Overlay>
 
-                <Overlay isVisible={this.state.StepVisible} style={styles.overlay}>
+                <Overlay isVisible={this.state.StepVisible} height="auto">
                     <View>
-                            <H2>{this.state.header}</H2>
-                    </View>
-                    <View style={styles.formView}>
-                        <Button transparent onPress={()=>this.setState({StepVisible: false})}>
-                            <Text>Back</Text>
-                        </Button>
-                        <Button transparent style={styles.formButton}>
-                            <Text>Submit</Text>
-                        </Button>
+                        <H2>{this.state.header}</H2>
+                        <Textarea rowSpan={5} bordered placeholder={"Put directions here."} value={this.state.direction} onChangeText={(direction)=>this.setState({direction})} style={{marginTop:20}}/>
+                        <Form style={styles.form}>
+                            <Text style={{marginTop:20, textAlign:"center"}}>Optional</Text>
+                            <View style={styles.formView}>
+                                <Item stackedLabel rounded style={{width: 100}}>
+                                    <Label> Duration</Label>
+                                    <Input value={this.state.duration} keyboardType="numeric" maxLength={8} onChangeText={(value)=>this.convertNum(value,1)}/>
+                                </Item>
+                                <Item stackedLabel rounded style={{flexDirection: "column", width:150, marginLeft: 10}}>
+                                    <Label>  Unit</Label>
+                                    <Item style={styles.radioItem}>
+                                        <Radio onPress={()=>{this.state.radio === "seconds" ? this.setState({radio: "none"}) : this.setState({radio: "seconds"})}} selected={this.state.radio === "seconds"} />
+                                        <Text>  Seconds</Text>
+                                    </Item>
+                                    <Item style={styles.radioItem}>
+                                            <Radio onPress={()=>{this.state.radio === "minutes" ? this.setState({radio: "none"}) : this.setState({radio: "minutes"})}} selected={this.state.radio === "minutes"} />
+                                            <Text>  Minutes</Text>
+                                    </Item>
+                                    <Item style={styles.radioItem}>
+                                        <Radio onPress={()=>{this.state.radio === "hours" ? this.setState({radio: "none"}) : this.setState({radio: "hours"})}} selected={this.state.radio === "hours"} />
+                                        <Text>  Hours</Text>
+                                    </Item>
+                                </Item>
+                            </View>
+                        </Form>
+                        <View style={styles.formView}>
+                            <Button transparent onPress={()=>this.setState({StepVisible: false})}>
+                                <Text>Back</Text>
+                            </Button>
+                            <Button transparent style={styles.formButton} onPress={()=>this.handleAddStep()}>
+                                <Text>Submit</Text>
+                            </Button>
+                        </View>
                     </View>
                 </Overlay>
 
@@ -206,7 +268,7 @@ export default class NewRecipePage extends Component{
                             renderRow={
                                 data=>
                                     <ListItem>
-                                        <Text>{data.qty+data.unit+" "+data.ingredient.name}</Text>
+                                        <Text>{data.qty+data.unit+" "+(data.ingredient.name.length > 30 ? data.ingredient.name.slice(0,50)+"..." : data.ingredient.name)}</Text>
                                     </ListItem>
                             }
                             renderLeftHiddenRow={data =>
@@ -222,14 +284,39 @@ export default class NewRecipePage extends Component{
                             style={{borderWidth: 0.5, borderColor: "green", width: "100%"}}
                             />
                         }
-                        <Button iconRight success block style={styles.button} onPress={()=>this.setState({header: "Add Ingredient", IngredientVisible: true})} style={styles.button}>
+                        <Button iconRight success block style={styles.button} onPress={()=>this.handleOnOpenIngredient()}>
                             <Text>Add Ingredient</Text>
                             <Icon active type="FontAwesome" name="shopping-basket"/>
                         </Button>
-                    </View>                        
+                    </View>
                     <View style={styles.view}>
                         <Text style={styles.viewHeader}>Steps</Text>
-                        <Button iconRight info block style={styles.button} onPress={()=>this.setState({header: "Add Step", StepVisible: true})}>
+                        {
+                            this.state.steps.length === 0 ? null :
+                            <List
+                            leftOpenValue={75}
+                            rightOpenValue={-75}
+                            dataSource={this.ds.cloneWithRows(this.state.steps)}
+                            renderRow={
+                                data=>
+                                    <ListItem>
+                                        <Text>{data.id+") "+(data.direction.length > 50 ? data.direction.slice(0,50)+"..." : data.direction)}</Text>
+                                    </ListItem>
+                            }
+                            renderLeftHiddenRow={data =>
+                                <Button full onPress={() => console.log("edit step")}>
+                                <Icon active type="Feather" name="edit" />
+                                </Button>
+                            }
+                            renderRightHiddenRow={data=>
+                                <Button full danger onPress={() => Alert.alert("Sizzle", "Delete Step "+data.id+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => console.log("delete step")}],{cancelable: true})}>
+                                <Icon active name="trash" />
+                                </Button>
+                            }
+                            style={{borderWidth: 0.5, borderColor: "green", width: "100%"}}
+                            />
+                        }
+                        <Button iconRight info block style={styles.button} onPress={()=>this.handleOnOpenStep()}>
                             <Text>Add Step</Text>
                             <Icon active type="FontAwesome" name="list-ol"/>
                         </Button>
@@ -257,6 +344,7 @@ const styles = StyleSheet.create({
     button:{
         width: 200,
         alignSelf: "center",
+        marginTop: 5
     },
     form:{
         flexDirection: "column",
@@ -283,11 +371,14 @@ const styles = StyleSheet.create({
         borderColor: "gray",
         marginTop: 10
     },
-    overlay:{
-        width: 400
-    },
     viewHeader:{
         color: "gray",
         alignSelf: "center"
+    },
+    radioItem:{
+        borderColor: "transparent",
+        marginLeft: 5,
+        alignItems: "center",
+        marginTop: 5
     }
 })
