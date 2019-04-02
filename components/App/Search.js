@@ -186,7 +186,7 @@ class Search extends Component {
                                     <Card key={item.id} style={styles.card}>
                                         <CardItem>
                                             <Left>
-                                                <Thumbnail source={{uri: this.state.data.attribution.logo}} style={{width: "auto"}}/>
+                                                <Thumbnail source={{uri: this.state.data.attribution.logo}}/>
                                                 <Body>
                                                     <Text>{item.recipeName}</Text>
                                                     <Text note>{item.sourceDisplayName}</Text>
@@ -198,7 +198,7 @@ class Search extends Component {
                                         </CardItem>
                                         <CardItem>
                                             <Left>
-                                                <Button transparent onPress={() =>{Alert.alert("Sizzle","Rated by Yummly\n\n5 Stars - Outstanding\n4 Stars - Really Liked It\n3 Stars - Liked It/Average\n2Stars - Not great/Just Okay\n1 Star Didn't Like It")} }>
+                                                <Button transparent onPress={() =>{Alert.alert("Sizzle","Rated by Yummly\n\n5 Stars - Outstanding\n4 Stars - Really Liked It\n3 Stars - Liked It/Average\n2 Stars - Not great/Just Okay\n1 Star - Didn't Like It")} }>
                                                     <Icon type='Entypo' name='info-with-circle' style={styles.icon}/>
                                                 </Button>
                                                 <Text>{item.rating}/5 stars</Text>
