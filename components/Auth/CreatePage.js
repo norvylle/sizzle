@@ -31,7 +31,6 @@ class Create extends Component {
         delete clone["showPassword"]
         for(data in clone){
             if(clone[data] === ""){
-                console.log(data,":",clone[data])
                 Alert.alert(
                     "Sizzle",
                     "Please complete the required field/s."

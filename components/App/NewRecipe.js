@@ -4,7 +4,7 @@ import { Text, Form, Item, Label, Input, Button, Icon, List, View, H2, Picker, S
 import { Overlay } from 'react-native-elements';
 import ColorPalette from 'react-native-color-palette';
 import { units, usda } from './../Service/secret';
-import { insert } from './../Service/Firebase'
+import { insert, searchSingle } from './../Service/Firebase'
 import { connect } from 'react-redux'
 
 const autoBind = require('auto-bind');
@@ -18,8 +18,10 @@ class NewRecipe extends Component{
             ingredients:[],
             steps:[],
             selectedColor: '#ce0e0e',
+            exists: false,
             //overlay
             header: "",
+            currentIndex: -1,
             //ingredient overlay
             IngredientVisible: false,
             searchIngredient: [],
@@ -34,8 +36,7 @@ class NewRecipe extends Component{
             direction: "",
             duration: "",
             radio: "none",
-            stepID: null,
-            deleting: false
+            stepID: null
         }
         this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
         autoBind(this)
@@ -46,6 +47,10 @@ class NewRecipe extends Component{
     }
 
     async handleSubmitIngredient(){
+        if(this.state.currentIndex != -1){
+            this.state.ingredients.splice(this.state.currentIndex,1);
+            this.setState({currentIndex: -1});
+        }
         if(this.state.ingredient.ndbno === -1){
             if(this.state.ingredient.name == null && this.state.search != ""){
                 await this.setState({ingredient: {ndbno: 0,name: this.state.search}})
@@ -54,58 +59,54 @@ class NewRecipe extends Component{
         if((this.state.search === "" && this.state.ingredient.ndbno === -1) || this.state.quantity === ""){
             Alert.alert("Sizzle","Please input on the missing field/s.")
         }else{
-            await this.state.ingredients.push({qty: this.state.quantity, unit: this.state.unit, ingredient: this.state.ingredient})
+            await this.state.ingredients.push({qty: parseFloat(this.state.quantity) , unit: this.state.unit, ingredient: this.state.ingredient})
             this.setState({IngredientVisible: false, searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: "c", search: "", ingredient: {ndbno: -1}})
         }
     }
 
 
-    async handleSearch(value){
-        this.setState({search: value});
-        if(value.length > 2){
-            await this.setState({searching: true, searchResults: null});
-            axios.get(usda.search,
-                {
-                    params:{
-                        api_key: usda.api_key,
-                        ds: "Standard Reference",
-                        format: "json",
-                        max: 10,
-                        q: value,
-                    }
+    async handleSearch(){
+        await this.setState({searching: true, searchResults: null});
+        await axios.get(usda.search,
+            {
+                params:{
+                    api_key: usda.api_key,
+                    ds: "Standard Reference",
+                    format: "json",
+                    max: 10,
+                    q: this.state.search,
                 }
-            )
-            .then(function(response){
-                if(response.status === 200){
-                    try {
-                        if(response.data.errors.error[0].status === 400){
-                            //empty results
-                        }
-                    }catch (error) {
-                        this.setState({searchResults: response.data.list.item})
-                        console.log("SEARCH:",value)
+            }
+        )
+        .then(function(response){
+            if(response.status === 200){
+                try {
+                    if(response.data.errors.error[0].status === 400){
+                        //empty results
                     }
+                }catch (error) {
+                    this.setState({searchResults: response.data.list.item})
+                    console.log("SEARCH:",value)
                 }
-            }.bind(this))
-            .catch(function(error){
-                Alert.alert("Sizzle","An error occurred.")
-            })
-        }
+            }
+        }.bind(this))
+        .catch(function(error){
+            Alert.alert("Sizzle","An error occurred.")
+        })
         this.setState({searching: false});
     }
 
     handleSelectIngredient(item){
         if(item === this.state.ingredient){
-            this.setState({ingredient: {ndbno: -1}})
+            this.setState({ingredient: {ndbno: -1}, search: ""})
         }
         else{
-            this.setState({ingredient: item})
+            this.setState({ingredient: item,search: item.name})
         }
     }
 
     async handleEditIngredient(data){
-        this.state.ingredients.splice(this.state.ingredients.indexOf(data),1);
-        await this.setState({quantity: data.qty, unit: data.unit, searchResults: [data.ingredient], ingredient: data.ingredient});
+        await this.setState({quantity: data.qty.toString(), unit: data.unit, searchResults: [], ingredient: {ndbno: -1}, search: data.ingredient.name, currentIndex: this.state.ingredients.indexOf(data)});
         this.setState({header: "Edit Ingredient", IngredientVisible: true})
     }
 
@@ -119,7 +120,7 @@ class NewRecipe extends Component{
         if(this.state.duration === "" || this.state.radio === "none"){
             timeObject = null
         }else{
-            timeObject = {duration: this.state.duration, unit: this.state.radio}
+            timeObject = {duration: parseFloat(this.state.duration), unit: this.state.radio}
         }
 
         if(this.state.stepID === null){
@@ -137,7 +138,7 @@ class NewRecipe extends Component{
 
     async handleEditStep(data){
         if(data.time != null){
-            await this.setState({duration: data.time.duration, radio: data.time.unit})
+            await this.setState({duration: data.time.duration.toString(), radio: data.time.unit})
         }
         await this.setState({header: "Edit Step (Step "+(this.state.steps.indexOf(data)+1)+")", direction: data.direction})
         this.setState({StepVisible: true, stepID: (this.state.steps.indexOf(data)+1) })
@@ -178,8 +179,29 @@ class NewRecipe extends Component{
         }
     }
 
-    handleAddRecipe(){
+    async handleAddRecipe(){
+        if(this.state.recipeName === ""){
+            Alert.alert("Sizzle","Please enter a Name for the Recipe");
+            return;
+        }
+        if(this.state.ingredients.length === 0){
+            Alert.alert("Sizzle","Please add an Ingredient");
+            return;
+        }
+        if(this.state.steps.length === 0){
+            Alert.alert("Sizzle","Please add a Step");
+            return;
+        }
 
+        await searchSingle({link: "recipes",child: "recipeName",search: this.state.recipeName}).then((snapshot) =>{ this.setState({exists: snapshot.exists()})})
+
+        if(this.state.exists){
+            Alert.alert("Sizzle","Recipe name already exists.");
+        }else{
+            if(insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.username, stars: 0} })){
+                Alert.alert("Sizzle","Recipe upload success!");
+            }
+        }
     }
 
     render(){    
@@ -207,10 +229,15 @@ class NewRecipe extends Component{
                                     </Picker>
                                 </Item>
                             </View>
-                            <Item stackedLabel rounded style={styles.formIngredient}>
-                                <Label>  Ingredient</Label>
-                                <Input value={this.state.search} onChangeText={(value)=>{this.handleSearch(value)}}/>
-                            </Item>
+                            <View style={styles.formView}>
+                                <Item stackedLabel rounded style={{width: 200}}>
+                                    <Label>  Ingredient</Label>
+                                    <Input value={this.state.search} onChangeText={(search)=>{this.setState({search})}}/>
+                                </Item>
+                                <Button rounded bordered warning style={{alignSelf: "center", marginLeft: 10}} onPress={()=>this.handleSearch()}>
+                                    <Icon type="Octicons" name="search"/>
+                                </Button>
+                            </View>
                             <Text style={{alignSelf:"center", color: "gray"}}>Suggestions</Text>
                             <ScrollView style={styles.formScroll}>
                                 {
@@ -366,8 +393,8 @@ class NewRecipe extends Component{
                         />
                     </View>
                     <View style={styles.view}>
-                        <Button rounded style={{justifyContent: "center", alignSelf: "center", width: 200}}>
-                            <Text>Add Ingredient</Text>
+                        <Button rounded style={{justifyContent: "center", alignSelf: "center", width: 200}} onPress={()=>this.handleAddRecipe()}>
+                            <Text>Add Recipe</Text>
                         </Button>
                     </View>
                 </Form>
@@ -408,10 +435,6 @@ const styles = StyleSheet.create({
     },
     formLabel:{
         alignSelf: "center"
-    },
-    formIngredient:{
-        width: 280,
-        marginTop: 20
     },
     formScroll:{
         width: 280, 

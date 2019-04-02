@@ -24,6 +24,7 @@ class Title extends Component {
   async handleLogin(){
     if(validateEmail(this.state.username)){
       if(signInWithEmail(this.state.username,this.state.password)){
+        //dispatch username with email sign in !
         this.props.navigation.navigate('App');
       }else{
         Alert.alert(
