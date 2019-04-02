@@ -3,11 +3,12 @@ import { View, StyleSheet, ScrollView, Alert, Keyboard, TouchableOpacity } from 
 import { Input, Form, Item, Button, Icon, Left, Radio, Text, Card, Body, Spinner, InputGroup } from 'native-base';
 import { usda } from '../Service/secret';
 import { searchSingle } from '../Service/Firebase';
+import { connect } from 'react-redux';
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
 
-export default class SearchPage extends Component {
+class Search extends Component {
     constructor(props){
         super(props)
         this.state={
@@ -183,3 +184,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     }
 })
+
+const mapStateToProps = state => {
+    return state
+}
+
+const SearchPage = connect(mapStateToProps)(Search);
+
+export default SearchPage;

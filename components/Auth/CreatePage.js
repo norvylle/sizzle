@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import { View, StyleSheet,Text, Alert } from 'react-native';
 import { Form, Item, Input, Label, Button, Icon, DatePicker, } from 'native-base';
 import { insert, searchSingle, registerEmail } from '../Service/Firebase';
+import { connect } from 'react-redux';
 
 const autoBind = require('auto-bind');
 
-export default class TitlePage extends Component {
+class Create extends Component {
     constructor(props){
         super(props)
         this.state = {
@@ -133,3 +134,11 @@ const styles = StyleSheet.create({
         color:'#fff'
       },
 });
+
+const mapStateToProps = state => {
+    return state
+}
+
+const CreatePage = connect(mapStateToProps)(Create);
+
+export default CreatePage;

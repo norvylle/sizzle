@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { Text, Button, Thumbnail, Tabs, Tab, Icon, Accordion, Fab, } from 'native-base';
+import { connect } from 'react-redux';
 
 const database = require("../Service/database.json")
 let recipes = database.recipes;
@@ -8,7 +9,7 @@ let users = database.users;
 
 const autoBind = require('auto-bind');
 
-export default class ProfilePage extends Component {
+class Profile extends Component {
     constructor(props){
         super(props)
         this.state={
@@ -160,3 +161,11 @@ const styles = StyleSheet.create({
         color: '#fff'
     },
 })
+
+const mapStateToProps = state => {
+    return state
+}
+
+const ProfilePage = connect(mapStateToProps)(Profile);
+
+export default ProfilePage;

@@ -31,8 +31,8 @@ class Title extends Component {
           "Account information provided not found. Please double-check and try again."
         )
       }
-    }else{
-      this.props.dispatch(setUser(this.state.username))
+    }else{ // dev purposes
+      this.props.dispatch(login(this.state.username))
       //add validation
       this.props.navigation.navigate('App');
     }

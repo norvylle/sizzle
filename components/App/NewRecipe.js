@@ -5,11 +5,12 @@ import { Overlay } from 'react-native-elements';
 import ColorPalette from 'react-native-color-palette';
 import { units, usda } from './../Service/secret';
 import { insert } from './../Service/Firebase'
+import { connect } from 'react-redux'
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
 
-export default class NewRecipePage extends Component{
+class NewRecipe extends Component{
     constructor(props){
         super(props)
         this.state={
@@ -430,3 +431,11 @@ const styles = StyleSheet.create({
         marginTop: 5
     }
 })
+
+const mapStateToProps = state => {
+    return state
+}
+
+const NewRecipePage = connect(mapStateToProps)(NewRecipe);
+
+export default NewRecipePage;

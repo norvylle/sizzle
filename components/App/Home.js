@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Text, Image, ScrollView, StyleSheet } from 'react-native';
 import { Card, CardItem, Left, Right, Thumbnail, Body, Icon, Button, Toast, Root } from 'native-base';
+import { connect } from 'react-redux';
 
 const database = require("../Service/database.json")
 let recipes = database.recipes;
@@ -8,7 +9,7 @@ let users = database.users;
 
 const autoBind = require('auto-bind');
 
-export default class HomePage extends Component {
+class Home extends Component {
     constructor(props){
         super(props)
         this.state = {
@@ -202,3 +203,11 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
     }
 })
+
+const mapStateToProps = state => {
+    return state
+}
+
+const HomePage = connect(mapStateToProps)(Home);
+
+export default HomePage;
