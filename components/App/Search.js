@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Keyboard, TouchableOpacity } from 'react-native';
-import { Input, Form, Item, Button, Icon, Left, Radio, Text, Card, Body, Spinner, InputGroup } from 'native-base';
-import { usda } from '../Service/secret';
-import { searchSingle } from '../Service/Firebase';
+import { View, StyleSheet, ScrollView, Alert, Keyboard, TouchableOpacity, Image } from 'react-native';
+import { CardItem, Input, Form, Item, Button, Icon, Left, Right, Thumbnail, Radio, Text, Card, Body, Spinner } from 'native-base';
+import { usda, yummly } from '../Service/secret';
 import { connect } from 'react-redux';
 
 const autoBind = require('auto-bind');
@@ -14,10 +13,11 @@ class Search extends Component {
         this.state={
             text: "",
             searched:"",
-            selected: 0,
+            selected: 1,
             data: null,
             searching: false,
             clickedInfo: false,
+            renderData: false
         }
         autoBind(this)
     }
@@ -28,14 +28,33 @@ class Search extends Component {
             return
         }
 
-        this.setState({searching: true, data:null});
+        this.setState({searching: true, data:null, renderData: false});        
         Keyboard.dismiss();
 
         if(this.state.selected === 0){
-            // searchSingle({link: "users",child: "username",search: this.state.text})
-            // .then((snapshot)=>{
-            //     console.log(snapshot)
-            // })
+            await axios.get(yummly.search,
+                {
+                    params:{
+                        _app_id: yummly.id,
+                        _app_key: yummly.api_key,
+                        q: this.state.text
+                    }
+                }
+            )
+            .then(async function(response){
+                if(response.status === 200){
+                    try {
+                        if(response.data.errors.error[0].status === 400){
+                            Alert.alert("Sizzle","Your searched returned 0 results. Try again.");
+                        }
+                    }catch (error) {
+                        await this.setState({data: response.data})
+                        this.setState({renderData: true, searched: this.state.text})
+                        console.log("RECIPE: Search success.")
+                    }
+                }
+            }.bind(this))
+
             this.setState({searching: false});
         }
         else{    
@@ -50,14 +69,15 @@ class Search extends Component {
                     }
                 }
             )
-            .then(function(response){
+            .then(async function(response){
                 if(response.status === 200){
                     try {
                         if(response.data.errors.error[0].status === 400){
                             Alert.alert("Sizzle","Your searched returned 0 results. Try again.");
                         }
                     }catch (error) {
-                        this.setState({data: response.data, searched: this.state.text})
+                        await this.setState({data: response.data, searched: this.state.text})
+                        this.setState({renderData: true})
                         console.log("INGREDIENT: Search success.")
                     }
                 }
@@ -65,13 +85,12 @@ class Search extends Component {
             .catch(function(error){
                 Alert.alert("Sizzle","An error occurred.")
             })
-
             this.setState({searching: false});
         }
+        this.setState({searching: false});
     }
 
     handleInfo(ndbno){
-        // this.setState({clickedInfo: true}) // spinner overlay
         axios.get(usda.report,
             {
                 params:{
@@ -100,8 +119,6 @@ class Search extends Component {
                 console.log("Error: "+error);
             }
         })
-
-        // this.setState({clickedInfo: false})
     }
 
     render() {
@@ -131,27 +148,79 @@ class Search extends Component {
                 </Form>
                 <ScrollView>
                     {
-                        this.state.data === null ? 
-                        (this.state.searching === true ? <Spinner color="blue" style={{paddingTop: 50}}/> : null) 
-                        : 
-                        this.state.data.list.item.map((item)=>{
-                            return(
-                                <TouchableOpacity key={item.ndbno} onPress={()=>this.handleInfo(item.ndbno)}>
-                                    <Card  pointerEvents="none">
-                                        <Left>
-                                            <Body>
-                                                    <Text>{item.name}</Text>
-                                                    <Text note>{item.group}</Text>
-                                            </Body>
-                                        </Left>
-                                    </Card>
-                                </TouchableOpacity>
-                            )
-                        })
+                        this.state.selected == 1 ? 
+                            (this.state.renderData ? 
+                                this.state.data.list.item.map((item)=>{
+                                    return(
+                                        <TouchableOpacity key={item.ndbno} onPress={()=>this.handleInfo(item.ndbno)}>
+                                            <Card  pointerEvents="none">
+                                                <Left>
+                                                    <Body>
+                                                            <Text>{item.name}</Text>
+                                                            <Text note>{item.group}</Text>
+                                                    </Body>
+                                                </Left>
+                                            </Card>
+                                        </TouchableOpacity>
+                                    )
+                                })
+                            : null)
+                        :
+                            (this.state.searching === true ? 
+                                <Spinner color="blue" style={{paddingTop: 50}}/> 
+                            : null) 
                     }
                     {
-                        this.state.data === null ? null :
-                        (<Text style={{paddingBottom: 120, textAlign: "center", color: "gray"}}>Showing 1-50 of 50 results"{this.state.searched}"</Text>)   
+                        this.state.selected === 1 ?
+                        (this.state.renderData ? 
+                            (<Text style={{paddingBottom: 120, textAlign: "center", color: "gray"}}>Showing 1-50 of 50 results"{this.state.searched}"</Text>)
+                            : null) 
+                        :
+                        null   
+                    }
+                    {
+                        this.state.selected === 0 ?
+                        (this.state.renderData ? 
+                            this.state.data.matches.map((item) =>{
+                                return(
+                                    <Card key={item.id} style={styles.card}>
+                                        <CardItem>
+                                            <Left>
+                                                <Thumbnail source={{uri: this.state.data.attribution.logo}} style={{width: "auto"}}/>
+                                                <Body>
+                                                    <Text>{item.recipeName}</Text>
+                                                    <Text note>{item.sourceDisplayName}</Text>
+                                                </Body>
+                                            </Left>
+                                        </CardItem>
+                                        <CardItem cardBody>
+                                            <Image source={{uri: item.imageUrlsBySize[90]}} style={styles.image}/>
+                                        </CardItem>
+                                        <CardItem>
+                                            <Left>
+                                                <Button transparent onPress={() =>{Alert.alert("Sizzle","Rated by Yummly\n\n5 Stars - Outstanding\n4 Stars - Really Liked It\n3 Stars - Liked It/Average\n2Stars - Not great/Just Okay\n1 Star Didn't Like It")} }>
+                                                    <Icon type='Entypo' name='info-with-circle' style={styles.icon}/>
+                                                </Button>
+                                                <Text>{item.rating}/5 stars</Text>
+                                            </Left>
+                                            <Right>
+                                                <Text>{item.totalTimeInSeconds/60} mins. cooking time.</Text>
+                                            </Right>
+                                        </CardItem>
+                                    </Card>
+                                )
+                            })
+                            : null)                         
+                        : 
+                        (this.state.searching === true ? <Spinner color="blue" style={{paddingTop: 50}}/> : null) 
+                    }
+                    {
+                        this.state.selected === 0 ? 
+                        (this.state.renderData ? 
+                            (<Text style={{paddingBottom: 120, textAlign: "center", color: "gray"}}>{this.state.data.attribution.text}</Text>)   
+                            :null)
+                        :
+                        null
                     }
                 </ScrollView>
             </View>
@@ -182,13 +251,26 @@ const styles = StyleSheet.create({
         bottom: 0,
         alignItems: 'center',
         justifyContent: 'center'
-    }
+    },
+    image:{
+        height: 180, 
+        width: 120, 
+        flex: 1
+    },
+    card:{
+        maxHeight: 350,
+    },
+    icon:{
+        color: '#000'
+    },
 })
 
 const mapStateToProps = state => {
     return state
 }
 
-const SearchPage = connect(mapStateToProps)(Search);
+// const SearchPage = connect(mapStateToProps)(Search);
 
-export default SearchPage;
+// export default SearchPage;
+
+export default Search;

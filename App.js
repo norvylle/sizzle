@@ -144,7 +144,7 @@ const AppStack = createBottomTabNavigator(
     }
   },
   {
-    initialRouteName: 'Profile',
+    initialRouteName: 'Home',
     tabBarOptions:{
       activeBackgroundColor: '#da634a',
       labelStyle:{
