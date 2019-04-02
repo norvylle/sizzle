@@ -3,17 +3,20 @@ import { StyleSheet, Text, View, Alert } from 'react-native';
 import { Form, Item, Input, Label, Button, Icon, Root, Spinner } from 'native-base';
 import { signInWithEmail } from '../Service/Firebase';
 import { Font, AppLoading } from 'expo';
+import { connect } from 'react-redux';
+import { login, logout, guestLogin } from '../Service/Reducer'
 
 const autoBind = require('auto-bind');
 
-export default class TitlePage extends Component {
+class Title extends Component {
   constructor(props){
     super(props)
     this.state = {
       loaded: false,
       username:"",
       password:"",
-      showPassword: true
+      showPassword: true,
+      mode:''
     }
     autoBind(this);
   }
@@ -29,6 +32,8 @@ export default class TitlePage extends Component {
         )
       }
     }else{
+      this.props.dispatch(setUser(this.state.username))
+      //add validation
       this.props.navigation.navigate('App');
     }
   }
@@ -157,3 +162,11 @@ const styles = StyleSheet.create({
 function validateEmail(email) {
   return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
 }
+
+const mapStateToProps = state => {
+  return state
+}
+
+const TitlePage = connect(mapStateToProps)(Title);
+
+export default TitlePage;

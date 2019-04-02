@@ -1,8 +1,11 @@
 import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage, SettingsPage, NewRecipePage } from './components/Export';
-import { createStackNavigator, createSwitchNavigator, createBottomTabNavigator, createAppContainer } from 'react-navigation';
+import { createStackNavigator, createSwitchNavigator, createBottomTabNavigator, createAppContainer} from 'react-navigation';
+import React, { Component } from 'react';
 import { StyleSheet } from 'react-native';
 import { Icon, } from 'native-base';
-import React from 'react';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+import { reducer } from './components/Service/Reducer';
 
 
 const styles = StyleSheet.create({
@@ -170,7 +173,7 @@ const AuthStack = createStackNavigator(
     headerMode: 'none',
     initialRouteName: 'Login',
     navigationOptions: {
-      headerVisible: false,
+      headerVisible: false,      
     }
   }
 );
@@ -185,4 +188,16 @@ const Switch = createSwitchNavigator(
   },
 );
 
-export default createAppContainer(Switch);
+const AppContainer = createAppContainer(Switch);
+
+const store = createStore(reducer)
+
+export default class App extends Component{
+  render(){
+    return(
+      <Provider store={store}>
+        <AppContainer/>
+      </Provider>
+    )
+  }
+}
