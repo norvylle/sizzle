@@ -5,6 +5,7 @@ import { Overlay } from 'react-native-elements';
 import ColorPalette from 'react-native-color-palette';
 import { units, usda } from './../Service/secret';
 import { insert, searchSingle } from './../Service/Firebase'
+import { postEdit } from './../Service/Reducer';
 import { connect } from 'react-redux'
 
 const autoBind = require('auto-bind');
@@ -19,6 +20,7 @@ class NewRecipe extends Component{
             steps:[],
             selectedColor: '#ce0e0e',
             exists: false,
+            buttonText: "Add Recipe",
             //overlay
             header: "",
             currentIndex: -1,
@@ -144,7 +146,7 @@ class NewRecipe extends Component{
         this.setState({StepVisible: true, stepID: (this.state.steps.indexOf(data)+1) })
     }
 
-    async handleDeleteStep(data){
+    handleDeleteStep(data){
         this.state.steps.splice(this.state.steps.indexOf(data),1);
         this.forceUpdate()
     }
@@ -193,14 +195,33 @@ class NewRecipe extends Component{
             return;
         }
 
-        await searchSingle({link: "recipes",child: "recipeName",search: this.state.recipeName}).then((snapshot) =>{ this.setState({exists: snapshot.exists()})})
+        if(this.props.state.mode === "EDIT"){            
+            this.props.dispatch(postEdit());
+            this.props.navigation.state.params.recipe.recipeName = this.state.recipeName;
+            this.props.navigation.state.params.recipe.ingredients = this.state.ingredients;
+            this.props.navigation.state.params.recipe.steps = this.state.steps;
+            this.props.navigation.state.params.recipe.color = this.state.selectedColor;
 
-        if(this.state.exists){
-            Alert.alert("Sizzle","Recipe name already exists.");
+            this.props.navigation.navigate('Profile',{index: this.props.navigation.state.params.index, recipe: this.props.navigation.state.params.recipe})
+            //do something to update db
         }else{
-            if(insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.username, stars: 0} })){
-                Alert.alert("Sizzle","Recipe upload success!");
+            await searchSingle({link: "recipes",child: "recipeName",search: this.state.recipeName}).on('value',(snapshot) =>{ this.setState({exists: snapshot.exists()})})
+            //is restriction to single recipe name to all necessary?
+            if(this.state.exists){
+                Alert.alert("Sizzle","Recipe name already exists.");
+            }else{
+                if(insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.username, stars: 0} })){
+                    Alert.alert("Sizzle","Recipe upload success!");
+                }
             }
+        }
+    }
+
+    componentWillMount(){
+        if(this.props.state.mode === "EDIT"){
+            this.setState({buttonText: "Submit Edit/s", recipeName: this.props.navigation.state.params.recipe.recipeName, ingredients: this.props.navigation.state.params.recipe.ingredients, steps: this.props.navigation.state.params.recipe.steps, selectedColor: this.props.navigation.state.params.recipe.color})
+        }else{
+            this.setState({buttonText: "Add Recipe"})
         }
     }
 
@@ -290,8 +311,8 @@ class NewRecipe extends Component{
                                         <Text>  Seconds</Text>
                                     </Item>
                                     <Item style={styles.radioItem}>
-                                            <Radio onPress={()=>{this.state.radio === "minutes" ? this.setState({radio: "none"}) : this.setState({radio: "minutes"})}} selected={this.state.radio === "minutes"} />
-                                            <Text>  Minutes</Text>
+                                        <Radio onPress={()=>{this.state.radio === "minutes" ? this.setState({radio: "none"}) : this.setState({radio: "minutes"})}} selected={this.state.radio === "minutes"} />
+                                        <Text>  Minutes</Text>
                                     </Item>
                                     <Item style={styles.radioItem}>
                                         <Radio onPress={()=>{this.state.radio === "hours" ? this.setState({radio: "none"}) : this.setState({radio: "hours"})}} selected={this.state.radio === "hours"} />
@@ -394,7 +415,7 @@ class NewRecipe extends Component{
                     </View>
                     <View style={styles.view}>
                         <Button rounded style={{justifyContent: "center", alignSelf: "center", width: 200}} onPress={()=>this.handleAddRecipe()}>
-                            <Text>Add Recipe</Text>
+                            <Text>{this.state.buttonText}</Text>
                         </Button>
                     </View>
                 </Form>

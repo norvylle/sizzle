@@ -1,14 +1,16 @@
 import { combineReducers } from 'redux';
 
-export const LOGIN = 'USER LOGIN';
-export const LOGOUT = 'USER LOGOUT';
-export const GUEST_LOGIN = 'GUEST LOGIN'
-export const ADD = 'MODE ADD';
-export const EDIT = 'MODE EDIT';
+const LOGIN = 'USER LOGIN';
+const LOGOUT = 'USER LOGOUT';
+const GUEST_LOGIN = 'GUEST LOGIN'
+const ADD = 'MODE ADD';
+const EDIT = 'MODE EDIT';
+const POST_EDIT = "MODE POST_EDIT"
+const NONE = 'MODE NONE';
 
 const initialState = {
     username: '',
-    mode: ''
+    mode: 'NONE'
 }
 
 export function login(username){
@@ -30,6 +32,14 @@ export function edit(){
     return {type: EDIT, mode: "EDIT"}
 }
 
+export function postEdit(){
+    return {type: POST_EDIT, mode: "POST_EDIT"}
+}
+
+export function none(){
+    return {type: NONE, mode: "NONE"}
+}
+
 function dispatcher(state, action){
     switch(action.type){
         case LOGIN:
@@ -45,6 +55,14 @@ function dispatcher(state, action){
                 mode: action.mode
             })
         case EDIT:
+            return Object.assign({}, state, {
+                mode: action.mode
+            })
+        case POST_EDIT:
+        return Object.assign({}, state, {
+            mode: action.mode
+        })
+        case NONE:
             return Object.assign({}, state, {
                 mode: action.mode
             })

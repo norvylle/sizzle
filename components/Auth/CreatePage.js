@@ -3,6 +3,7 @@ import { View, StyleSheet,Text, Alert } from 'react-native';
 import { Form, Item, Input, Label, Button, Icon, DatePicker, } from 'native-base';
 import { insert, searchSingle, registerEmail } from '../Service/Firebase';
 import { connect } from 'react-redux';
+import { isArray } from 'util';
 
 const autoBind = require('auto-bind');
 
@@ -17,7 +18,7 @@ class Create extends Component {
             username:"",
             password:"",
             showPassword: true,
-            exists: false
+            exists: false,
           }
         autoBind(this);
     }
@@ -29,6 +30,15 @@ class Create extends Component {
     async handleCreate(){
         let clone = JSON.parse(JSON.stringify(this.state));
         delete clone["showPassword"]
+        delete clone["exists"]
+        if(clone["password"].length < 6){
+            Alert.alert(
+                "Sizzle",
+                "Password should be at least 6 characters."
+            )
+            return
+        }
+        
         for(data in clone){
             if(clone[data] === ""){
                 Alert.alert(
@@ -38,9 +48,8 @@ class Create extends Component {
                 return
             }
         }
-
         await searchSingle({link: "users",child: "username",search: this.state.username})
-        .then((snapshot) =>{ this.setState({exists: snapshot.exists()})})
+        .on("value" ,(snapshot) =>{ this.setState({exists: snapshot.exists()})})
         
         if(this.state.exists){
             Alert.alert("Sizzle","Username already exists");

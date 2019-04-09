@@ -42,14 +42,12 @@ function searchMulti(data){
     return database.ref(data.link)
     .orderByChild(data.child)
     .equalTo(data.search)
-    .on("child_added")
 }
 
 function searchSingle(data){
     return database.ref(data.link)
     .orderByChild(data.child)
     .equalTo(data.search)
-    .once("value")
 }
 
 function registerEmail(email, password){

@@ -100,7 +100,7 @@ const ProfileStack = createStackNavigator(
     Recipe:{
       screen: NewRecipePage,
       navigationOptions:{
-        headerTitle: "Add Recipe",
+        headerTitle: "Recipe",
         headerStyle:{
           backgroundColor: '#ff5733',
         },

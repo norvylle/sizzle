@@ -17,7 +17,8 @@ class Search extends Component {
             data: null,
             searching: false,
             clickedInfo: false,
-            renderData: false
+            renderData0: false,
+            renderData1: false
         }
         autoBind(this)
     }
@@ -28,7 +29,7 @@ class Search extends Component {
             return
         }
 
-        this.setState({searching: true, data:null, renderData: false});        
+        this.setState({searching: true, data:null, renderData0: false, renderData1: false});        
         Keyboard.dismiss();
 
         if(this.state.selected === 0){
@@ -49,7 +50,7 @@ class Search extends Component {
                         }
                     }catch (error) {
                         await this.setState({data: response.data})
-                        this.setState({renderData: true, searched: this.state.text})
+                        this.setState({renderData0: true, searched: this.state.text})
                         console.log("RECIPE: Search success.")
                     }
                 }
@@ -77,7 +78,7 @@ class Search extends Component {
                         }
                     }catch (error) {
                         await this.setState({data: response.data, searched: this.state.text})
-                        this.setState({renderData: true})
+                        this.setState({renderData1: true})
                         console.log("INGREDIENT: Search success.")
                     }
                 }
@@ -149,7 +150,7 @@ class Search extends Component {
                 <ScrollView>
                     {
                         this.state.selected == 1 ? 
-                            (this.state.renderData ? 
+                            (this.state.renderData1 ? 
                                 this.state.data.list.item.map((item)=>{
                                     return(
                                         <TouchableOpacity key={item.ndbno} onPress={()=>this.handleInfo(item.ndbno)}>
@@ -172,7 +173,7 @@ class Search extends Component {
                     }
                     {
                         this.state.selected === 1 ?
-                        (this.state.renderData ? 
+                        (this.state.renderData1 ? 
                             (<Text style={{paddingBottom: 120, textAlign: "center", color: "gray"}}>Showing 1-50 of 50 results"{this.state.searched}"</Text>)
                             : null) 
                         :
@@ -180,7 +181,7 @@ class Search extends Component {
                     }
                     {
                         this.state.selected === 0 ?
-                        (this.state.renderData ? 
+                        (this.state.renderData0 ? 
                             this.state.data.matches.map((item) =>{
                                 return(
                                     <Card key={item.id} style={styles.card}>
@@ -216,7 +217,7 @@ class Search extends Component {
                     }
                     {
                         this.state.selected === 0 ? 
-                        (this.state.renderData ? 
+                        (this.state.renderData0 ? 
                             (<Text style={{paddingBottom: 120, textAlign: "center", color: "gray"}}>{this.state.data.attribution.text}</Text>)   
                             :null)
                         :
