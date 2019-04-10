@@ -39,6 +39,11 @@ export function update(data){
     return true;
 }
 
+export function remove(data){
+    return database.ref(data.link)
+    .remove()
+}
+
 export function searchMulti(data){
     return database.ref(data.link)
     .orderByChild(data.child)
@@ -94,4 +99,10 @@ export async function exportPicture(data){
 
     blob.close();
     return await snapshot.ref.getDownloadURL();
+}
+
+export function deletePicture(data){
+    return storage.ref(data.link)
+    .child(data.child)
+    .delete()
 }

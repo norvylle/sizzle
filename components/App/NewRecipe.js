@@ -3,11 +3,11 @@ import { StyleSheet, ScrollView, ListView, Alert, Image } from 'react-native';
 import { Text, Form, Item, Label, Input, Button, Icon, List, View, H2, Picker, Spinner, ListItem, Textarea, Radio, Left, Body, Right } from 'native-base';
 import { Overlay } from 'react-native-elements';
 import ColorPalette from 'react-native-color-palette';
-import { ImagePicker, FileSystem } from 'expo'
+import { ImagePicker } from 'expo';
+import { connect } from 'react-redux';
 import { units, usda } from './../Service/secret';
-import { insert, searchSingle, update, exportPicture } from './../Service/Firebase'
-import { postEdit } from './../Service/Reducer';
-import { connect } from 'react-redux'
+import { insert, searchSingle, update, exportPicture, deletePicture } from './../Service/Firebase';
+import { postEdit, none } from './../Service/Reducer';
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
@@ -23,6 +23,7 @@ class NewRecipe extends Component{
             exists: false,
             buttonText: "Add Recipe",
             image: null,
+            loading: false,
             //overlay
             header: "",
             currentIndex: -1,
@@ -197,13 +198,15 @@ class NewRecipe extends Component{
             Alert.alert("Sizzle","Please add a Step");
             return;
         }
-
+        this.setState({loading: true});
         if(this.props.state.mode === "EDIT"){
             if(this.props.navigation.state.params.recipe.recipeName === this.state.recipeName && this.props.navigation.state.params.recipe.ingredients === this.state.ingredients && this.props.navigation.state.params.recipe.steps === this.state.steps &&this.props.navigation.state.params.recipe.color === this.state.selectedColor && this.props.navigation.state.params.recipe.recipeName_username === this.state.recipeName+"_"+this.props.state.username){
                 this.props.navigation.navigate('Profile')
             }
             else{
                 this.props.dispatch(postEdit());
+                let oldRecipeName = this.props.navigation.state.params.recipe.recipeName;
+
                 this.props.navigation.state.params.recipe.recipeName = this.state.recipeName;
                 this.props.navigation.state.params.recipe.ingredients = this.state.ingredients;
                 this.props.navigation.state.params.recipe.steps = this.state.steps;
@@ -215,6 +218,8 @@ class NewRecipe extends Component{
                 delete data["key"]
 
                 if(this.state.image != this.props.navigation.state.params.recipe.url){
+                    await deletePicture({link: this.props.state.username+"/recipes",child: oldRecipeName})
+                    .then(()=>{console.log("Delete success")})
                     let url = await exportPicture({link: this.props.state.username+"/recipes",child: this.state.recipeName, uri: this.state.image})
                     this.props.navigation.state.params.recipe.url = url;
                 }
@@ -227,21 +232,21 @@ class NewRecipe extends Component{
             }
         }else{
             await searchSingle({link: "recipes",child: "recipeName_username",search: this.state.recipeName+"_"+this.props.state.username}).on('value',(snapshot) =>{ this.setState({exists: snapshot.exists()})})
-            
-            //is restriction to single recipe name to all necessary?
 
             if(this.state.exists){
                 Alert.alert("Sizzle","Recipe name already exists.");
             }else{
+                this.props.dispatch(none());
                 let url = await exportPicture({link: this.props.state.username+"/recipes",child: this.state.recipeName, uri: this.state.image})
 
                 if(insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.username, stars: 0, url: url, recipeName_username: this.state.recipeName+"_"+this.props.state.username} })){
                     Alert.alert("Sizzle","Recipe upload success!");
-                    
                 }
+                this.props.navigation.navigate('Profile');
             }
 
         }
+        this.setState({loading: false});
     }
 
     async pickImage(){
@@ -369,7 +374,12 @@ class NewRecipe extends Component{
                         </View>
                     </View>
                 </Overlay>
-
+                <Overlay isVisible={this.state.loading} height="100%" width="100%" overlayBackgroundColor="#dcdcdc" overlayStyle={{opacity: 0.5}}>
+                    <View style={{alignItems: 'stretch', flex: 1, justifyContent: 'center'}}>
+                        <Spinner color="white" size="large"/>
+                        <Text style={{color: "white", textAlign: "center"}}>Uploading</Text>
+                    </View>
+                </Overlay>
                 <Form>
                     <Item stackedLabel>
                         <Label>Recipe Name</Label>

@@ -3,7 +3,7 @@ import { View, ScrollView, StyleSheet, Image, Alert } from 'react-native';
 import { Text, Button, Thumbnail, Tabs, Tab, Icon, Card, CardItem, Left, Right, Body, Fab, H2, Spinner} from 'native-base';
 import { connect } from 'react-redux';
 import { add, edit } from '../Service/Reducer';
-import { searchMulti  } from '../Service/Firebase';
+import { searchMulti, remove, deletePicture} from '../Service/Firebase';
 
 const database = require("../Service/database.json")
 let recipes = database.recipes;
@@ -43,22 +43,24 @@ class Profile extends Component {
         this.props.navigation.navigate('Recipe',{index: index, recipe: this.state.recipes[index]})
     }
 
-    handleDeleteRecipe(index){
+    async handleDeleteRecipe(index, recipe){
         this.state.recipes.splice(index,1)
+        await remove({link: "recipes/"+recipe.key})
+        .then(()=>{console.log("REMOVE success")})
+        await deletePicture({link: this.props.state.username+"/recipes", child: recipe.recipeName})
+        .then(()=>{console.log("REMOVE success")})
         this.forceUpdate()
-        //do something to delete on db
     }
 
     
-    componentWillMount(){
-        // this.setState({recipes: sample, renderRecipes: true})
-        
+    componentWillUpdate(){
         if(this.props.state.mode === "POST_EDIT"){
             this.state.recipes[this.props.navigation.state.params.index] = this.props.navigation.state.params.recipe;
-            this.forceUpdate();
-            console.log("IN")
         }
-        searchMulti({link: "recipes", child: "username", search: "norvylle"})
+    }
+
+    componentWillMount(){
+        searchMulti({link: "recipes", child: "username", search: this.props.state.username})
         .on("value",function(snapshot){
            this.setState({recipes: snapshotToArray(snapshot), renderRecipes: true})
         }.bind(this))
@@ -111,7 +113,7 @@ class Profile extends Component {
                                                 <Button transparent onPress={() => this.handleEditRecipe(index)} style={styles.buttonRight}>
                                                     <Icon active type="Feather" name="edit" />
                                                 </Button>
-                                                <Button transparent danger onPress={() => Alert.alert("Sizzle","Delete "+recipe.recipeName+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => this.handleDeleteRecipe(index)},],{cancelable: true})} style={styles.buttonRight}>
+                                                <Button transparent danger onPress={() => Alert.alert("Sizzle","Delete "+recipe.recipeName+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => this.handleDeleteRecipe(index,recipe)},],{cancelable: true})} style={styles.buttonRight}>
                                                     <Icon active name="trash" />
                                                 </Button>
                                             </Right>
