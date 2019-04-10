@@ -6,6 +6,7 @@ firebase.initializeApp(config)
 
 const database = firebase.database();
 const auth = firebase.auth();
+const storage = firebase.storage();
 
 /*
     data={
@@ -14,7 +15,7 @@ const auth = firebase.auth();
     }
 */
 
-function insert(data){
+export function insert(data){
     database.ref(data.link)
     .push(data.data)
     .then(() => {
@@ -26,9 +27,9 @@ function insert(data){
     return true;
 }
 
-function update(data){
+export function update(data){
     database.ref(data.link)
-    .set(data.data)
+    .update(data.data)
     .then(() => {
         console.log(data.link+": UPDATE SUCCESS");
     })
@@ -38,19 +39,19 @@ function update(data){
     return true;
 }
 
-function searchMulti(data){
+export function searchMulti(data){
     return database.ref(data.link)
     .orderByChild(data.child)
     .equalTo(data.search)
 }
 
-function searchSingle(data){
+export function searchSingle(data){
     return database.ref(data.link)
     .orderByChild(data.child)
     .equalTo(data.search)
 }
 
-function registerEmail(email, password){
+export function registerEmail(email, password){
     auth.createUserWithEmailAndPassword(email,password)
     .then(() => {
         console.log("REGISTERED "+email);
@@ -59,7 +60,7 @@ function registerEmail(email, password){
     return true;
 }
 
-function signInWithEmail(email, password){
+export function signInWithEmail(email, password){
     auth.signInWithEmailAndPassword(email,password)
     .then(() => {
         console.log("VALIDATED "+email);        
@@ -68,11 +69,29 @@ function signInWithEmail(email, password){
     return true;
 }
 
-export{
-    insert,
-    update,
-    searchMulti,
-    searchSingle,
-    registerEmail,
-    signInWithEmail,
+function upload(data){
+    return storage.ref(data.link)
+    .child(data.child)
+    .put(data.file)
+}
+
+export async function exportPicture(data){
+    const blob = await new Promise((resolve, reject)=>{
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function() {
+            resolve(xhr.response);
+        };
+        xhr.onerror = function(e) {
+            console.log(e);
+            reject(new TypeError('Network request failed'));
+        };
+        xhr.responseType = 'blob';
+        xhr.open('GET',data.uri, true);
+        xhr.send(null);
+    });
+    console.log(typeof(blob))
+    const snapshot = await upload({link: data.link, child: data.child, file: blob})
+
+    blob.close();
+    return await snapshot.ref.getDownloadURL();
 }

@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { StyleSheet, ScrollView, ListView, Alert } from 'react-native';
+import { StyleSheet, ScrollView, ListView, Alert, Image } from 'react-native';
 import { Text, Form, Item, Label, Input, Button, Icon, List, View, H2, Picker, Spinner, ListItem, Textarea, Radio, Left, Body, Right } from 'native-base';
 import { Overlay } from 'react-native-elements';
 import ColorPalette from 'react-native-color-palette';
+import { ImagePicker, FileSystem } from 'expo'
 import { units, usda } from './../Service/secret';
-import { insert, searchSingle } from './../Service/Firebase'
+import { insert, searchSingle, update, exportPicture } from './../Service/Firebase'
 import { postEdit } from './../Service/Reducer';
 import { connect } from 'react-redux'
 
@@ -21,6 +22,7 @@ class NewRecipe extends Component{
             selectedColor: '#ce0e0e',
             exists: false,
             buttonText: "Add Recipe",
+            image: null,
             //overlay
             header: "",
             currentIndex: -1,
@@ -119,23 +121,24 @@ class NewRecipe extends Component{
 
     async handleSubmitStep(){
         let timeObject
+
         if(this.state.duration === "" || this.state.radio === "none"){
             timeObject = null
         }else{
             timeObject = {duration: parseFloat(this.state.duration), unit: this.state.radio}
         }
 
-        if(this.state.stepID === null){
+        if(this.state.currentIndex === -1){
             await this.state.steps.push({direction: this.state.direction, time: timeObject})
         }else{
-            this.state.steps[this.state.stepID] = {direction: this.state.direction, time: timeObject};
+            this.state.steps[this.state.currentIndex] = {direction: this.state.direction, time: timeObject};
         }
         
-        this.setState({StepVisible: false, direction: "", duration: "", radio: "none",stepID: null})
+        this.setState({StepVisible: false, direction: "", duration: "", radio: "none",currentIndex: -1})
     }
 
     handleOnOpenStep(){
-        this.setState({StepVisible: true, header: "Add Step (Step "+(this.state.steps.length+1)+")", direction: "", duration: "", radio: "none", stepID: null})
+        this.setState({StepVisible: true, header: "Add Step (Step "+(this.state.steps.length+1)+")", direction: "", duration: "", radio: "none",currentIndex: -1})
     }
 
     async handleEditStep(data){
@@ -143,7 +146,7 @@ class NewRecipe extends Component{
             await this.setState({duration: data.time.duration.toString(), radio: data.time.unit})
         }
         await this.setState({header: "Edit Step (Step "+(this.state.steps.indexOf(data)+1)+")", direction: data.direction})
-        this.setState({StepVisible: true, stepID: (this.state.steps.indexOf(data)+1) })
+        this.setState({StepVisible: true, currentIndex: this.state.steps.indexOf(data)})
     }
 
     handleDeleteStep(data){
@@ -195,31 +198,66 @@ class NewRecipe extends Component{
             return;
         }
 
-        if(this.props.state.mode === "EDIT"){            
-            this.props.dispatch(postEdit());
-            this.props.navigation.state.params.recipe.recipeName = this.state.recipeName;
-            this.props.navigation.state.params.recipe.ingredients = this.state.ingredients;
-            this.props.navigation.state.params.recipe.steps = this.state.steps;
-            this.props.navigation.state.params.recipe.color = this.state.selectedColor;
+        if(this.props.state.mode === "EDIT"){
+            if(this.props.navigation.state.params.recipe.recipeName === this.state.recipeName && this.props.navigation.state.params.recipe.ingredients === this.state.ingredients && this.props.navigation.state.params.recipe.steps === this.state.steps &&this.props.navigation.state.params.recipe.color === this.state.selectedColor && this.props.navigation.state.params.recipe.recipeName_username === this.state.recipeName+"_"+this.props.state.username){
+                this.props.navigation.navigate('Profile')
+            }
+            else{
+                this.props.dispatch(postEdit());
+                this.props.navigation.state.params.recipe.recipeName = this.state.recipeName;
+                this.props.navigation.state.params.recipe.ingredients = this.state.ingredients;
+                this.props.navigation.state.params.recipe.steps = this.state.steps;
+                this.props.navigation.state.params.recipe.color = this.state.selectedColor;
+                this.props.navigation.state.params.recipe.recipeName_username = this.state.recipeName+"_"+this.props.state.username;
+                
+                let data = JSON.parse(JSON.stringify(this.props.navigation.state.params.recipe));
+                let key = data.key;
+                delete data["key"]
 
-            this.props.navigation.navigate('Profile',{index: this.props.navigation.state.params.index, recipe: this.props.navigation.state.params.recipe})
-            //do something to update db
+                if(this.state.image != this.props.navigation.state.params.recipe.url){
+                    let url = await exportPicture({link: this.props.state.username+"/recipes",child: this.state.recipeName, uri: this.state.image})
+                    this.props.navigation.state.params.recipe.url = url;
+                }
+
+                if(update({link: "recipes/"+key, data: data})){
+                    Alert.alert("Sizzle","Recipe updated");
+                }
+
+                this.props.navigation.navigate('Profile',{index: this.props.navigation.state.params.index, recipe: this.props.navigation.state.params.recipe})
+            }
         }else{
-            await searchSingle({link: "recipes",child: "recipeName",search: this.state.recipeName}).on('value',(snapshot) =>{ this.setState({exists: snapshot.exists()})})
+            await searchSingle({link: "recipes",child: "recipeName_username",search: this.state.recipeName+"_"+this.props.state.username}).on('value',(snapshot) =>{ this.setState({exists: snapshot.exists()})})
+            
             //is restriction to single recipe name to all necessary?
+
             if(this.state.exists){
                 Alert.alert("Sizzle","Recipe name already exists.");
             }else{
-                if(insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.username, stars: 0} })){
+                let url = await exportPicture({link: this.props.state.username+"/recipes",child: this.state.recipeName, uri: this.state.image})
+
+                if(insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.username, stars: 0, url: url, recipeName_username: this.state.recipeName+"_"+this.props.state.username} })){
                     Alert.alert("Sizzle","Recipe upload success!");
+                    
                 }
             }
+
         }
+    }
+
+    async pickImage(){
+        let result = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            aspect: [4, 3]
+          });
+          
+          if (!result.cancelled) {
+            this.setState({ image: result.uri });
+          }
     }
 
     componentWillMount(){
         if(this.props.state.mode === "EDIT"){
-            this.setState({buttonText: "Submit Edit/s", recipeName: this.props.navigation.state.params.recipe.recipeName, ingredients: this.props.navigation.state.params.recipe.ingredients, steps: this.props.navigation.state.params.recipe.steps, selectedColor: this.props.navigation.state.params.recipe.color})
+            this.setState({buttonText: "Submit Edit/s", recipeName: this.props.navigation.state.params.recipe.recipeName, ingredients: this.props.navigation.state.params.recipe.ingredients, steps: this.props.navigation.state.params.recipe.steps, selectedColor: this.props.navigation.state.params.recipe.color, image: this.props.navigation.state.params.recipe.url})
         }else{
             this.setState({buttonText: "Add Recipe"})
         }
@@ -337,6 +375,13 @@ class NewRecipe extends Component{
                         <Label>Recipe Name</Label>
                         <Input style={styles.input} placeholder={"My First Recipe"} value={this.state.recipeName} onChangeText={(recipeName)=> this.setState({recipeName})} maxLength={50}/>
                     </Item>
+                    <View>
+                        <Image source={{uri: this.state.image}} style={styles.image}/>
+                        <Button light iconRight style={{justifyContent: "center", alignSelf: "center", width: 200}} onPress={()=>this.pickImage()}>
+                            <Text>Pick an Image</Text>
+                            <Icon type="EvilIcons" name="image" />
+                        </Button>
+                    </View>
                     <View style={styles.view}>
                         <Text style={styles.viewHeader}>Ingredient</Text>
                         {
@@ -466,6 +511,12 @@ const styles = StyleSheet.create({
     },
     viewHeader:{
         color: "gray",
+        alignSelf: "center"
+    },
+    image:{
+        height: 90, 
+        width: 120,
+        margin: 10,
         alignSelf: "center"
     },
     radioItem:{

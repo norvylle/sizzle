@@ -61,6 +61,7 @@ class Title extends Component {
       'Octicons': require('@expo/vector-icons/fonts/Octicons.ttf'),
       'SimpleLineIcons': require('@expo/vector-icons/fonts/SimpleLineIcons.ttf'),
       'Entypo': require('@expo/vector-icons/fonts/Entypo.ttf'),
+      'EvilIcons': require('@expo/vector-icons/fonts/EvilIcons.ttf'),
   });
     this.setState({loaded: true});
   }

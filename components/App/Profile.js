@@ -49,17 +49,19 @@ class Profile extends Component {
         //do something to delete on db
     }
 
+    
     componentWillMount(){
-        this.setState({recipes: sample, renderRecipes: true})
+        // this.setState({recipes: sample, renderRecipes: true})
         
         if(this.props.state.mode === "POST_EDIT"){
             this.state.recipes[this.props.navigation.state.params.index] = this.props.navigation.state.params.recipe;
             this.forceUpdate();
+            console.log("IN")
         }
-        // searchMulti({link: "recipes", child: "username", search: "norvylle"})
-        // .on("value",function(snapshot){
-        //    this.setState({recipes: snapshotToArray(snapshot), renderRecipes: true})
-        // }.bind(this))
+        searchMulti({link: "recipes", child: "username", search: "norvylle"})
+        .on("value",function(snapshot){
+           this.setState({recipes: snapshotToArray(snapshot), renderRecipes: true})
+        }.bind(this))
         // searchMulti({link: "meals", child: "username", search: "norvylle"})
         // .on("value",function(snapshot){
         //  this.setState({meals: snapshotToArray(snapshot), renderMeals: true})
@@ -98,7 +100,7 @@ class Profile extends Component {
                                             </Left>
                                         </CardItem>
                                         <CardItem cardBody>
-                                            <Image source={{uri: img}} style={styles.image}/>
+                                            <Image source={{uri: recipe.url}} style={styles.image}/>
                                         </CardItem>
                                         <CardItem>
                                             <Left>
@@ -257,23 +259,31 @@ let sample = [
       username: "norvylle",
     },
     {
-        color: "#109cb5",
+        color: "#afb207",
         ingredients: [
           {
             ingredient: {
-              name: "water",
+              name: "baking soda",
               ndbno: 0,
             },
             qty: 1,
             unit: "c",
-          }
+          },
+          {
+            ingredient: {
+              name: "sugar",
+              ndbno: 0,
+            },
+            qty: 1,
+            unit: "c",
+          },
         ],
-        key: "-Lbxkvr9p2Abwv5lv371",
+        key: "-LbTqC2nMgNb0B0DTLUj",
         recipeName: "recipe 1",
-        stars: 50,
+        stars: 0,
         steps: [
           {
-            direction: "Drink water everyday",
+            direction: "Mix well",
           },
         ],
         username: "norvylle",
