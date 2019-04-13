@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, ScrollView, StyleSheet, Image, Alert } from 'react-native';
-import { Text, Button, Thumbnail, Tabs, Tab, Icon, Card, CardItem, Left, Right, Body, Fab, H2, Spinner} from 'native-base';
+import { Text, Button, Thumbnail, Tabs, Tab, Icon, Card, CardItem, Left, Right, Body, H2, Spinner} from 'native-base';
+import ActionButton from 'react-native-action-button'
 import { connect } from 'react-redux';
 import { add, edit } from '../Service/Reducer';
 import { searchMulti, remove, deletePicture} from '../Service/Firebase';
@@ -121,7 +122,7 @@ class Profile extends Component {
                                     </Card>)
                                 })
                             }
-                        <Text style={{paddingBottom: 50}}/>
+                        <Text style={{paddingBottom: 60}}/>
                         </ScrollView>
                     </Tab>
                     <Tab heading="My Meals" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
@@ -135,15 +136,14 @@ class Profile extends Component {
                     </Tab>
                 </Tabs>
             </View>
-            <Fab active={this.state.active} direction="up" position="bottomRight" onPress={()=> this.setState({active: !this.state.active})}>
-                <Icon type="MaterialCommunityIcons" name="fire"/>
-                    <Button onPress={this.handleMealPlan}>
-                        <Icon type="SimpleLineIcons" name="notebook"/>
-                    </Button>
-                    <Button onPress={this.handleRecipe}>
-                        <Icon type="MaterialCommunityIcons" name="silverware-spoon"/>
-                    </Button>              
-                </Fab>
+             <ActionButton buttonColor="rgba(231,76,60,1)">
+                <ActionButton.Item buttonColor='#9b59b6' title="New Recipe" onPress={() => this.handleRecipe()}>
+                    <Icon type="MaterialCommunityIcons" name="silverware-spoon" style={styles.actionButtonIcon} />
+                </ActionButton.Item>
+                <ActionButton.Item buttonColor='#3498db' title="New Meal Plan" onPress={() => this.handleMealPlan()}>
+                    <Icon type="SimpleLineIcons" name="notebook" style={styles.actionButtonIcon} />
+                </ActionButton.Item>
+            </ActionButton>
         </View>
         );
     }
@@ -226,7 +226,12 @@ const styles = StyleSheet.create({
     buttonRight:{
         alignSelf: "flex-end",
         marginLeft: 10
-    }
+    },
+    actionButtonIcon: {
+        fontSize: 24,
+        height: 22,
+        color: 'white',
+    },
 })
 
 const mapStateToProps = state => {

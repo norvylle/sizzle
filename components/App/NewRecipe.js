@@ -302,7 +302,7 @@ class NewRecipe extends Component{
                                     <Icon type="Octicons" name="search"/>
                                 </Button>
                             </View>
-                            <Text style={{alignSelf:"center", color: "gray"}}>Suggestions</Text>
+                            <Text style={{alignSelf:"center", color: "gray"}}>Food Database Search</Text>
                             <ScrollView style={styles.formScroll}>
                                 {
                                     this.state.searchResults === null ? 
@@ -351,15 +351,15 @@ class NewRecipe extends Component{
                                     <Label>  Unit</Label>
                                     <Item style={styles.radioItem}>
                                         <Radio onPress={()=>{this.state.radio === "seconds" ? this.setState({radio: "none"}) : this.setState({radio: "seconds"})}} selected={this.state.radio === "seconds"} />
-                                        <Text>  Seconds</Text>
+                                        <Text>  Second/s</Text>
                                     </Item>
                                     <Item style={styles.radioItem}>
                                         <Radio onPress={()=>{this.state.radio === "minutes" ? this.setState({radio: "none"}) : this.setState({radio: "minutes"})}} selected={this.state.radio === "minutes"} />
-                                        <Text>  Minutes</Text>
+                                        <Text>  Minute/s</Text>
                                     </Item>
                                     <Item style={styles.radioItem}>
                                         <Radio onPress={()=>{this.state.radio === "hours" ? this.setState({radio: "none"}) : this.setState({radio: "hours"})}} selected={this.state.radio === "hours"} />
-                                        <Text>  Hours</Text>
+                                        <Text>  Hour/s</Text>
                                     </Item>
                                 </Item>
                             </View>
