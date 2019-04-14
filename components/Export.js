@@ -1,19 +1,21 @@
 import TitlePage from './Auth/TitlePage';
 import CreatePage from './Auth/CreatePage';
-import HomePage from './App/Home';
-import SearchPage from './App/Search';
-import DownloadPage from './App/Download';
-import ProfilePage from './App/Profile';
-import SettingsPage from './App/Settings';
-import NewRecipePage from './App/NewRecipe';
+import AvatarPage from './Auth/AvatarPage';
+import HomePage from './App/HomePage';
+import SearchPage from './App/SearchPage';
+import DownloadPage from './App/DownloadPage';
+import ProfilePage from './App/ProfilePage';
+import SettingsPage from './App/SettingsPage';
+import NewRecipePage from './App/NewRecipePage';
 
 export {
     TitlePage,
     CreatePage,
+    AvatarPage,
     HomePage,
     SearchPage,
     DownloadPage,
     ProfilePage,
     SettingsPage,
-    NewRecipePage
+    NewRecipePage,
 }

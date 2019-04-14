@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { View, StyleSheet,Text, Alert } from 'react-native';
-import { Form, Item, Input, Label, Button, Icon, DatePicker, } from 'native-base';
+import { Form, Item, Input, Label, Button, Icon, DatePicker, Radio, Spinner } from 'native-base';
 import { insert, searchSingle, registerEmail } from '../Service/Firebase';
+import { login } from '../Service/Reducer'
 import { connect } from 'react-redux';
-import { isArray } from 'util';
+
 
 const autoBind = require('auto-bind');
 
@@ -18,7 +19,7 @@ class Create extends Component {
             username:"",
             password:"",
             showPassword: true,
-            exists: false,
+            sex: "",
           }
         autoBind(this);
     }
@@ -28,9 +29,9 @@ class Create extends Component {
     }
 
     async handleCreate(){
+        
         let clone = JSON.parse(JSON.stringify(this.state));
         delete clone["showPassword"]
-        delete clone["exists"]
         if(clone["password"].length < 6){
             Alert.alert(
                 "Sizzle",
@@ -49,17 +50,26 @@ class Create extends Component {
             }
         }
         await searchSingle({link: "users",child: "username",search: this.state.username})
-        .on("value" ,(snapshot) =>{ this.setState({exists: snapshot.exists()})})
-        
-        if(this.state.exists){
-            Alert.alert("Sizzle","Username already exists");
-        }
-        else{
-            if(insert({link:"users/",data:clone})){
-                registerEmail(clone.email,clone.password);
+        .once("value" ,(snapshot) =>{ 
+            if(snapshot.exists()){
+                Alert.alert("Sizzle","Username already exists.");
+            }else{
+                registerEmail(clone.email,clone.password)
+                .then(()=>{
+                    insert({link:"users/",data:clone})
+                    .then(()=>{
+                        this.props.dispatch(login(this.state.username))
+                        this.props.navigation.navigate('Avatar',{ sex: this.state.sex});
+                    })
+                    .catch((error)=>{
+                        Alert.alert("Sizzle",error.message);
+                    })
+                })
+                .catch((error)=>{
+                    Alert.alert("Sizzle",error.message);
+                })
             }
-        }
-        
+        })        
     }
 
     render() {
@@ -75,9 +85,22 @@ class Create extends Component {
                         <Label style={styles.label}>Last Name</Label>
                         <Input style={styles.input} value={this.state.lastName} onChangeText={(lastName)=> this.setState({lastName})} maxLength={20}/>
                     </Item>
-                    <Item stackedLabel >
-                        <Label style={styles.label}>Date of Birth</Label>
-                        <DatePicker maximumDate={new Date()} placeHolderText="Select Date" onDateChange={(birthday)=>{this.setState({birthday})}} textStyle={{color: "white"}} placeHolderTextStyle={{color: "#d3d3d3"}} androidMode={"spinner"} timeZoneOffsetInMinutes={undefined}/>
+                    <Item>
+                        <Item stackedLabel style={styles.halfItem}>
+                            <Label style={styles.label}>Date of Birth</Label>
+                            <DatePicker maximumDate={new Date()} placeHolderText="Select Date" onDateChange={(birthday)=>{this.setState({birthday})}} textStyle={{color: "white"}} placeHolderTextStyle={{color: "#d3d3d3"}} androidMode={"spinner"} timeZoneOffsetInMinutes={undefined}/>
+                        </Item>
+                        <Item stackedLabel style={styles.halfItem}>
+                            <Label style={styles.label}>Sex</Label>
+                            <Item style={styles.radioItem}>
+                                <Radio onPress={()=>{this.setState({sex: "male"})}} selected={this.state.sex === "male"} color="white"/>
+                                <Text style={styles.textColor}>     Male</Text>
+                            </Item>
+                            <Item style={styles.radioItem}>
+                                <Radio onPress={()=>{this.setState({sex: "female"})}} selected={this.state.sex === "female"} color="white"/>
+                                <Text style={styles.textColor}>  Female</Text>
+                            </Item>
+                        </Item>
                     </Item>
                     <Item stackedLabel >
                         <Label style={styles.label}>Email</Label>
@@ -98,7 +121,7 @@ class Create extends Component {
                     </Item>
                 </Form>
                 <Button default block rounded style={styles.button} onPress={this.handleCreate}>
-                    <Text style={styles.buttonText}>Create</Text>
+                    <Text style={styles.buttonText}>SUBMIT</Text>
                 </Button>
             </View>
         );
@@ -127,11 +150,11 @@ const styles = StyleSheet.create({
     },
     title:{
         color:'#fff',
-        fontFamily:'Roboto', 
-        fontSize:20,
+        fontFamily:'geoSansLight', 
+        fontSize:32,
         textAlign:"left",
         paddingLeft:10,
-        paddingTop:5,
+        paddingTop:20,
     },
     button:{
         width: 200,
@@ -141,6 +164,20 @@ const styles = StyleSheet.create({
         fontFamily:'Roboto_medium',
         color:'#fff'
       },
+    radioItem:{
+        borderColor: "transparent",
+        marginLeft: 5,
+        alignItems: "center",
+        marginBottom: 5
+    },
+    textColor:{
+        color: "white"
+    },
+    halfItem:{
+        width: "50%",
+        borderColor: "transparent",
+        marginBottom: 5
+    }
 });
 
 const mapStateToProps = state => {

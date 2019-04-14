@@ -6,8 +6,8 @@ import ColorPalette from 'react-native-color-palette';
 import { ImagePicker } from 'expo';
 import { connect } from 'react-redux';
 import { units, usda } from './../Service/secret';
-import { insert, searchSingle, update, exportPicture, deletePicture } from './../Service/Firebase';
-import { postEdit, none } from './../Service/Reducer';
+import { insert, searchSingle, update, exportPicture, deletePicture } from '../Service/Firebase';
+import { postEdit, none } from '../Service/Reducer';
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
@@ -95,9 +95,6 @@ class NewRecipe extends Component{
                 }
             }
         }.bind(this))
-        .catch(function(error){
-            Alert.alert("Sizzle","An error occurred.")
-        })
         this.setState({searching: false});
     }
 
@@ -186,6 +183,7 @@ class NewRecipe extends Component{
     }
 
     async handleAddRecipe(){
+
         if(this.state.recipeName === ""){
             Alert.alert("Sizzle","Please enter a Name for the Recipe");
             return;
@@ -198,6 +196,11 @@ class NewRecipe extends Component{
             Alert.alert("Sizzle","Please add a Step");
             return;
         }
+        if(this.state.ingredients.filter((item)=> item.ingredient.ndbno === 0).length / this.state.ingredients.length > 0.8){
+            Alert.alert("Sizzle","Please make sure that at least 80% of the ingredients are from the Food Database.");
+            return;
+        }
+        
         this.setState({loading: true});
         if(this.props.state.mode === "EDIT"){
             if(this.props.navigation.state.params.recipe.recipeName === this.state.recipeName && this.props.navigation.state.params.recipe.ingredients === this.state.ingredients && this.props.navigation.state.params.recipe.steps === this.state.steps &&this.props.navigation.state.params.recipe.color === this.state.selectedColor && this.props.navigation.state.params.recipe.recipeName_username === this.state.recipeName+"_"+this.props.state.username){
@@ -224,26 +227,36 @@ class NewRecipe extends Component{
                     this.props.navigation.state.params.recipe.url = url;
                 }
 
-                if(update({link: "recipes/"+key, data: data})){
+                update({link: "recipes/"+key, data: data})
+                .then(()=>{
                     Alert.alert("Sizzle","Recipe updated");
-                }
-
-                this.props.navigation.navigate('Profile',{index: this.props.navigation.state.params.index, recipe: this.props.navigation.state.params.recipe})
+                    this.props.navigation.navigate('Profile',{index: this.props.navigation.state.params.index, recipe: this.props.navigation.state.params.recipe})
+                })
+                .catch((error)=>{
+                    Alert.alert("Sizzle",error);
+                })
+                
             }
         }else{
-            await searchSingle({link: "recipes",child: "recipeName_username",search: this.state.recipeName+"_"+this.props.state.username}).on('value',(snapshot) =>{ this.setState({exists: snapshot.exists()})})
-
-            if(this.state.exists){
-                Alert.alert("Sizzle","Recipe name already exists.");
-            }else{
-                this.props.dispatch(none());
-                let url = await exportPicture({link: this.props.state.username+"/recipes",child: this.state.recipeName, uri: this.state.image})
-
-                if(insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.username, stars: 0, url: url, recipeName_username: this.state.recipeName+"_"+this.props.state.username} })){
-                    Alert.alert("Sizzle","Recipe upload success!");
+            await searchSingle({link: "recipes",child: "recipeName_username",search: this.state.recipeName+"_"+this.props.state.username})
+            .once('value',async (snapshot) =>{
+                if(snapshot.exists()){
+                    Alert.alert("Sizzle","Recipe name already exists.");        
+                }else{
+                    let url = await exportPicture({link: this.props.state.username+"/recipes",child: this.state.recipeName, uri: this.state.image})
+    
+                    await insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.username, stars: 0, url: url, recipeName_username: this.state.recipeName+"_"+this.props.state.username} })
+                    .then(()=>{
+                        Alert.alert("Sizzle","Recipe upload success!");
+                        this.props.dispatch(none());
+                        this.props.navigation.navigate('Profile');
+                    })
+                    .catch((error)=>{
+                        Alert.alert("Sizzle",error);
+                    })
+                    
                 }
-                this.props.navigation.navigate('Profile');
-            }
+            })
 
         }
         this.setState({loading: false});

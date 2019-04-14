@@ -16,27 +16,13 @@ const storage = firebase.storage();
 */
 
 export function insert(data){
-    database.ref(data.link)
+    return database.ref(data.link)
     .push(data.data)
-    .then(() => {
-        console.log(data.link+": INSERT SUCCESS");
-    })
-    .catch((error) => {
-        console.log(error); return false;
-    })
-    return true;
 }
 
 export function update(data){
-    database.ref(data.link)
+    return database.ref(data.link)
     .update(data.data)
-    .then(() => {
-        console.log(data.link+": UPDATE SUCCESS");
-    })
-    .catch((error) => {
-        console.log(error); return false;
-    })
-    return true;
 }
 
 export function remove(data){
@@ -57,21 +43,11 @@ export function searchSingle(data){
 }
 
 export function registerEmail(email, password){
-    auth.createUserWithEmailAndPassword(email,password)
-    .then(() => {
-        console.log("REGISTERED "+email);
-    })
-    .catch((error) => {console.log(error); return false;})
-    return true;
+    return auth.createUserWithEmailAndPassword(email,password)
 }
 
 export function signInWithEmail(email, password){
-    auth.signInWithEmailAndPassword(email,password)
-    .then(() => {
-        console.log("VALIDATED "+email);        
-    })
-    .catch((error) => {console.log(error); return false;})
-    return true;
+    return auth.signInWithEmailAndPassword(email,password)
 }
 
 function upload(data){
@@ -87,7 +63,7 @@ export async function exportPicture(data){
             resolve(xhr.response);
         };
         xhr.onerror = function(e) {
-            console.log(e);
+            // console.log(e);
             reject(new TypeError('Network request failed'));
         };
         xhr.responseType = 'blob';

@@ -1,4 +1,4 @@
-import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage, SettingsPage, NewRecipePage } from './components/Export';
+import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage, SettingsPage, NewRecipePage, AvatarPage } from './components/Export';
 import { createStackNavigator, createSwitchNavigator, createBottomTabNavigator, createAppContainer} from 'react-navigation';
 import React, { Component } from 'react';
 import { StyleSheet } from 'react-native';
@@ -167,7 +167,10 @@ const AuthStack = createStackNavigator(
     },
     Create:{
       screen: CreatePage
-    }
+    },
+    Avatar:{
+      screen: AvatarPage
+    },
   },
   { 
     headerMode: 'none',

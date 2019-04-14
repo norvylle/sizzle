@@ -14,7 +14,7 @@ class Title extends Component {
         super(props)
         this.state = {
         loaded: false,
-        username: "norvylle",
+        username: "admin",
         password: "",
         showPassword: true,
         loading:false,
@@ -25,20 +25,23 @@ class Title extends Component {
 
     async handleLogin(){
         if(validateEmail(this.state.username)){
-        if(signInWithEmail(this.state.username,this.state.password)){
-            //dispatch username with email sign in !
+            signInWithEmail(this.state.username,this.state.password)
+            .then(()=>{
+                this.props.navigation.navigate('App');
+            })
+            .catch((error)=>{
+                Alert.alert(
+                "Sizzle",
+                error
+                )
+            })
+        //dispatch username with email sign in !
             //no account not catched, try return whole function
-            this.props.navigation.navigate('App');
-        }else{
-            Alert.alert(
-            "Sizzle",
-            "Account information provided not found. Please double-check and try again."
-            )
         }
-        }else{ // dev purposes
-        this.props.dispatch(login(this.state.username))
-        //add validation
-        this.props.navigation.navigate('App');
+        else{ // dev purposes
+            this.props.dispatch(login(this.state.username))
+            //add validation
+            this.props.navigation.navigate('App');
         }
     }
 
