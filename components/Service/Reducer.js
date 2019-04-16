@@ -9,15 +9,15 @@ const POST_EDIT = "MODE POST_EDIT"
 const NONE = 'MODE NONE';
 
 const initialState = {
-    username: '',
+    user: null,
     mode: 'NONE'
 }
 
-export function login(username){
-    return {type: LOGIN, username}
+export function login(user){
+    return {type: LOGIN, user}
 }
 export function guestLogin(){
-    return {type: GUEST_LOGIN, username: 'guest'}
+    return {type: GUEST_LOGIN, user: {username: 'guest'}}
 }
 
 export function logout(){
@@ -44,11 +44,11 @@ function dispatcher(state, action){
     switch(action.type){
         case LOGIN:
             return Object.assign({}, state, {
-                username: action.username
+                user: action.user
             })
         case GUEST_LOGIN:
             return Object.assign({}, state, {
-                username: action.username
+                user: action.user
             })
         case ADD:
             return Object.assign({}, state, {

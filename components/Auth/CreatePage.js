@@ -58,7 +58,7 @@ class Create extends Component {
                 .then(()=>{
                     insert({link:"users/",data:clone})
                     .then(()=>{
-                        this.props.dispatch(login(this.state.username))
+                        this.props.dispatch(login(data))
                         this.props.navigation.navigate('Avatar',{ sex: this.state.sex});
                     })
                     .catch((error)=>{

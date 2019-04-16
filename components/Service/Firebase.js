@@ -63,7 +63,6 @@ export async function exportPicture(data){
             resolve(xhr.response);
         };
         xhr.onerror = function(e) {
-            // console.log(e);
             reject(new TypeError('Network request failed'));
         };
         xhr.responseType = 'blob';
@@ -81,4 +80,5 @@ export function deletePicture(data){
     return storage.ref(data.link)
     .child(data.child)
     .delete()
+
 }

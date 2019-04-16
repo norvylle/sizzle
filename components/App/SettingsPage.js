@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Text, Button } from 'native-base';
+import { connect } from 'react-redux'
+import { logout } from '../Service/Reducer'
 
 const autoBind = require('auto-bind');
 
-export default class SettingsPage extends Component {
+class Settings extends Component {
     constructor(props){
         super(props)
         autoBind(this);
     }
 
-    async handlePress(){
+    async handleLogout(){
+        this.props.dispatch(logout())
         await this.props.navigation.popToTop();
         await this.props.navigation.navigate('Auth');
     }
@@ -19,7 +22,7 @@ export default class SettingsPage extends Component {
         return(
             <View>
                 <Text>Welcome to Settings!</Text>
-                <Button rounded onPress={this.handlePress} style={styles.button}>
+                <Button bordered onPress={()=>this.handleLogout()} style={styles.button}>
                     <Text style={styles.buttonText}>Logout</Text>
                 </Button>
             </View>
@@ -29,10 +32,18 @@ export default class SettingsPage extends Component {
 
 const styles = StyleSheet.create({
     button:{
-        alignSelf: 'stretch',
+        alignItems: 'center'
     },
     buttonText:{
         color:'#fff',
         alignSelf: 'center',
     },
 })
+
+const mapStateToProps = state => {
+    return state
+}
+
+const SettingsPage = connect(mapStateToProps)(Settings);
+
+export default SettingsPage;

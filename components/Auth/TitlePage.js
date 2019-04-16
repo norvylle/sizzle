@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Alert } from 'react-native';
 import { Form, Item, Input, Label, Button, Icon, Root, Spinner } from 'native-base';
-import { Overlay } from 'react-native-elements';
-import { signInWithEmail } from '../Service/Firebase';
+import { signInWithEmail, searchSingle } from '../Service/Firebase';
 import { Font, AppLoading } from 'expo';
 import { connect } from 'react-redux';
-import { login, logout, guestLogin } from '../Service/Reducer'
+import { login, guestLogin } from '../Service/Reducer'
 
 const autoBind = require('auto-bind');
 
@@ -18,7 +17,7 @@ class Title extends Component {
         password: "",
         showPassword: true,
         loading:false,
-
+        user: null,
         }
         autoBind(this);
     }
@@ -39,9 +38,12 @@ class Title extends Component {
             //no account not catched, try return whole function
         }
         else{ // dev purposes
-            this.props.dispatch(login(this.state.username))
+            await searchSingle({link: "users", child: "username", search: this.state.username})
+            .once("value",async function(snapshot){
+                await this.props.dispatch(login(await snapshotToArray(snapshot)[0])) //download photo
+                this.props.navigation.navigate('App');
+            }.bind(this))
             //add validation
-            this.props.navigation.navigate('App');
         }
     }
 
@@ -170,6 +172,19 @@ const styles = StyleSheet.create({
 function validateEmail(email) {
     return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
 }
+
+function snapshotToArray(snapshot) {
+    var returnArr = [];
+
+    snapshot.forEach(function(childSnapshot) {
+        var item = childSnapshot.val();
+        item.key = childSnapshot.key;
+
+        returnArr.push(item);
+    });
+
+    return returnArr;
+};
 
 const mapStateToProps = state => {
     return state

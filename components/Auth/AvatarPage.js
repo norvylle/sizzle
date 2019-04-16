@@ -36,7 +36,7 @@ class Avatar extends Component {
             this.setState({url: await exportPicture({link: "admin", child: "profile", uri: this.state.image})})
         }
 
-        await searchSingle({link: "users",child: "username",search: this.props.state.username})
+        await searchSingle({link: "users",child: "username",search: this.props.state.user.username})
         .once("value",(snapshot)=>{
             snapshot.forEach((item)=>{
                 item.ref.update({image: this.state.url})
