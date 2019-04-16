@@ -89,7 +89,7 @@ class Home extends Component {
                         })
                     }
                     </ScrollView>
-                    <Text style={styles.text}>Let's Get Fit!</Text>                
+                    <Text style={styles.text}>Recently Added</Text>    
                     <ScrollView horizontal={true}>
                     {
                         recipes.map((item) =>{
@@ -131,7 +131,7 @@ class Home extends Component {
                         })
                     }
                     </ScrollView>
-                    <Text style={styles.text}>Vegan Life.</Text>                
+                    <Text style={styles.text}>Recipes You May Like</Text>                
                     <ScrollView horizontal={true}>
                     {
                         recipes.map((item) =>{

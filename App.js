@@ -92,8 +92,12 @@ const ProfileStack = createStackNavigator(
     Settings:{
       screen: SettingsPage,
       navigationOptions: {
+        headerTitle: "Settings",
         headerStyle:{
           backgroundColor: '#ff5733',
+        },
+        headerTitleStyle:{
+          color: "#fff",
         }
       }
     },

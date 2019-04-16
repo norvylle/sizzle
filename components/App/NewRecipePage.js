@@ -195,19 +195,20 @@ class NewRecipe extends Component{
             Alert.alert("Sizzle","Please add a Step");
             return;
         }
-        if(this.state.ingredients.filter((item)=> item.ingredient.ndbno === 0).length / this.state.ingredients.length < 0.75){
+        if(1-(this.state.ingredients.filter((item)=> item.ingredient.ndbno === 0).length / this.state.ingredients.length) < 0.75){
             Alert.alert("Sizzle","Please make sure that at least 75% of the ingredients are from the Food Database.");
             return;
         }
 
         await this.processIngredients(this.state.ingredients)
         this.setState({loading: true});
+
         if(this.props.state.mode === "EDIT"){
             if(this.props.navigation.state.params.recipe.recipeName === this.state.recipeName && this.props.navigation.state.params.recipe.ingredients === this.state.ingredients && this.props.navigation.state.params.recipe.steps === this.state.steps &&this.props.navigation.state.params.recipe.color === this.state.selectedColor && this.props.navigation.state.params.recipe.recipeName_username === this.state.recipeName+"_"+this.props.state.user.username){
+                this.setState({loading: false});
                 this.props.navigation.navigate('Profile')
             }
             else{
-                this.props.dispatch(postEdit());
                 let oldRecipeName = this.props.navigation.state.params.recipe.recipeName;
 
                 this.props.navigation.state.params.recipe.recipeName = this.state.recipeName;
@@ -221,74 +222,95 @@ class NewRecipe extends Component{
                 delete data["key"]
 
                 if(this.state.image != this.props.navigation.state.params.recipe.url){
-                    await deletePicture({link: this.props.state.user.username+"/recipes",child: oldRecipeName})
-                    .then(()=>{console.log("Delete success")})
-                    let url = await exportPicture({link: this.props.state.user.username+"/recipes",child: this.state.recipeName, uri: this.state.image})
-                    this.props.navigation.state.params.recipe.url = url;
+                    await deletePicture(this.props.navigation.state.params.recipe.url)
+                    .then((res, rej)=>{console.log(res," ",rej)})
+                    
+                    let url = null;
+                    
+                    try {
+                        url = await exportPicture({link: this.props.state.user.username+"/recipes",child: this.state.recipeName, uri: this.state.image})                        
+                    } catch (error) {
+                        console.log(error)
+                    }
+                    
+                    if(url === null){
+                        this.setState({loading: false});
+                        Alert.alert("Sizzle","An error occurred"); 
+                        return;
+                    }else{
+                        this.props.navigation.state.params.recipe.url = url;
+                    }
                 }
 
-                update({link: "recipes/"+key, data: data})
+                await update({link: "recipes/"+key, data: data})
                 .then(()=>{
+                    this.setState({loading: false});
                     Alert.alert("Sizzle","Recipe updated");
-                    this.props.navigation.navigate('Profile',{index: this.props.navigation.state.params.index, recipe: this.props.navigation.state.params.recipe})
+                    this.props.navigation.navigate('Profile')
                 })
                 .catch((error)=>{
+                    this.setState({loading: false});
                     Alert.alert("Sizzle",error);
                 })
-                
             }
         }else{
             await searchSingle({link: "recipes",child: "recipeName_username",search: this.state.recipeName+"_"+this.props.state.user.username})
             .once('value',async (snapshot) =>{
                 if(snapshot.exists()){
-                    Alert.alert("Sizzle","Recipe name already exists.");        
+                    this.setState({loading: false});
+                    Alert.alert("Sizzle","Recipe name already exists.");     
                 }else{
                     let url = await exportPicture({link: this.props.state.user.username+"/recipes",child: this.state.recipeName, uri: this.state.image})
-    
-                    await insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.user.username, stars: 0, url: url, recipeName_username: this.state.recipeName+"_"+this.props.state.user.username} })
-                    .then(()=>{
-                        Alert.alert("Sizzle","Recipe upload success!");
-                        this.props.dispatch(none());
-                        this.props.navigation.navigate('Profile');
-                    })
-                    .catch((error)=>{
-                        Alert.alert("Sizzle",error);
-                    })
+                    
+                    if(url === null){
+                        this.setState({loading: false});
+                        Alert.alert("Sizzle","An error occurred"); 
+                    }else{
+                        await insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.user.username, stars: 0, url: url, recipeName_username: this.state.recipeName+"_"+this.props.state.user.username} })
+                        .then(()=>{
+                            Alert.alert("Sizzle","Recipe upload success!");
+                            this.setState({loading: false});
+                            this.props.dispatch(none());
+                            this.props.navigation.navigate('Profile');
+                        })
+                        .catch((error)=>{
+                            this.setState({loading: false});
+                            Alert.alert("Sizzle",error);
+                        })
+                    }
                     
                 }
             })
-
         }
-        this.setState({loading: false});
     }
 
     processIngredients(ingredients){
         ingredients.forEach(async (item)=>{
-            console.log(item.ingredient.nutrients)
-            if(item.ingredient.ndbno !== 0)
-            await axios.get(usda.report,
-                {
-                    params:{
-                        api_key: usda.api_key,
-                        ndbno: item.ingredient.ndbno
-                    }
-                }
-            ).then(async function(response){
-                try {
-                    if(response.data.errors.error[0].status === 400){
-                        Alert.alert("Sizzle","Your searched returned 0 results. Try again.");
-                    }
-                }catch (error) {
-                    if(response.status === 200){
-                        item.nutrients = await response.data.report.food.nutrients.filter((item)=>["Energy", "Protein", "Total lipid (fat)", "Fiber, total dietary", "Sugars, total", "Sodium, Na"].includes(item.name))
-                    }
-                }
-            })
-            .catch(function(error){
-                if(error != undefined){
-                    console.log("Error: "+error);
-                }
-            })
+            if(item.ingredient.nutrients === undefined)
+                if(item.ingredient.ndbno !== 0)
+                    await axios.get(usda.report,
+                        {
+                            params:{
+                                api_key: usda.api_key,
+                                ndbno: item.ingredient.ndbno
+                            }
+                        }
+                    ).then(async function(response){
+                        try {
+                            if(response.data.errors.error[0].status === 400){
+                                Alert.alert("Sizzle","Your searched returned 0 results. Try again.");
+                            }
+                        }catch (error) {
+                            if(response.status === 200){
+                                item.nutrients = await response.data.report.food.nutrients.filter((item)=>["Energy", "Protein", "Total lipid (fat)", "Fiber, total dietary", "Sugars, total", "Sodium, Na"].includes(item.name))
+                            }
+                        }
+                    })
+                    .catch(function(error){
+                        if(error != undefined){
+                            console.log("Error: "+error);
+                        }
+                    })
         })
     }
 
@@ -417,7 +439,7 @@ class NewRecipe extends Component{
                         </View>
                     </View>
                 </Overlay>
-                <Overlay isVisible={this.state.loading} height="100%" width="100%" overlayBackgroundColor="#dcdcdc" overlayStyle={{opacity: 0.5}}>
+                <Overlay isVisible={this.state.loading} height="100%" width="100%" overlayBackgroundColor="#2c3e50" overlayStyle={{opacity: 0.5}}>
                     <View style={{alignItems: 'stretch', flex: 1, justifyContent: 'center'}}>
                         <Spinner color="white" size="large"/>
                         <Text style={{color: "white", textAlign: "center"}}>Uploading</Text>

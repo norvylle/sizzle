@@ -8,13 +8,6 @@ const database = firebase.database();
 const auth = firebase.auth();
 const storage = firebase.storage();
 
-/*
-    data={
-        link,
-        data
-    }
-*/
-
 export function insert(data){
     return database.ref(data.link)
     .push(data.data)
@@ -69,16 +62,21 @@ export async function exportPicture(data){
         xhr.open('GET',data.uri, true);
         xhr.send(null);
     });
-    console.log(typeof(blob))
-    const snapshot = await upload({link: data.link, child: data.child, file: blob})
 
+    let snapshot = undefined;
+
+    try {
+        snapshot = await upload({link: data.link, child: data.child, file: blob})
+    } catch (error) {
+        console.log(error)
+    }
+    
     blob.close();
-    return await snapshot.ref.getDownloadURL();
+    if(snapshot != undefined) return await snapshot.ref.getDownloadURL();
+    else return null;
 }
 
 export function deletePicture(data){
-    return storage.ref(data.link)
-    .child(data.child)
+    return storage.refFromURL(data)
     .delete()
-
 }

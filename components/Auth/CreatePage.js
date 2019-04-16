@@ -57,9 +57,9 @@ class Create extends Component {
                 registerEmail(clone.email,clone.password)
                 .then(()=>{
                     insert({link:"users/",data:clone})
-                    .then(()=>{
-                        this.props.dispatch(login(data))
-                        this.props.navigation.navigate('Avatar',{ sex: this.state.sex});
+                    .then(async ()=>{
+                        await this.props.dispatch(login(clone))
+                        this.props.navigation.navigate('Avatar',{sex: this.state.sex});
                     })
                     .catch((error)=>{
                         Alert.alert("Sizzle",error.message);

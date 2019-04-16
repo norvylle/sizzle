@@ -174,7 +174,7 @@ class Search extends Component {
                     {
                         this.state.selected === 1 ?
                         (this.state.renderData1 ? 
-                            (<Text style={{paddingBottom: 120, textAlign: "center", color: "gray"}}>Showing 1-50 of 50 results"{this.state.searched}"</Text>)
+                            (<Text style={{fontFamily: "geoSansLight", paddingBottom: 120, textAlign: "center", color: "gray"}}>Showing 1-50 of 50 results"{this.state.searched}"</Text>)
                             : null) 
                         :
                         null   
@@ -218,7 +218,7 @@ class Search extends Component {
                     {
                         this.state.selected === 0 ? 
                         (this.state.renderData0 ? 
-                            (<Text style={{paddingBottom: 120, textAlign: "center", color: "gray"}}>{this.state.data.attribution.text}</Text>)   
+                            (<Text style={{fontFamily: "geoSansLight",paddingBottom: 120, textAlign: "center", color: "gray"}}>{this.state.data.attribution.text}</Text>)   
                             :null)
                         :
                         null
@@ -270,8 +270,6 @@ const mapStateToProps = state => {
     return state
 }
 
-// const SearchPage = connect(mapStateToProps)(Search);
+const SearchPage = connect(mapStateToProps)(Search);
 
-// export default SearchPage;
-
-export default Search;
+export default SearchPage;

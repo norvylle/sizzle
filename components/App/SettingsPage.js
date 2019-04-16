@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Text, Button } from 'native-base';
+import { Text, Button, H3 } from 'native-base';
 import { connect } from 'react-redux'
 import { logout } from '../Service/Reducer'
 
@@ -13,18 +13,44 @@ class Settings extends Component {
     }
 
     async handleLogout(){
-        this.props.dispatch(logout())
         await this.props.navigation.popToTop();
         await this.props.navigation.navigate('Auth');
+        this.props.dispatch(logout())
     }
+
+    handleEditDetails(){}
+    handlePassword(){}
+    handleProfilePicture(){}
+    handleRate(){}
 
     render() {
         return(
-            <View>
-                <Text>Welcome to Settings!</Text>
-                <Button bordered onPress={()=>this.handleLogout()} style={styles.button}>
-                    <Text style={styles.buttonText}>Logout</Text>
-                </Button>
+            <View style={styles.view}>
+                <View style={styles.viewSpace}>
+                    <H3 style={styles.H3}>Account ({this.props.state.user.username})</H3>
+                    <View style={styles.viewColor}>
+                        <Button full transparent onPress={()=>this.handleEditDetails()} style={styles.button}>
+                            <Text uppercase={false} style={styles.buttonText}>Edit Details</Text>
+                        </Button>
+                        <Button full transparent onPress={()=>this.handlePassword()} style={styles.button}>
+                            <Text uppercase={false} style={styles.buttonText}>Password</Text>
+                        </Button>
+                        <Button full transparent onPress={()=>this.handleProfilePicture()} style={styles.button}>
+                            <Text uppercase={false} style={styles.buttonText}>Profile Picture</Text>
+                        </Button>
+                    </View>
+                </View>
+                <View style={styles.viewSpace}>
+                    <H3 style={styles.H3}>App</H3>
+                    <View style={styles.viewColor}>
+                        <Button full transparent onPress={()=>this.handleRate()} style={styles.button}>
+                            <Text uppercase={false} style={styles.buttonText}>Rate This App!</Text>
+                        </Button>
+                        <Button full transparent onPress={()=>this.handleLogout()} style={styles.button}>
+                            <Text style={styles.buttonTextLogout}>Log out</Text>
+                        </Button>
+                    </View>
+                </View>
             </View>
         );
     }
@@ -32,12 +58,35 @@ class Settings extends Component {
 
 const styles = StyleSheet.create({
     button:{
-        alignItems: 'center'
+        padding: 10
+    },
+    view:{
+        height: "100%",
+        backgroundColor: "#e5e8e8"
+    },
+    viewSpace:{
+        marginTop: 20
+    },
+    viewColor:{
+        backgroundColor: "white"
+    },
+    button:{
+        borderBottomWidth: 0.5,
+        borderBottomColor: "#e5e8e8",
+        justifyContent: "flex-start"
     },
     buttonText:{
-        color:'#fff',
-        alignSelf: 'center',
+        color: "#000"
     },
+    buttonTextLogout:{
+        textAlign: "left",
+        color: "red"
+    },
+    H3:{
+        margin: 10,
+        color: "#5f6a6a",
+        fontFamily: "geoSansLight"
+    }
 })
 
 const mapStateToProps = state => {

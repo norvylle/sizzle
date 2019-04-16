@@ -44,7 +44,7 @@ class Profile extends Component {
 
     handleEditRecipe(index){
         this.props.dispatch(edit());
-        this.props.navigation.navigate('Recipe',{index: index, recipe: this.state.recipes[index]})
+        this.props.navigation.navigate('Recipe',{recipe: this.state.recipes[index]})
     }
 
     async handleDeleteRecipe(index, recipe){
@@ -56,19 +56,12 @@ class Profile extends Component {
         this.forceUpdate()
     }
 
-    
-    componentWillUpdate(){
-        if(this.props.state.mode === "POST_EDIT"){
-            this.state.recipes[this.props.navigation.state.params.index] = this.props.navigation.state.params.recipe;
-        }
-    }
-
     async componentWillMount(){
         searchMulti({link: "recipes", child: "username", search: this.props.state.user.username})
         .on("value",function(snapshot){
            this.setState({recipes: snapshotToArray(snapshot), renderRecipes: true})
         }.bind(this))
-        await this.setState({user: this.props.state.user})
+        // await this.setState({user: this.props.state.user})
         // searchSingle({link: "meals", child: "username", search: this.props.state.user.username})
         // .once("value",function(snapshot){
         //  this.setState({meals: snapshotToArray(snapshot), renderMeals: true})
@@ -82,11 +75,18 @@ class Profile extends Component {
         return(
         <View>
             <View style={styles.heading}>
-                <Image source={{uri: this.state.user.image}} style={styles.userImage}/>
-                <Text style={styles.name}>{this.state.user.firstName} {this.state.user.lastName}</Text>
-                <Button bordered rounded dark onPress={()=>this.handleSettings()} style={styles.settings}>
-                    <Icon type='MaterialCommunityIcons' name='settings'/>
-                </Button>
+                <View style={{width: "25%"}}>
+                    <Image source={{uri: this.props.state.user.image}} style={styles.userImage}/>
+                </View>
+                <View style={styles.userDetails}>
+                    <Text style={styles.name}>{(this.props.state.user.firstName+" "+this.props.state.user.lastName).length < 21 ? this.props.state.user.firstName+" "+this.props.state.user.lastName : (this.props.state.user.firstName+" "+this.props.state.user.lastName).substr(0,17)+"..." }</Text>
+                    <Text style={styles.bio}>Bio (max len: 25)</Text>
+                </View>
+                <View style={{width: "20%"}}>
+                    <Button bordered rounded large dark onPress={()=>this.handleSettings()} style={styles.settings}>
+                        <Icon type='MaterialCommunityIcons' name='settings'/>
+                    </Button>
+                </View>
             </View>
             <View style={styles.scroll}>
                 <Tabs>
@@ -184,33 +184,26 @@ const styles = StyleSheet.create({
     heading:{
         flexDirection: 'row',
         marginTop: 20,
-        marginLeft: 20,
         alignItems: "center",
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     settings:{
-        marginLeft: 50,
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center'
     },  
-    header:{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 10,
-        backgroundColor: '#A9DAD6',
-        alignItems: 'center'
-    },
     image:{
         height: 200, 
         width: 300, 
         flex: 1
     },
     name:{
-        flexDirection:'column',
-        marginLeft: 20,
         fontSize: 20
     },
+    bio:{
+        fontSize: 15        
+    },
     scroll:{
-        height: '83%',
+        height: '85%',
         marginTop: 10
     },
     tabs:{
@@ -237,10 +230,12 @@ const styles = StyleSheet.create({
         width: 70,
         borderRadius: 35,
         backgroundColor: "white",
-        borderColor: "black"
+        borderColor: "black",
+        alignSelf: "center"
     },
     userDetails:{
-        flexDirection: "column"
+        flexDirection: "column",
+        width: "55%"
     }
 })
 
