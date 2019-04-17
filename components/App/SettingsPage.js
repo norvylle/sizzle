@@ -18,9 +18,22 @@ class Settings extends Component {
         this.props.dispatch(logout())
     }
 
-    handleEditDetails(){}
-    handlePassword(){}
-    handleProfilePicture(){}
+    handleEditDetails(){
+        this.props.navigation.navigate('EditDetails')
+    }
+
+    handleEmail(){
+        this.props.navigation.navigate('Email')
+    }
+
+    handlePassword(){
+        this.props.navigation.navigate('Password')
+    }
+
+    handleProfilePicture(){
+        this.props.navigation.navigate('ProfilePicture')
+    }
+
     handleRate(){}
 
     render() {
@@ -31,6 +44,9 @@ class Settings extends Component {
                     <View style={styles.viewColor}>
                         <Button full transparent onPress={()=>this.handleEditDetails()} style={styles.button}>
                             <Text uppercase={false} style={styles.buttonText}>Edit Details</Text>
+                        </Button>
+                        <Button full transparent onPress={()=>this.handleEmail()} style={styles.button}>
+                            <Text uppercase={false} style={styles.buttonText}>Email</Text>
                         </Button>
                         <Button full transparent onPress={()=>this.handlePassword()} style={styles.button}>
                             <Text uppercase={false} style={styles.buttonText}>Password</Text>

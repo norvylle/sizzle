@@ -49,6 +49,10 @@ function upload(data){
     .put(data.file)
 }
 
+export function getUser(){
+    return firebase.auth().currentUser
+}
+
 export async function exportPicture(data){
     const blob = await new Promise((resolve, reject)=>{
         const xhr = new XMLHttpRequest();
@@ -79,4 +83,21 @@ export async function exportPicture(data){
 export function deletePicture(data){
     return storage.refFromURL(data)
     .delete()
+}
+
+export function snapshotToArray(snapshot) {
+    var returnArr = [];
+
+    snapshot.forEach(function(childSnapshot) {
+        var item = childSnapshot.val();
+        item.key = childSnapshot.key;
+
+        returnArr.push(item);
+    });
+
+    return returnArr;
+};
+
+export function validateEmail(email) {
+    return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
 }

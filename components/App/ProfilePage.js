@@ -4,7 +4,7 @@ import { Text, Button, Tabs, Tab, Icon, Card, CardItem, Left, Right, Body, H2, S
 import ActionButton from 'react-native-action-button'
 import { connect } from 'react-redux';
 import { add, edit } from '../Service/Reducer';
-import { searchMulti, remove, deletePicture, searchSingle} from '../Service/Firebase';
+import { searchMulti, remove, deletePicture, snapshotToArray, getUser} from '../Service/Firebase';
 
 const database = require("../Service/database.json")
 
@@ -61,13 +61,11 @@ class Profile extends Component {
         .on("value",function(snapshot){
            this.setState({recipes: snapshotToArray(snapshot), renderRecipes: true})
         }.bind(this))
-        // await this.setState({user: this.props.state.user})
+        
         // searchSingle({link: "meals", child: "username", search: this.props.state.user.username})
         // .once("value",function(snapshot){
         //  this.setState({meals: snapshotToArray(snapshot), renderMeals: true})
-        // }.bind(this))
-        // await searchMulti({link: "users", child: "username", search: this.props.state.user.username})
-        // .on("value",(snapshot) =>this.setState({recipes: snapshot})) //get user on Login
+        // }.bind(this)) //get meals
         
     }
 
@@ -150,19 +148,6 @@ class Profile extends Component {
         );
     }
 }
-
-function snapshotToArray(snapshot) {
-    var returnArr = [];
-
-    snapshot.forEach(function(childSnapshot) {
-        var item = childSnapshot.val();
-        item.key = childSnapshot.key;
-
-        returnArr.push(item);
-    });
-
-    return returnArr;
-};
 
 const styles = StyleSheet.create({
     activeTabs:{

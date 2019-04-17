@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Alert } from 'react-native';
-import { Form, Item, Input, Label, Button, Icon, Root, Spinner } from 'native-base';
-import { signInWithEmail, searchSingle } from '../Service/Firebase';
+import { StyleSheet, Text, View, Alert, Keyboard } from 'react-native';
+import { Form, Item, Input, Label, Button, Icon, Root } from 'native-base';
+import { signInWithEmail, searchSingle, snapshotToArray, validateEmail } from '../Service/Firebase';
 import { Font, AppLoading } from 'expo';
 import { connect } from 'react-redux';
 import { login, guestLogin } from '../Service/Reducer'
@@ -23,27 +23,27 @@ class Title extends Component {
     }
 
     async handleLogin(){
+        Keyboard.dismiss();
+        
         if(validateEmail(this.state.username)){
             signInWithEmail(this.state.username,this.state.password)
-            .then(()=>{
-                this.props.navigation.navigate('App');
+            .then(async (user)=>{
+                await searchSingle({link: "users", child: "username", search: user.user.displayName})
+                .once("value",async function(snapshot){
+                    await this.props.dispatch(login(await snapshotToArray(snapshot)[0]))
+                    this.props.navigation.navigate('App');
+                }.bind(this))
             })
             .catch((error)=>{
-                Alert.alert(
-                "Sizzle",
-                error
-                )
+                Alert.alert("Sizzle",error.message)
             })
-        //dispatch username with email sign in !
-            //no account not catched, try return whole function
         }
         else{ // dev purposes
             await searchSingle({link: "users", child: "username", search: this.state.username})
             .once("value",async function(snapshot){
-                await this.props.dispatch(login(await snapshotToArray(snapshot)[0])) //download photo
+                await this.props.dispatch(login(await snapshotToArray(snapshot)[0]))
                 this.props.navigation.navigate('App');
             }.bind(this))
-            //add validation
         }
     }
 
@@ -168,23 +168,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     }
 });
-
-function validateEmail(email) {
-    return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
-}
-
-function snapshotToArray(snapshot) {
-    var returnArr = [];
-
-    snapshot.forEach(function(childSnapshot) {
-        var item = childSnapshot.val();
-        item.key = childSnapshot.key;
-
-        returnArr.push(item);
-    });
-
-    return returnArr;
-};
 
 const mapStateToProps = state => {
     return state

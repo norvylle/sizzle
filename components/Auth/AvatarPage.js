@@ -13,7 +13,8 @@ class Avatar extends Component {
         this.state = {
             image: null,
             url: "",
-            loading: false
+            loading: false,
+            def: true
         }
         autoBind(this);
     }
@@ -27,10 +28,6 @@ class Avatar extends Component {
           if (!result.cancelled) {
             this.setState({ def: false, image:  result.uri});
           }
-    }
-
-    sleep(ms){
-        return new Promise(resolve => setTimeout(resolve,ms))
     }
 
     async handleUpload(){
@@ -55,7 +52,6 @@ class Avatar extends Component {
             }
         }
 
-        
 
         await searchSingle({link: "users",child: "username",search: this.props.state.user.username})
         .once("value",(snapshot)=>{

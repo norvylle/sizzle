@@ -1,4 +1,4 @@
-import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage, SettingsPage, NewRecipePage, AvatarPage } from './components/Export';
+import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage, SettingsPage, NewRecipePage, AvatarPage, ProfilePicturePage, PasswordPage, EmailPage, EditDetailsPage, NewMealPlanPage, ViewMealPlanPage, ViewRecipePage } from './components/Export';
 import { createStackNavigator, createSwitchNavigator, createBottomTabNavigator, createAppContainer} from 'react-navigation';
 import React, { Component } from 'react';
 import { StyleSheet } from 'react-native';
@@ -29,7 +29,10 @@ const HomeStack = createStackNavigator(
           color: '#fff',
         }
       }
-    },  
+    },
+    ViewRecipe:{
+      screen: ViewRecipePage
+    }
   },
   {
     initialRouteName: 'Home',
@@ -50,6 +53,9 @@ const SearchStack = createStackNavigator(
           color: '#fff',
         }
       }
+    },
+    ViewRecipe:{
+      screen: ViewRecipePage
     }
   },
   {
@@ -71,6 +77,9 @@ const DownloadStack = createStackNavigator(
           color: '#fff',
         }
       }
+    },
+    ViewRecipe:{
+      screen: ViewRecipePage
     }
   },
   {
@@ -112,6 +121,47 @@ const ProfileStack = createStackNavigator(
           color: "#fff",
         }
       }
+    },
+    EditDetails:{
+      screen: EditDetailsPage,
+      navigationOptions: {
+        headerStyle:{
+          backgroundColor: '#ff5733',
+        }
+      }
+    },
+    Password:{
+      screen: PasswordPage,
+      navigationOptions: {
+        headerStyle:{
+          backgroundColor: '#ff5733',
+        }
+      }
+    },
+    Email:{
+      screen: EmailPage,
+      navigationOptions: {
+        headerStyle:{
+          backgroundColor: '#ff5733',
+        }
+      }
+    },
+    ProfilePicture:{
+      screen: ProfilePicturePage,
+      navigationOptions: {
+        headerStyle:{
+          backgroundColor: '#ff5733',
+        }
+      }
+    },
+    ViewRecipe:{
+      screen: ViewRecipePage
+    },
+    ViewMealPlan:{
+      screen: ViewMealPlanPage
+    },
+    NewMealPlan:{
+      screen: NewMealPlanPage
     }
   },
   {

@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 
 const LOGIN = 'USER LOGIN';
 const LOGOUT = 'USER LOGOUT';
-const GUEST_LOGIN = 'GUEST LOGIN'
+const GUEST_LOGIN = 'GUEST LOGIN';
 const ADD = 'MODE ADD';
 const EDIT = 'MODE EDIT';
 const POST_EDIT = "MODE POST_EDIT"
