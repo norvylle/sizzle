@@ -48,8 +48,8 @@ class ViewRecipe extends Component{
         }
     }
 
-    handleCook(){
-        Alert.alert("Sizzle", "Cooking recipe")
+    handleCook(recipe){
+        this.props.navigation.navigate('Cook',{recipe});
     }
 
     render(){
@@ -121,7 +121,7 @@ class ViewRecipe extends Component{
                             })
                         }
                     </List>
-                    <Button full danger iconRight onPress={()=>{this.handleCook()}} style={styles.button}>
+                    <Button full danger iconRight onPress={()=>{this.handleCook(this.state.data)}} style={styles.button}>
                         <Text>Cook Recipe</Text>
                         <Icon active type="MaterialCommunityIcons" name="silverware-spoon"/>
                     </Button>

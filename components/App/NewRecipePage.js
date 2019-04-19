@@ -24,6 +24,7 @@ class NewRecipe extends Component{
             buttonText: "Add Recipe",
             image: null,
             loading: false,
+            nonTouched: true,
             //overlay
             header: "",
             currentIndex: -1,
@@ -65,7 +66,7 @@ class NewRecipe extends Component{
             Alert.alert("Sizzle","Please input on the missing field/s.")
         }else{
             await this.state.ingredients.push({qty: parseFloat(this.state.quantity) , unit: this.state.unit, ingredient: this.state.ingredient})
-            this.setState({IngredientVisible: false, searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: "c", search: "", ingredient: {ndbno: -1}})
+            this.setState({IngredientVisible: false, searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: "c", search: "", ingredient: {ndbno: -1}, nonTouched: false})
         }
     }
 
@@ -132,7 +133,7 @@ class NewRecipe extends Component{
             this.state.steps[this.state.currentIndex] = {direction: this.state.direction, time: timeObject};
         }
         
-        this.setState({StepVisible: false, direction: "", duration: "", radio: "none",currentIndex: -1})
+        this.setState({StepVisible: false, direction: "", duration: "", radio: "none",currentIndex: -1, nonTouched: false})
     }
 
     handleOnOpenStep(){
@@ -204,12 +205,11 @@ class NewRecipe extends Component{
         this.setState({loading: true});
 
         if(this.props.state.mode === "EDIT"){
-            if(this.props.navigation.state.params.recipe.recipeName === this.state.recipeName && this.props.navigation.state.params.recipe.ingredients === this.state.ingredients && this.props.navigation.state.params.recipe.steps === this.state.steps &&this.props.navigation.state.params.recipe.color === this.state.selectedColor && this.props.navigation.state.params.recipe.recipeName_username === this.state.recipeName+"_"+this.props.state.user.username){
+            if(this.state.nonTouched){
                 this.setState({loading: false});
                 this.props.navigation.navigate('Profile')
             }
             else{
-                let oldRecipeName = this.props.navigation.state.params.recipe.recipeName;
 
                 this.props.navigation.state.params.recipe.recipeName = this.state.recipeName;
                 this.props.navigation.state.params.recipe.ingredients = this.state.ingredients;
@@ -321,13 +321,13 @@ class NewRecipe extends Component{
           });
           
           if (!result.cancelled) {
-            this.setState({ image: result.uri });
+            this.setState({ image: result.uri , nonTouched: false});
           }
     }
 
     componentWillMount(){
         if(this.props.state.mode === "EDIT"){
-            this.setState({buttonText: "Submit Edit/s", recipeName: this.props.navigation.state.params.recipe.recipeName, ingredients: this.props.navigation.state.params.recipe.ingredients, steps: this.props.navigation.state.params.recipe.steps, selectedColor: this.props.navigation.state.params.recipe.color, image: this.props.navigation.state.params.recipe.url})
+            this.setState({buttonText: "Submit Edit/s", recipeName: this.props.navigation.state.params.recipe.recipeName, ingredients: this.props.navigation.state.params.recipe.ingredients, steps: this.props.navigation.state.params.recipe.steps, selectedColor: this.props.navigation.state.params.recipe.color, image: this.props.navigation.state.params.recipe.url, nonTouched: true})
         }else{
             this.setState({buttonText: "Add Recipe"})
         }
@@ -448,7 +448,7 @@ class NewRecipe extends Component{
                 <Form>
                     <Item stackedLabel>
                         <Label>Recipe Name</Label>
-                        <Input style={styles.input} placeholder={"My First Recipe"} value={this.state.recipeName} onChangeText={(recipeName)=> this.setState({recipeName})} maxLength={50}/>
+                        <Input style={styles.input} placeholder={"My First Recipe"} value={this.state.recipeName} onChangeText={(recipeName)=> this.setState({recipeName, nonTouched: false})} maxLength={50}/>
                     </Item>
                     <View>
                         <Image source={{uri: this.state.image}} style={styles.image}/>
@@ -524,7 +524,7 @@ class NewRecipe extends Component{
                     <View style={styles.view}>
                         <Text style={styles.viewHeader}>Step Card Color</Text>
                         <ColorPalette
-                            onChange={selectedColor => this.setState({selectedColor})}
+                            onChange={selectedColor => this.setState({selectedColor, nonTouched: false})}
                             value={this.state.selectedColor}
                             colors={['#ce0e0e','#dd6808', '#afb207', '#109cb5', '#23187a', '#a33a89', '#000000']}
                             title={""}

@@ -22,6 +22,7 @@
     "react-native-color-palette": "^2.0.3",
     "react-native-elements": "^1.1.0",
     "react-native-loading-spinner-overlay": "^1.0.1",
+    "react-native-swiper": "^1.5.14",
     "react-navigation": "^3.0.7",
     "react-redux": "^6.0.1",
     "redux": "^4.0.1",

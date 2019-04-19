@@ -14,6 +14,7 @@ import EditDetailsPage from './App/EditDetailsPage';
 import NewMealPlanPage from './App/NewMealPlanPage'
 import ViewMealPlanPage from './App/ViewMealPlanPage'
 import ViewRecipePage from './App/ViewRecipePage'
+import CookPage from './App/CookPage'
 
 export {
     TitlePage,
@@ -31,5 +32,6 @@ export {
     EditDetailsPage,
     NewMealPlanPage,
     ViewMealPlanPage,
-    ViewRecipePage
+    ViewRecipePage,
+    CookPage
 }

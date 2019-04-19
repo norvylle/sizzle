@@ -4,7 +4,7 @@ import { Text, Button, Tabs, Tab, Icon, Card, CardItem, Left, Right, Body, H3, S
 import ActionButton from 'react-native-action-button'
 import { connect } from 'react-redux';
 import { add, edit, view } from '../Service/Reducer';
-import { searchMulti, remove, deletePicture, snapshotToArray, computeDate } from '../Service/Firebase';
+import { searchMulti, remove, deletePicture, snapshotToArray, computeDate, update, transact } from '../Service/Firebase';
 
 const database = require("../Service/database.json")
 
@@ -59,6 +59,65 @@ class Profile extends Component {
     async handleOpenRecipe(recipe){
         await this.props.dispatch(view());
         this.props.navigation.navigate('ViewRecipe',{recipe});
+    }
+
+    async handleStar(recipe){
+        if(this.props.state.user.starred.includes(recipe.recipeName_username)){ //unstar
+            this.props.state.user.starred.splice(this.props.state.user.starred.indexOf(recipe.recipeName_username),1);
+            
+            await update({link: "users/"+this.props.state.user.key, data: { starred: this.props.state.user.starred }})
+            .then(async ()=>{
+                await transact("recipes/"+recipe.key+"/stars")
+                .transaction((stars)=>{
+                    return stars-1;
+                },(error, committed, snapshot)=>{
+                    if(error){
+                        Alert.alert("Sizzle","An error occurred. Try again later.");
+                    }else if(!committed){
+                        Alert.alert("Sizzle","An error occurred. Try again later.");
+                    }else{
+                        console.log(snapshot.val());
+                    }
+                }).catch((error)=>{
+                    Alert.alert("Sizzle","An error occurred. Try again later.");
+                })
+            }).catch((error)=>{
+                Alert.alert("Sizzle","An error occurred. Try again later.");
+            })
+
+        }else{ //star
+            this.props.state.user.starred.push(recipe.recipeName_username);
+
+            await update({link: "users/"+this.props.state.user.key, data: { starred: this.props.state.user.starred }})
+            .then(async ()=>{
+                await transact("recipes/"+recipe.key+"/stars")
+                .transaction(function(stars){
+                    return stars+1;
+                },function(error, committed, snapshot){
+                    if(error){
+                        Alert.alert("Sizzle","An error occurred. Try again later.");
+                    }else if(!committed){
+                        Alert.alert("Sizzle","An error occurred. Try again later.");
+                    }else{
+                        console.log(snapshot.val());
+                    }
+                }).catch((error)=>{
+                    Alert.alert("Sizzle","An error occurred. Try again later.");
+                })
+            }).catch((error)=>{
+                Alert.alert("Sizzle","An error occurred. Try again later.");
+            })
+
+        }
+        this.forceUpdate()
+    }
+
+    evaluateStar(recipeName_username){
+        if(this.props.state.user.starred.includes(recipeName_username)){
+            return true
+        }else{
+            return false
+        }
     }
 
     async componentWillMount(){
@@ -118,6 +177,9 @@ class Profile extends Component {
                                         </TouchableOpacity>
                                         <CardItem>
                                             <Left>
+                                                <Button transparent onPress={() => this.handleStar(recipe)}>
+                                                    <Icon type='FontAwesome' name='star' style={ this.evaluateStar(recipe.recipeName_username) ? (styles.icon) : (styles.icon1) }/>
+                                                </Button>
                                                 <Text>{recipe.stars} Stars</Text>
                                             </Left>
                                             <Body/><Body/>
@@ -238,7 +300,13 @@ const styles = StyleSheet.create({
     userDetails:{
         flexDirection: "column",
         width: "55%"
-    }
+    },
+    icon:{
+        color: '#ff5573'
+    },
+    icon1:{
+        color: '#000'
+    },
 })
 
 const mapStateToProps = state => {
