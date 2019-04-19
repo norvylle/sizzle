@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, StyleSheet,Text, Alert } from 'react-native';
 import { Form, Item, Input, Label, Button, Icon, DatePicker, Radio, Spinner } from 'native-base';
-import { insert, searchSingle, registerEmail, validateEmail } from '../Service/Firebase';
+import { insert, searchSingle, registerEmail, validateEmail, snapshotToArray } from '../Service/Firebase';
 import { login } from '../Service/Reducer'
 import { connect } from 'react-redux';
 
@@ -57,9 +57,11 @@ class Create extends Component {
                 .then(async (user)=>{
                     await user.user.updateProfile({displayName: clone.username})
                     insert({link:"users/",data:clone})
+                    .once('value',(snapshot)=>{
+                        this.props.dispatch(login({...snapshot.val(),key: snapshot.key}))
+                    })
                     .then(async ()=>{
-                        await this.props.dispatch(login(clone))
-                        this.props.navigation.navigate('Avatar',{sex: this.state.sex});
+                        this.props.navigation.navigate('Avatar',{sex: clone.sex});
                     })
                     .catch((error)=>{
                         Alert.alert("Sizzle",error.message);

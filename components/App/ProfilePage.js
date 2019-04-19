@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { View, ScrollView, StyleSheet, Image, Alert, } from 'react-native';
-import { Text, Button, Tabs, Tab, Icon, Card, CardItem, Left, Right, Body, H2, Spinner, Label} from 'native-base';
+import { View, ScrollView, StyleSheet, Image, Alert, TouchableOpacity } from 'react-native';
+import { Text, Button, Tabs, Tab, Icon, Card, CardItem, Left, Right, Body, H3, Spinner, Thumbnail} from 'native-base';
 import ActionButton from 'react-native-action-button'
 import { connect } from 'react-redux';
-import { add, edit } from '../Service/Reducer';
-import { searchMulti, remove, deletePicture, snapshotToArray, getUser} from '../Service/Firebase';
+import { add, edit, view } from '../Service/Reducer';
+import { searchMulti, remove, deletePicture, snapshotToArray, computeDate } from '../Service/Firebase';
 
 const database = require("../Service/database.json")
 
@@ -48,12 +48,17 @@ class Profile extends Component {
     }
 
     async handleDeleteRecipe(index, recipe){
-        this.state.recipes.splice(index,1)
         await remove({link: "recipes/"+recipe.key})
         .then(()=>{console.log("DB REMOVE success")})
-        await deletePicture({link: this.props.state.user.username+"/recipes", child: recipe.recipeName})
+        await deletePicture(recipe.url)
         .then(()=>{console.log("STORE REMOVE success")})
+        this.state.recipes.splice(index,1)
         this.forceUpdate()
+    }
+
+    async handleOpenRecipe(recipe){
+        await this.props.dispatch(view());
+        this.props.navigation.navigate('ViewRecipe',{recipe});
     }
 
     async componentWillMount(){
@@ -61,7 +66,6 @@ class Profile extends Component {
         .on("value",function(snapshot){
            this.setState({recipes: snapshotToArray(snapshot), renderRecipes: true})
         }.bind(this))
-        
         // searchSingle({link: "meals", child: "username", search: this.props.state.user.username})
         // .once("value",function(snapshot){
         //  this.setState({meals: snapshotToArray(snapshot), renderMeals: true})
@@ -97,14 +101,21 @@ class Profile extends Component {
                                     return(<Card key={recipe.key} style={styles.card}>
                                         <CardItem>
                                             <Left>
+                                                <Thumbnail source={{uri: recipe.userUrl}} style={{borderWidth: 1, borderColor: "black"}}/>
                                                 <Body>
-                                                    <H2>{recipe.recipeName}</H2>
+                                                    <H3>{recipe.recipeName}</H3>
+                                                    <Text note>{recipe.username}</Text>
                                                 </Body>
                                             </Left>
+                                            <Right>
+                                                <Text>{computeDate(new Date(recipe.dateAdded))}</Text>
+                                            </Right>
                                         </CardItem>
-                                        <CardItem cardBody>
-                                            <Image source={{uri: recipe.url}} style={styles.image}/>
-                                        </CardItem>
+                                        <TouchableOpacity onPress={()=>{this.handleOpenRecipe(recipe)}}>
+                                            <CardItem cardBody>
+                                                <Image source={{uri: recipe.url}} style={styles.image}/>
+                                            </CardItem>
+                                        </TouchableOpacity>
                                         <CardItem>
                                             <Left>
                                                 <Text>{recipe.stars} Stars</Text>

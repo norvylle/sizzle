@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Keyboard, TouchableOpacity, Image } from 'react-native';
-import { CardItem, Input, Form, Item, Button, Icon, Left, Right, Thumbnail, Radio, Text, Card, Body, Spinner } from 'native-base';
+import { CardItem, Input, Form, Item, Button, Icon, Left, Right, Radio, Text, Card, Body, Spinner, Thumbnail } from 'native-base';
 import { usda, yummly } from '../Service/secret';
 import { connect } from 'react-redux';
+import { view, viewYummly } from '../Service/Reducer'
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
@@ -122,6 +123,12 @@ class Search extends Component {
         })
     }
 
+    async handleOpenYummly(id){
+        //push id to View Recipe
+        await this.props.dispatch(viewYummly());
+        this.props.navigation.navigate('ViewRecipe',{id});
+    }
+
     render() {
         return(
             <View>
@@ -186,22 +193,26 @@ class Search extends Component {
                                 return(
                                     <Card key={item.id} style={styles.card}>
                                         <CardItem>
-                                            <Left>
-                                                <Thumbnail source={{uri: this.state.data.attribution.logo}}/>
+                                            <Left style={{width: "80%"}}>
+                                                <Thumbnail source={{uri: this.state.data.attribution.logo}} style={styles.thumbnail}/>
                                                 <Body>
                                                     <Text>{item.recipeName}</Text>
                                                     <Text note>{item.sourceDisplayName}</Text>
                                                 </Body>
                                             </Left>
+                                            <Right>
+                                                <Button transparent onPress={() =>{Alert.alert("Sizzle","Rated by Yummly\n\n5 Stars - Outstanding\n4 Stars - Really Liked It\n3 Stars - Liked It/Average\n2 Stars - Not great/Just Okay\n1 Star - Didn't Like It")} }>
+                                                    <Icon type='Feather' name='info' style={styles.icon}/>
+                                                </Button>
+                                            </Right>
                                         </CardItem>
-                                        <CardItem cardBody>
-                                            <Image source={{uri: item.imageUrlsBySize[90]}} style={styles.image}/>
-                                        </CardItem>
+                                        <TouchableOpacity onPress={()=>{this.handleOpenYummly(item.id)}}>
+                                            <CardItem cardBody>
+                                                <Image source={{uri: item.imageUrlsBySize[90]}} style={styles.image}/>
+                                            </CardItem>
+                                        </TouchableOpacity>
                                         <CardItem>
                                             <Left>
-                                                <Button transparent onPress={() =>{Alert.alert("Sizzle","Rated by Yummly\n\n5 Stars - Outstanding\n4 Stars - Really Liked It\n3 Stars - Liked It/Average\n2 Stars - Not great/Just Okay\n1 Star - Didn't Like It")} }>
-                                                    <Icon type='Entypo' name='info-with-circle' style={styles.icon}/>
-                                                </Button>
                                                 <Text>{item.rating}/5 stars</Text>
                                             </Left>
                                             <Right>
@@ -264,6 +275,9 @@ const styles = StyleSheet.create({
     icon:{
         color: '#000'
     },
+    thumbnail:{
+        height: 15
+    }
 })
 
 const mapStateToProps = state => {

@@ -3,7 +3,8 @@ import { View, StyleSheet, Text, Image, Alert } from 'react-native';
 import { Button, Icon,  Spinner } from 'native-base';
 import { connect } from 'react-redux';
 import { ImagePicker } from 'expo';
-import { exportPicture, searchSingle } from '../Service/Firebase';
+import { exportPicture, searchSingle, update, snapshotToArray } from '../Service/Firebase';
+import { login } from '../Service/Reducer';
 
 const autoBind = require('auto-bind');
 
@@ -33,7 +34,8 @@ class Avatar extends Component {
     async handleUpload(){
         this.setState({loading: true})
         if(this.state.def){
-            this.setState({url: this.state.image})
+            await this.setState({url: this.state.image})
+            this.realUpdate()
         }else{
             let url = null;
             
@@ -48,35 +50,28 @@ class Avatar extends Component {
                 Alert.alert("Sizzle","An error occurred"); 
                 return;
             }else{
-                this.setState({url})
+                await this.setState({url})
+                this.realUpdate()
             }
+            
         }
-
-
-        await searchSingle({link: "users",child: "username",search: this.props.state.user.username})
-        .once("value",(snapshot)=>{
-            snapshot.forEach(async (item)=>{
-                await item.ref.update({image: this.state.url})                
-                this.setState({loading: false})
-                Alert.alert("Sizzle","Upload Successful!");
-                this.props.navigation.navigate('Home');
-                return
-            })
-        })        
+        
     }
 
-    async handleSkip(){
-        this.setState({loading: true})
-        await searchSingle({link: "users",child: "username",search: this.props.state.user.username})
-        .once("value",(snapshot)=>{
-            snapshot.forEach(async (item)=>{
-                await item.ref.update({image: null})                
-                this.setState({loading: false})
+    async realUpdate(){
+        await update({link: "users/"+this.props.state.user.key, data: {image: this.state.url} })
+        .then(()=>{
+            
+            searchSingle({link: "users", child: "username", search: this.props.state.user.username})
+            .once("value",async (snapshot)=>{
+                await this.props.dispatch(login(snapshotToArray(snapshot)[0]));
+                Alert.alert("Sizzle","Upload successful.");
                 this.props.navigation.navigate('Home');
-                return
             })
         })
     }
+
+
 
     componentWillMount(){
 
@@ -103,9 +98,6 @@ class Avatar extends Component {
                 </View>
                 <Button style={styles.button} disabled={this.state.loading} onPress={()=>this.handleUpload()}>
                     <Text style={styles.uploadText}>UPLOAD</Text>
-                </Button>
-                <Button transparent style={styles.button} disabled={this.state.loading} onPress={()=>this.handleSkip()}>
-                    <Text style={styles.skipText}>Skip this for now.</Text>
                 </Button>
                 {this.state.loading ? <Spinner color="#ff5733" size="large" style={styles.spin}/> : null }
             </View>
@@ -152,7 +144,7 @@ const styles = StyleSheet.create({
     image:{
         height: 200, 
         width: 200,
-        margin: 50,
+        margin: 25,
         alignSelf: "center",
         borderRadius: 100,
         backgroundColor: "white"

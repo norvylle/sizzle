@@ -18,6 +18,9 @@ class ProfilePicture extends Component{
             <View>
                 <Text>
                     Hello World
+                    {
+                        //consider changing userUrl on all recipes
+                    }
                 </Text>
             </View>
         )

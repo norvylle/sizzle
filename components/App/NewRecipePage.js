@@ -33,7 +33,7 @@ class NewRecipe extends Component{
             searchResults: null,
             searching: false,
             quantity: "",
-            unit: "c",
+            unit: "cup",
             search: "",
             ingredient: {ndbno: -1},
             //step overlay
@@ -266,7 +266,7 @@ class NewRecipe extends Component{
                         this.setState({loading: false});
                         Alert.alert("Sizzle","An error occurred"); 
                     }else{
-                        await insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.user.username, stars: 0, url: url, recipeName_username: this.state.recipeName+"_"+this.props.state.user.username} })
+                        await insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.user.username, stars: 0, url, recipeName_username: this.state.recipeName+"_"+this.props.state.user.username, userUrl: this.props.state.user.image , dateAdded: new Date().toISOString()}})
                         .then(()=>{
                             Alert.alert("Sizzle","Recipe upload success!");
                             this.setState({loading: false});
@@ -352,7 +352,7 @@ class NewRecipe extends Component{
                                         }}>
                                         {
                                             units.map((unit)=>{
-                                                return(<Picker.Item key={unit.abbr} label={unit.name+" ("+unit.abbr+")"} value={unit.abbr}/>)
+                                                return(<Picker.Item key={unit.name} label={unit.name+" ("+unit.abbr+")"} value={unit.name}/>)
                                             })
                                         }
                                     </Picker>
@@ -468,7 +468,7 @@ class NewRecipe extends Component{
                             renderRow={
                                 data=>
                                     <ListItem>
-                                        <Text>{data.qty+data.unit+" "+(data.ingredient.name.length > 30 ? data.ingredient.name.slice(0,50)+"..." : data.ingredient.name)}</Text>
+                                        <Text>{data.qty+" "+data.unit+" of "+(data.ingredient.name.length > 30 ? data.ingredient.name.slice(0,50)+"..." : data.ingredient.name)}</Text>
                                     </ListItem>
                             }
                             renderLeftHiddenRow={data =>

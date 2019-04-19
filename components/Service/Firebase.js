@@ -35,6 +35,12 @@ export function searchSingle(data){
     .equalTo(data.search)
 }
 
+export function retrieveMulti(data){
+    return database.ref(data.link)
+    .orderByValue()
+    .limitToLast(data.limit)
+}
+
 export function registerEmail(email, password){
     return auth.createUserWithEmailAndPassword(email,password)
 }
@@ -100,4 +106,33 @@ export function snapshotToArray(snapshot) {
 
 export function validateEmail(email) {
     return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
+}
+
+export function getAge(dateString) {
+    var today = new Date();
+    var birthDate = new Date(dateString);
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+}
+
+export function computeDate(date){
+    let diff = new Date().getTime() - date.getTime()
+    
+    
+    diff = diff/1000;
+    if(Math.floor(diff) < 60) return Math.floor(diff)+" sec ago"
+    
+    diff = diff/60; 
+    if(Math.floor(diff) < 60) return Math.floor(diff)+" min ago"
+    
+    diff = diff/60; 
+    if(Math.floor(diff) < 24) return Math.floor(diff)+" hr ago"
+    
+    return Math.floor(diff/24)+" days ago"
+    
+
 }

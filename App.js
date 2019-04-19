@@ -55,7 +55,12 @@ const SearchStack = createStackNavigator(
       }
     },
     ViewRecipe:{
-      screen: ViewRecipePage
+      screen: ViewRecipePage,
+      navigationOptions: {
+        headerStyle:{
+          backgroundColor: '#ff5733',
+        }
+      }
     }
   },
   {
@@ -79,7 +84,12 @@ const DownloadStack = createStackNavigator(
       }
     },
     ViewRecipe:{
-      screen: ViewRecipePage
+      screen: ViewRecipePage,
+      navigationOptions: {
+        headerStyle:{
+          backgroundColor: '#ff5733',
+        }
+      }
     }
   },
   {
@@ -155,7 +165,12 @@ const ProfileStack = createStackNavigator(
       }
     },
     ViewRecipe:{
-      screen: ViewRecipePage
+      screen: ViewRecipePage,
+      navigationOptions: {
+        headerStyle:{
+          backgroundColor: '#ff5733',
+        }
+      }
     },
     ViewMealPlan:{
       screen: ViewMealPlanPage

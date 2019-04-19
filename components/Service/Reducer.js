@@ -7,10 +7,13 @@ const ADD = 'MODE ADD';
 const EDIT = 'MODE EDIT';
 const POST_EDIT = "MODE POST_EDIT"
 const NONE = 'MODE NONE';
+const VIEW_YUMMLY = "RECIPE YUMMLY"
+const VIEW = "RECIPE DB"
 
 const initialState = {
     user: null,
-    mode: 'NONE'
+    mode: 'NONE',
+    view: null
 }
 
 export function login(user){
@@ -40,6 +43,14 @@ export function none(){
     return {type: NONE, mode: "NONE"}
 }
 
+export function viewYummly(){
+    return {type: VIEW_YUMMLY, view: "YUMMLY"}
+}
+
+export function view(){
+    return {type: VIEW, view: null}
+}
+
 function dispatcher(state, action){
     switch(action.type){
         case LOGIN:
@@ -59,12 +70,20 @@ function dispatcher(state, action){
                 mode: action.mode
             })
         case POST_EDIT:
-        return Object.assign({}, state, {
-            mode: action.mode
-        })
+            return Object.assign({}, state, {
+                mode: action.mode
+            })
         case NONE:
             return Object.assign({}, state, {
                 mode: action.mode
+            })
+        case VIEW_YUMMLY:
+            return Object.assign({}, state, {
+                view: action.view
+            })
+        case VIEW:
+            return Object.assign({}, state, {
+                view: action.view
             })
         case LOGOUT:
         default:
