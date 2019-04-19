@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { StyleSheet, Alert } from 'react-native';
+import { StyleSheet, Alert, Keyboard } from 'react-native';
 import { View, Text, Form, Item, Label, Input, Button, Icon } from 'native-base';
 import { update, snapshotToArray, getUser, getEmailAuthProvider, searchSingle } from '../Service/Firebase';
 import { login } from '../Service/Reducer';
@@ -29,6 +29,7 @@ class Password extends Component{
     }
 
     handleSubmit(){
+        Keyboard.dismiss();
         if(this.state.currentPassword === this.props.state.user.password){
             if(this.state.newPassword === this.state.currentPassword){
                 Alert.alert("Sizzle","Please provide a new password");

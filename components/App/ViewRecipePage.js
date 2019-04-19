@@ -44,6 +44,9 @@ class ViewRecipe extends Component{
             //calculate badges given age
         }else{
             await this.setState({data: this.props.navigation.state.params.recipe})
+            if(this.props.state.view === null){
+                //calculate badges given age
+            }
             this.setState({getDone: true})
         }
     }
@@ -100,6 +103,46 @@ class ViewRecipe extends Component{
                     <Icon type="Feather" name="link"/>
                 </Button>
             </ScrollView>
+            )
+        }else if(this.props.state.view === "EDAMAM"){
+            return(
+                <ScrollView >
+                    <H2 style={styles.h2}>{this.state.data.label}</H2>
+                    <Text note>{this.state.data.source}</Text>
+                    <Image source={{uri: this.state.data.image}} style={styles.image}/>
+                    <List style={styles.list}>
+                        <ListItem itemDivider itemHeader>
+                            <Text style={styles.header}>Ingredients</Text>
+                        </ListItem>
+                        {
+                            this.state.data.ingredientLines.map((item,index)=>{
+                                return(
+                                    <ListItem key={index}>
+                                        <Text>{item}</Text>
+                                    </ListItem>
+                                )
+                            })
+                        }
+                    </List>
+                    <List style={styles.list}>
+                        <ListItem itemDivider itemHeader>
+                            <Text style={styles.header}>Badges</Text>
+                        </ListItem>
+                        {
+                            this.state.data.healthLabels.map((item,index)=>{
+                                return(
+                                    <ListItem key={index}>
+                                        <Text>{item}</Text>
+                                    </ListItem>
+                                )
+                            })
+                        }
+                    </List>
+                    <Button full info iconRight onPress={()=>{Linking.openURL(this.state.data.shareAs)}} style={styles.button}>
+                        <Text>Open Recipe</Text>
+                        <Icon type="Feather" name="link"/>
+                    </Button>
+                </ScrollView>
             )
         }else{
             return(
@@ -158,7 +201,7 @@ const styles = StyleSheet.create({
         fontSize: 18
     },
     button:{
-        marginTop: 10
+        marginVertical: 10
     }
 })
 

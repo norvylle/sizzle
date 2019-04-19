@@ -7,7 +7,7 @@ import { ImagePicker } from 'expo';
 import { connect } from 'react-redux';
 import { units, usda } from './../Service/secret';
 import { insert, searchSingle, update, exportPicture, deletePicture } from '../Service/Firebase';
-import { postEdit, none } from '../Service/Reducer';
+import { none } from '../Service/Reducer';
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
@@ -439,12 +439,14 @@ class NewRecipe extends Component{
                         </View>
                     </View>
                 </Overlay>
+
                 <Overlay isVisible={this.state.loading} height="100%" width="100%" overlayBackgroundColor="#2c3e50" overlayStyle={{opacity: 0.5}}>
                     <View style={{alignItems: 'stretch', flex: 1, justifyContent: 'center'}}>
                         <Spinner color="white" size="large"/>
                         <Text style={{color: "white", textAlign: "center"}}>Uploading</Text>
                     </View>
                 </Overlay>
+                
                 <Form>
                     <Item stackedLabel>
                         <Label>Recipe Name</Label>

@@ -5,10 +5,6 @@ import { connect } from 'react-redux';
 import { computeDate, retrieveMulti, snapshotToArray, transact, update } from '../Service/Firebase';
 import { view } from '../Service/Reducer';
 
-const database = require("../Service/database.json")
-let recipes = database.recipes;
-let users = database.users;
-
 const autoBind = require('auto-bind');
 
 class Home extends Component {

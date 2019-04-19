@@ -6,8 +6,6 @@ import { connect } from 'react-redux';
 import { add, edit, view } from '../Service/Reducer';
 import { searchMulti, remove, deletePicture, snapshotToArray, computeDate, update, transact } from '../Service/Firebase';
 
-const database = require("../Service/database.json")
-
 const autoBind = require('auto-bind');
 
 class Profile extends Component {
@@ -143,7 +141,7 @@ class Profile extends Component {
                 </View>
                 <View style={styles.userDetails}>
                     <Text style={styles.name}>{(this.props.state.user.firstName+" "+this.props.state.user.lastName).length < 21 ? this.props.state.user.firstName+" "+this.props.state.user.lastName : (this.props.state.user.firstName+" "+this.props.state.user.lastName).substr(0,17)+"..." }</Text>
-                    <Text style={styles.bio}>Bio (max len: 25)</Text>
+                    <Text style={styles.bio}>{this.props.state.user.username}</Text>
                 </View>
                 <View style={{width: "20%"}}>
                     <Button bordered rounded large dark onPress={()=>this.handleSettings()} style={styles.settings}>
@@ -266,7 +264,7 @@ const styles = StyleSheet.create({
         fontSize: 20
     },
     bio:{
-        fontSize: 15        
+        fontSize: 12 
     },
     scroll:{
         height: '85%',

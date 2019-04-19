@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     button:{
         alignSelf: "center",
         borderColor: "white",
-        marginTop: 10
+        marginTop: 25
     },
     buttonText:{
         color: "white",

@@ -8,6 +8,7 @@ const EDIT = 'MODE EDIT';
 const POST_EDIT = "MODE POST_EDIT"
 const NONE = 'MODE NONE';
 const VIEW_YUMMLY = "RECIPE YUMMLY"
+const VIEW_EDAMAM = "RECIPE EDAMAM"
 const VIEW = "RECIPE DB"
 
 const initialState = {
@@ -47,6 +48,10 @@ export function viewYummly(){
     return {type: VIEW_YUMMLY, view: "YUMMLY"}
 }
 
+export function viewEdamam(){
+    return {type: VIEW_EDAMAM, view: "EDAMAM"}
+}
+
 export function view(){
     return {type: VIEW, view: null}
 }
@@ -54,33 +59,19 @@ export function view(){
 function dispatcher(state, action){
     switch(action.type){
         case LOGIN:
-            return Object.assign({}, state, {
-                user: action.user
-            })
         case GUEST_LOGIN:
             return Object.assign({}, state, {
                 user: action.user
             })
         case ADD:
-            return Object.assign({}, state, {
-                mode: action.mode
-            })
         case EDIT:
-            return Object.assign({}, state, {
-                mode: action.mode
-            })
         case POST_EDIT:
-            return Object.assign({}, state, {
-                mode: action.mode
-            })
         case NONE:
             return Object.assign({}, state, {
                 mode: action.mode
             })
         case VIEW_YUMMLY:
-            return Object.assign({}, state, {
-                view: action.view
-            })
+        case VIEW_EDAMAM:
         case VIEW:
             return Object.assign({}, state, {
                 view: action.view

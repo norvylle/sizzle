@@ -33,6 +33,13 @@ export function searchMulti(data){
     .equalTo(data.search)
 }
 
+export function searchMultiStartsAt(data){
+    return database.ref(data.link)
+    .orderByChild(data.child)
+    .startAt(data.search)
+    .endAt(data.search+"\uf8ff")
+}
+
 export function searchSingle(data){
     return database.ref(data.link)
     .orderByChild(data.child)
