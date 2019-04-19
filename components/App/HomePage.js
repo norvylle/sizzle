@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Card, CardItem, Toast, Root, Spinner, H3, Text, Thumbnail, Left, Right, Body, Button, Icon} from 'native-base';
 import { connect } from 'react-redux';
-import { computeDate, retrieveMulti, snapshotToArray } from '../Service/Firebase';
+import { computeDate, retrieveMulti, snapshotToArray, transact, update } from '../Service/Firebase';
 import { view } from '../Service/Reducer';
 
 const database = require("../Service/database.json")
@@ -25,10 +25,62 @@ class Home extends Component {
     }
 
     async handleStar(recipe){
-        console.log(this.props.state.user)
-        //check if recipe on starred list
-        // updates
-        // update({link: "recipes/"+recipe.key, data: {}}) //update stars on recipe
+        if(this.props.state.user.starred.includes(recipe.recipeName_username)){ //unstar
+            this.props.state.user.starred.splice(this.props.state.user.starred.indexOf(recipe.recipeName_username),1);
+            
+            await update({link: "users/"+this.props.state.user.key, data: { starred: this.props.state.user.starred }})
+            .then(async ()=>{
+                await transact("recipes/"+recipe.key+"/stars")
+                .transaction((stars)=>{
+                    return stars-1;
+                },(error, committed, snapshot)=>{
+                    if(error){
+                        Alert.alert("Sizzle","An error occurred. Try again later.");
+                    }else if(!committed){
+                        Alert.alert("Sizzle","An error occurred. Try again later.");
+                    }else{
+                        console.log(snapshot.val());
+                    }
+                }).catch((error)=>{
+                    Alert.alert("Sizzle","An error occurred. Try again later.");
+                })
+            }).catch((error)=>{
+                Alert.alert("Sizzle","An error occurred. Try again later.");
+            })
+
+        }else{ //star
+            this.props.state.user.starred.push(recipe.recipeName_username);
+
+            await update({link: "users/"+this.props.state.user.key, data: { starred: this.props.state.user.starred }})
+            .then(async ()=>{
+                await transact("recipes/"+recipe.key+"/stars")
+                .transaction(function(stars){
+                    return stars+1;
+                },function(error, committed, snapshot){
+                    if(error){
+                        Alert.alert("Sizzle","An error occurred. Try again later.");
+                    }else if(!committed){
+                        Alert.alert("Sizzle","An error occurred. Try again later.");
+                    }else{
+                        console.log(snapshot.val());
+                    }
+                }).catch((error)=>{
+                    Alert.alert("Sizzle","An error occurred. Try again later.");
+                })
+            }).catch((error)=>{
+                Alert.alert("Sizzle","An error occurred. Try again later.");
+            })
+
+        }
+        this.forceUpdate()
+    }
+
+    evaluateStar(recipeName_username){
+        if(this.props.state.user.starred.includes(recipeName_username)){
+            return true
+        }else{
+            return false
+        }
     }
 
     handleDownload(recipe){
@@ -80,7 +132,7 @@ class Home extends Component {
                                     <CardItem>
                                         <Left>
                                             <Button transparent onPress={() => this.handleStar(recipe)}>
-                                                <Icon type='FontAwesome' name='star' style={ true ? (styles.icon) : (styles.icon1) }/>
+                                                <Icon type='FontAwesome' name='star' style={ this.evaluateStar(recipe.recipeName_username) ? (styles.icon) : (styles.icon1) }/>
                                             </Button>
                                             <Text>{recipe.stars} Stars</Text>
                                         </Left>

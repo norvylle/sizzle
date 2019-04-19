@@ -59,7 +59,7 @@ class Avatar extends Component {
     }
 
     async realUpdate(){
-        await update({link: "users/"+this.props.state.user.key, data: {image: this.state.url} })
+        await update({link: "users/"+this.props.state.user.key, data: {image: this.state.url, starred: ["dummy"]} })
         .then(()=>{
             searchSingle({link: "users", child: "username", search: this.props.state.user.username})
             .once("value",async (snapshot)=>{

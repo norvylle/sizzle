@@ -142,7 +142,13 @@ class Profile extends Component {
                     </Tab>
                     <Tab heading="Starred" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
                         <ScrollView>
-                            
+                            {
+                                this.props.state.user.starred.filter((item)=>item !== "dummy").map((item,index)=>{
+                                    return(
+                                        <Text key={index}>{item}</Text>
+                                    )
+                                })
+                            }
                         </ScrollView>
                     </Tab>
                 </Tabs>

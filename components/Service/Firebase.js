@@ -18,6 +18,10 @@ export function update(data){
     .update(data.data)
 }
 
+export function transact(data){
+    return database.ref(data)
+}
+
 export function remove(data){
     return database.ref(data.link)
     .remove()
