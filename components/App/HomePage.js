@@ -45,7 +45,7 @@ class Home extends Component {
     async componentWillMount(){
         retrieveMulti({link: "recipes", limit: 20}) //fix to get latest
         .on("value",function(snapshot){
-           this.setState({db: snapshotToArray(snapshot), renderdb: true})
+           this.setState({db: snapshotToArray(snapshot).reverse(), renderdb: true})
         }.bind(this))
     }        
 

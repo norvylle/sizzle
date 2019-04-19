@@ -348,7 +348,7 @@ class NewRecipe extends Component{
                                 <Item rounded style={{width: 180}}>
                                     <Label>Unit</Label>
                                     <Picker mode="dropdown" selectedValue={this.state.unit} onValueChange={(unit)=>{
-                                        this.setState({unit})
+                                        this.setState({unit}); console.log(this.state.unit);
                                         }}>
                                         {
                                             units.map((unit)=>{
@@ -477,7 +477,7 @@ class NewRecipe extends Component{
                                 </Button>
                             }
                             renderRightHiddenRow={data=>
-                                <Button full danger onPress={() => Alert.alert("Sizzle", "Delete "+data.name+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => this.handleDeleteIngredient(data)},],{cancelable: true})}>
+                                <Button full danger onPress={() => Alert.alert("Sizzle", "Delete "+data.ingredient.name+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => this.handleDeleteIngredient(data)},],{cancelable: true})}>
                                 <Icon active name="trash" />
                                 </Button>
                             }
