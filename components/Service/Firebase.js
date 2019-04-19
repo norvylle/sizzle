@@ -59,6 +59,10 @@ export function getUser(){
     return firebase.auth().currentUser
 }
 
+export function getEmailAuthProvider(){
+    return firebase.auth.EmailAuthProvider
+}
+
 export async function exportPicture(data){
     const blob = await new Promise((resolve, reject)=>{
         const xhr = new XMLHttpRequest();
@@ -105,7 +109,7 @@ export function snapshotToArray(snapshot) {
 };
 
 export function validateEmail(email) {
-    return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email);
+    return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,5})+$/.test(email);
 }
 
 export function getAge(dateString) {
@@ -122,7 +126,6 @@ export function getAge(dateString) {
 export function computeDate(date){
     let diff = new Date().getTime() - date.getTime()
     
-    
     diff = diff/1000;
     if(Math.floor(diff) < 60) return Math.floor(diff)+" sec ago"
     
@@ -133,6 +136,4 @@ export function computeDate(date){
     if(Math.floor(diff) < 24) return Math.floor(diff)+" hr ago"
     
     return Math.floor(diff/24)+" days ago"
-    
-
 }

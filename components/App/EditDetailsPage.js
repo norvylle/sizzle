@@ -36,7 +36,7 @@ class EditDetails extends Component{
             .once("value",async function(snapshot){
                 await this.props.dispatch(login(await snapshotToArray(snapshot)[0]))
                 Alert.alert("Sizzle","Account details updated.")
-                this.props.navigation.navigate('Settings')
+                this.props.navigation.pop();
             }.bind(this))
         })
         .catch((error)=>{
@@ -65,8 +65,8 @@ class EditDetails extends Component{
                         <Input style={styles.input} value={this.state.email} onChangeText={(email)=> this.setState({email})}/>
                     </Item>
                 </Form>
-                <Button onPress={()=>this.handleSubmit()}>
-                    <Text>Submit</Text>
+                <Button full info style={styles.button} onPress={()=>this.handleSubmit()}>
+                    <Text>Submit Changes</Text>
                 </Button>
             </View>
         )
@@ -87,6 +87,9 @@ const styles = StyleSheet.create({
     },
     item:{
         marginTop: 10
+    },
+    button:{
+        marginTop: 20
     }
 })
 

@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { Card, CardItem, Toast, Root, Spinner, H3, Text, Thumbnail, Left, Right, Body, Button, Icon} from 'native-base';
 import { connect } from 'react-redux';
-import { computeDate, retrieveMulti, snapshotToArray, update } from '../Service/Firebase';
+import { computeDate, retrieveMulti, snapshotToArray } from '../Service/Firebase';
+import { view } from '../Service/Reducer';
 
 const database = require("../Service/database.json")
 let recipes = database.recipes;

@@ -91,17 +91,17 @@ class Title extends Component {
             </View>
             <Form>
                 <Item stackedLabel >
-                <Label style={styles.label}>Username/Email</Label>
-                <Input style={styles.input} value={this.state.username} onChangeText={(username)=> this.setState({username})} maxLength={50}/>
+                    <Label style={styles.label}>Username/Email</Label>
+                    <Input style={styles.input} value={this.state.username} onChangeText={(username)=> this.setState({username})} maxLength={50}/>
                 </Item>
                 <Item stackedLabel >
-                <Label style={styles.label}>Password</Label>
-                <Input style={styles.input} value={this.state.password} secureTextEntry={this.state.showPassword} onChangeText={(password)=> this.setState({password})} maxLength={32}/>
-                <Button transparent style={styles.passwordButton} onPress={this.handleShowPassword}>
-                    {
-                    this.state.showPassword ? (<Icon type='Ionicons' name='ios-eye' style={styles.label}/>) : (<Icon type='Ionicons' name='ios-eye-off' style={styles.label}/>)
-                    }
-                </Button>
+                    <Label style={styles.label}>Password</Label>
+                    <Input style={styles.input} value={this.state.password} secureTextEntry={this.state.showPassword} onChangeText={(password)=> this.setState({password})} maxLength={32}/>
+                    <Button transparent style={styles.passwordButton} onPress={this.handleShowPassword}>
+                        {
+                        this.state.showPassword ? (<Icon type='Ionicons' name='ios-eye' style={styles.label}/>) : (<Icon type='Ionicons' name='ios-eye-off' style={styles.label}/>)
+                        }
+                    </Button>
                 </Item>
             </Form>
             <Text style={{paddingTop:10}}/>
