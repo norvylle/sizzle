@@ -23,10 +23,10 @@ const HomeStack = createStackNavigator(
             navigationOptions: {
                 headerTitle: "Home",
                 headerStyle:{
-                backgroundColor: '#ff5733',
+                    backgroundColor: '#ff5733',
                 },
                 headerTitleStyle:{
-                color: '#fff',
+                    color: '#fff',
                 }
             } 
         },
@@ -34,7 +34,7 @@ const HomeStack = createStackNavigator(
             screen: ViewRecipePage,
             navigationOptions: {
                 headerStyle:{
-                backgroundColor: '#ff5733',
+                    backgroundColor: '#ff5733',
                 }
             }
         },
@@ -58,20 +58,20 @@ const SearchStack = createStackNavigator(
             navigationOptions: {
                 headerTitle: "Search",
                 headerStyle:{
-                backgroundColor: '#ff5733',
+                    backgroundColor: '#ff5733',
                 },
                 headerTitleStyle:{
-                color: '#fff',
+                    color: '#fff',
                 }
             }
         },
         ViewRecipe:{
-        screen: ViewRecipePage,
-        navigationOptions: {
-            headerStyle:{
-            backgroundColor: '#ff5733',
+            screen: ViewRecipePage,
+            navigationOptions: {
+                headerStyle:{
+                    backgroundColor: '#ff5733',
+                }
             }
-        }
         },
         Cook:{
             screen: CookPage,
@@ -161,6 +161,9 @@ const ProfileStack = createStackNavigator(
                 headerTitle: "Edit Account",
                 headerStyle:{
                     backgroundColor: '#ff5733',
+                },
+                headerTitleStyle:{
+                    color: "#fff",
                 }
             }
         },
@@ -170,6 +173,9 @@ const ProfileStack = createStackNavigator(
                 headerTitle: "Change Password",
                 headerStyle:{
                     backgroundColor: '#ff5733',
+                },
+                headerTitleStyle:{
+                    color: "#fff",
                 }
             }
         },
@@ -207,7 +213,16 @@ const ProfileStack = createStackNavigator(
             screen: ViewMealPlanPage
         },
         NewMealPlan:{
-            screen: NewMealPlanPage
+            screen: NewMealPlanPage,
+            navigationOptions: {
+                headerTitle: "Meal Plan",
+                headerStyle:{
+                    backgroundColor: '#ff5733',
+                },
+                headerTitleStyle:{
+                    color: "#fff",
+                }
+            }
         }
     },
     {

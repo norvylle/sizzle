@@ -116,7 +116,7 @@ class Home extends Component {
                                         <Left>
                                             <Thumbnail source={{uri: recipe.userUrl}} style={{borderWidth: 1, borderColor: "black"}}/>
                                             <Body>
-                                                <H3>{recipe.recipeName}</H3>
+                                                <H3 style={styles.h3}>{recipe.recipeName}</H3>
                                                 <Text note>{recipe.username}</Text>
                                             </Body>
                                         </Left>
@@ -174,6 +174,9 @@ const styles = StyleSheet.create({
     },
     slide:{
         flexDirection: 'column',
+    },
+    h3:{
+        fontFamily: "geoSansLightOblique"
     }
 })
 

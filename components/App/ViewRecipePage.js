@@ -104,8 +104,10 @@ class ViewRecipe extends Component{
         }else{
             return(
                 <ScrollView>
-                    <H2 style={styles.h2}>{this.state.data.recipeName}</H2>
-                    <Text note>{this.state.data.username}</Text>
+                    <View style={{marginLeft: 10}}>
+                        <H2 style={styles.h2}>{this.state.data.recipeName}</H2>
+                        <Text note>{this.state.data.username}</Text>
+                    </View>
                     <Image source={{uri: this.state.data.url}} style={styles.image}/>
                     <List style={styles.list}>
                         <ListItem itemDivider itemHeader>
@@ -149,7 +151,7 @@ const styles = StyleSheet.create({
         height: "100%"
     },
     h2:{
-        fontFamily: "geoSansLight"
+        fontFamily: "geoSansLightOblique"
     },
     header:{
         fontFamily: "Roboto",

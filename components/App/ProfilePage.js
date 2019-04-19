@@ -37,10 +37,12 @@ class Profile extends Component {
 
     async handleRecipe(){
         await this.props.dispatch(add());
-        this.props.navigation.navigate('Recipe')
+        this.props.navigation.navigate('Recipe');
     }
 
-    handleMealPlan(){}
+    handleMealPlan(){
+        this.props.navigation.navigate('NewMealPlan');
+    }
 
     handleEditRecipe(index){
         this.props.dispatch(edit());
@@ -162,7 +164,7 @@ class Profile extends Component {
                                             <Left>
                                                 <Thumbnail source={{uri: recipe.userUrl}} style={{borderWidth: 1, borderColor: "black"}}/>
                                                 <Body>
-                                                    <H3>{recipe.recipeName}</H3>
+                                                    <H3 style={styles.h3}>{recipe.recipeName}</H3>
                                                     <Text note>{recipe.username}</Text>
                                                 </Body>
                                             </Left>
@@ -307,6 +309,9 @@ const styles = StyleSheet.create({
     icon1:{
         color: '#000'
     },
+    h3:{
+        fontFamily: "geoSansLightOblique"
+    }
 })
 
 const mapStateToProps = state => {
