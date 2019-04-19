@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, ScrollView, ListView, Alert, Image } from 'react-native';
-import { Text, Form, Item, Label, Input, Button, Icon, List, View, H2, Picker, Spinner, ListItem, Textarea, Radio, Left, Body, Right } from 'native-base';
+import { Text, Form, Item, Label, Input, Button, Icon, List, View, H2, Picker, Spinner, ListItem, Textarea, } from 'native-base';
 import { Overlay } from 'react-native-elements';
 import ColorPalette from 'react-native-color-palette';
 import { ImagePicker } from 'expo';
@@ -40,8 +40,6 @@ class NewRecipe extends Component{
             //step overlay
             StepVisible: false,
             direction: "",
-            duration: "",
-            radio: "none",
             stepID: null
         }
         this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
@@ -119,31 +117,21 @@ class NewRecipe extends Component{
     }
 
     async handleSubmitStep(){
-        let timeObject
-
-        if(this.state.duration === "" || this.state.radio === "none"){
-            timeObject = null
-        }else{
-            timeObject = {duration: parseFloat(this.state.duration), unit: this.state.radio}
-        }
 
         if(this.state.currentIndex === -1){
-            await this.state.steps.push({direction: this.state.direction, time: timeObject})
+            await this.state.steps.push({direction: this.state.direction})
         }else{
-            this.state.steps[this.state.currentIndex] = {direction: this.state.direction, time: timeObject};
+            this.state.steps[this.state.currentIndex] = {direction: this.state.direction};
         }
         
-        this.setState({StepVisible: false, direction: "", duration: "", radio: "none",currentIndex: -1, nonTouched: false})
+        this.setState({StepVisible: false, direction: "", currentIndex: -1, nonTouched: false})
     }
 
     handleOnOpenStep(){
-        this.setState({StepVisible: true, header: "Add Step (Step "+(this.state.steps.length+1)+")", direction: "", duration: "", radio: "none",currentIndex: -1})
+        this.setState({StepVisible: true, header: "Add Step (Step "+(this.state.steps.length+1)+")", direction: "", currentIndex: -1})
     }
 
     async handleEditStep(data){
-        if(data.time != null){
-            await this.setState({duration: data.time.duration.toString(), radio: data.time.unit})
-        }
         await this.setState({header: "Edit Step (Step "+(this.state.steps.indexOf(data)+1)+")", direction: data.direction})
         this.setState({StepVisible: true, currentIndex: this.state.steps.indexOf(data)})
     }
@@ -153,34 +141,18 @@ class NewRecipe extends Component{
         this.forceUpdate()
     }
 
-    async convertNum (text,mode) {
+    async convertNum (text) {
         let dot = false;
-        switch(mode){
-            case 0:
-                this.setState({
-                    quantity: text.replace(/[^0-9]/g, function(match){
-                        if(!dot && match === "."){
-                            dot = true;
-                            return match
-                        }else{
-                            return ""
-                        }
-                    })
-                });
-            break;
-            case 1:
-                this.setState({
-                    duration: text.replace(/[^0-9]/g, function(match){
-                        if(!dot && match === "."){
-                            dot = true;
-                            return match
-                        }else{
-                            return ""
-                        }
-                    })
-                });
-            break;
-        }
+        this.setState({
+            quantity: text.replace(/[^0-9]/g, function(match){
+                if(!dot && match === "."){
+                    dot = true;
+                    return match
+                }else{
+                    return ""
+                }
+            })
+        });
     }
 
     async handleAddRecipe(){
@@ -343,7 +315,7 @@ class NewRecipe extends Component{
                             <View style={styles.formView}>
                                 <Item stackedLabel rounded style={{width: 100}}>
                                     <Label style={styles.formLabel}>Quantity</Label>
-                                    <Input value={this.state.quantity} keyboardType="numeric" maxLength={8} onChangeText={(value)=>this.convertNum(value,0)}/>
+                                    <Input value={this.state.quantity} keyboardType="numeric" maxLength={8} onChangeText={(value)=>this.convertNum(value)}/>
                                 </Item>
                                 <Item rounded style={{width: 180}}>
                                     <Label>Unit</Label>
@@ -405,30 +377,6 @@ class NewRecipe extends Component{
                     <View>
                         <H2>{this.state.header}</H2>
                         <Textarea rowSpan={5} bordered placeholder={"Put directions here."} value={this.state.direction} onChangeText={(direction)=>this.setState({direction})} style={{marginTop:20}}/>
-                        <Form style={styles.form}>
-                            <Text style={{marginTop:20, textAlign:"center"}}>Optional</Text>
-                            <View style={styles.formView}>
-                                <Item stackedLabel rounded style={{width: 100}}>
-                                    <Label> Duration</Label>
-                                    <Input value={this.state.duration} keyboardType="numeric" maxLength={8} onChangeText={(value)=>this.convertNum(value,1)}/>
-                                </Item>
-                                <Item stackedLabel rounded style={{flexDirection: "column", width:150, marginLeft: 10}}>
-                                    <Label>  Unit</Label>
-                                    <Item style={styles.radioItem}>
-                                        <Radio onPress={()=>{this.state.radio === "seconds" ? this.setState({radio: "none"}) : this.setState({radio: "seconds"})}} selected={this.state.radio === "seconds"} />
-                                        <Text>  Second/s</Text>
-                                    </Item>
-                                    <Item style={styles.radioItem}>
-                                        <Radio onPress={()=>{this.state.radio === "minutes" ? this.setState({radio: "none"}) : this.setState({radio: "minutes"})}} selected={this.state.radio === "minutes"} />
-                                        <Text>  Minute/s</Text>
-                                    </Item>
-                                    <Item style={styles.radioItem}>
-                                        <Radio onPress={()=>{this.state.radio === "hours" ? this.setState({radio: "none"}) : this.setState({radio: "hours"})}} selected={this.state.radio === "hours"} />
-                                        <Text>  Hour/s</Text>
-                                    </Item>
-                                </Item>
-                            </View>
-                        </Form>
                         <View style={styles.formView}>
                             <Button transparent onPress={()=>this.setState({StepVisible: false})}>
                                 <Text>Back</Text>
