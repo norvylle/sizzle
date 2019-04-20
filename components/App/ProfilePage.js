@@ -140,7 +140,11 @@ class Profile extends Component {
         this.setState({renderStarred: true});
     }
 
-    handleOpenMeal(meal){}
+    handleOpenMealPlan(meal){
+        console.log(meal);
+    }
+
+    handleDeleteMealPlan(index){}
 
     render() {
         return(
@@ -216,8 +220,7 @@ class Profile extends Component {
                                 this.state.meals.map((meal,index)=>{
                                     return(
                                         <Card key={index} style={styles.card}>
-                                            <TouchableOpacity onPress={()=>this.handleOpenMeal(meal)}>
-                                                <CardItem>
+                                                <CardItem >
                                                     <Left>
                                                         <Thumbnail source={{uri: meal.userUrl}} style={{borderWidth: 1, borderColor: "black"}}/>
                                                         <Body>
@@ -225,8 +228,15 @@ class Profile extends Component {
                                                             <Text note>{meal.username}</Text>
                                                         </Body>
                                                     </Left>
+                                                    <Right>
+                                                        <Button transparent style={styles.buttonRight} onPress={()=>this.handleOpenMealPlan(meal)}>
+                                                            <Icon active type="Feather" name="book-open"/>
+                                                        </Button>
+                                                        <Button transparent danger onPress={() => Alert.alert("Sizzle","Delete "+meal.mealPlanName+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => this.handleDeleteMealPlan(index)},],{cancelable: true})} style={styles.buttonRight}>
+                                                            <Icon active name="trash" />
+                                                        </Button>
+                                                    </Right>
                                                 </CardItem>
-                                            </TouchableOpacity>
                                         </Card>
                                     )
                                 })

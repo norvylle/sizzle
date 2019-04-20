@@ -14,7 +14,7 @@ class Password extends Component{
             currentPassword:"",
             newPassword: "",
             retypePassword: "",
-            showCurrentPassword: false,
+            showCurrentPassword: true,
             showNewPassword: true
         }
         autoBind(this)

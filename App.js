@@ -182,16 +182,24 @@ const ProfileStack = createStackNavigator(
         Email:{
             screen: EmailPage,
             navigationOptions: {
+                headerTitle: "Change Email",
                 headerStyle:{
                   backgroundColor: '#ff5733',
+                },
+                headerTitleStyle:{
+                    color: "#fff",
                 }
             }
         },
         ProfilePicture:{
             screen: ProfilePicturePage,
             navigationOptions: {
+                headerTitle: "Change Profile Picture",
                 headerStyle:{
                     backgroundColor: '#ff5733',
+                },
+                headerTitleStyle:{
+                    color: "#fff",
                 }
             }
         },
