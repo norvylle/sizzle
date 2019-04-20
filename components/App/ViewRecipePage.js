@@ -41,11 +41,10 @@ class ViewRecipe extends Component{
                     console.log("RECIPE: GET success.")
                 }
             }.bind(this))
-            // this.setState({badges: calculateBadges(this.state.data.values,this.props.state.user.birthday,"YUMMLY")})
+            this.setState({badges: calculateBadges(this.state.data.nutritionEstimates,this.props.state.user.birthday,this.props.state.user.sex,"YUMMLY")})
         }else if(this.props.state.view === null){//USER
             await this.setState({data: this.props.navigation.state.params.recipe})
-            await this.setState({badges: calculateBadges(this.state.data.values,this.props.state.user.birthday,this.props.state.user.sex)})
-            console.log(this.state.data.recipeName,"\n",this.state.badges)
+            await this.setState({badges: calculateBadges(this.state.data.values,this.props.state.user.birthday,this.props.state.user.sex,"USER")})
             this.setState({getDone: true})
         }else{//EDAMAM
             await this.setState({data: this.props.navigation.state.params.recipe})
@@ -89,18 +88,18 @@ class ViewRecipe extends Component{
                     }
                 </List>
                 <List style={styles.list}>
-                    <ListItem itemDivider itemHeader>
-                        <Text style={styles.header}>Badges</Text>
-                    </ListItem>
-                    {
-                        this.state.data.ingredientLines.map((item,index)=>{
-                            return(
-                                <ListItem key={index}>
-                                    <Text>{item}</Text>
-                                </ListItem>
-                            )
-                        })
-                    }
+                        <ListItem itemDivider itemHeader>
+                            <Text style={styles.header}>Badges</Text>
+                        </ListItem>
+                        {   
+                            this.state.badges.map((item,index)=>{
+                                return(
+                                    <ListItem key={index}>
+                                        <Text>{item}</Text>
+                                    </ListItem>
+                                )
+                            })
+                        }
                 </List>
                 <Button full info iconRight onPress={()=>{Linking.openURL(this.state.data.source.sourceRecipeUrl)}} style={styles.button}>
                     <Text>Open Recipe</Text>
@@ -167,6 +166,20 @@ class ViewRecipe extends Component{
                                 return(
                                     <ListItem key={index}>
                                         <Text>{item.qty} {item.unit} of {item.ingredient.name}</Text>
+                                    </ListItem>
+                                )
+                            })
+                        }
+                    </List>
+                    <List style={styles.list}>
+                        <ListItem itemDivider itemHeader>
+                            <Text style={styles.header}>Badges</Text>
+                        </ListItem>
+                        {
+                            this.state.badges.map((item,index)=>{
+                                return(
+                                    <ListItem key={index}>
+                                        <Text>{item}</Text>
                                     </ListItem>
                                 )
                             })

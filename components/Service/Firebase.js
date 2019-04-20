@@ -171,22 +171,42 @@ export function calculateValues(recipe){
     return totals;
 }
 
-export function calculateBadges(values, birthday, sex){
+export function calculateBadges(values, birthday, sex, mode){
     let age = getAge(birthday);
 
     let toReturn = [];
     let limit = limits.filter(item=>item.age.from <= age && item.age.to >= age)[0]
     
 
-    Object.entries(limit[sex]).forEach(
-        ([key,value])=>{
-            if(values[key] > value.value){
-                toReturn.push(badges.above[key])
-            }else{
-                toReturn.push(badges.low[key])
-            }
-        }
-    );
 
-    return toReturn;
+    switch (mode) {
+        case "YUMMLY":
+            let nutri = values.filter(item=>["Energy", "Protein", "Total lipid (fat)", "Fiber, total dietary", "Sugars, total", "Sodium, Na"].includes(item.description))
+            if(nutri.length === 0){
+                return []
+            }else{
+                nutri.forEach((item)=>{
+                    if(item.value > limit[sex][item.description].value){
+                        toReturn.push(badges.above[item.description])
+                    }else{
+                        toReturn.push(badges.low[item.description])
+                    }
+                })
+                return toReturn;
+            }
+        case "USER":
+            Object.entries(values).forEach(
+                ([key,value])=>{
+                    if(value > limit[sex][key].value){
+                        toReturn.push(badges.above[key])
+                    }else{
+                        toReturn.push(badges.low[key])
+                    }
+                }
+            );
+            return toReturn;
+        default:
+            return [];
+    }    
+
 }

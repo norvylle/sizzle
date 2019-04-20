@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Alert, Keyboard } from 'react-native';
 import { Form, Item, Input, Label, Button, Icon, Root } from 'native-base';
-import { calculateBadges, signInWithEmail, searchSingle, snapshotToArray, validateEmail } from '../Service/Firebase';
+import { signInWithEmail, searchSingle, snapshotToArray, validateEmail } from '../Service/Firebase';
 import { Font, AppLoading } from 'expo';
 import { connect } from 'react-redux';
 import { login, guestLogin } from '../Service/Reducer'
