@@ -270,7 +270,7 @@ class Search extends Component {
                                             <Left style={{width: "80%"}}>
                                                 <Thumbnail source={{uri: this.state.data.attribution.logo}} style={styles.thumbnail}/>
                                                 <Body>
-                                                    <Text>{item.recipeName}</Text>
+                                                    <H3 style={styles.h3}>{item.recipeName}</H3>
                                                     <Text note>{item.sourceDisplayName}</Text>
                                                 </Body>
                                             </Left>
@@ -319,7 +319,7 @@ class Search extends Component {
                                             <Left style={{width: "80%"}}>
                                                 <Thumbnail source={{uri: "https://developer.edamam.com/images/logo-dev.png"}} style={styles.thumbnail}/>
                                                 <Body>
-                                                    <Text>{item.recipe.label}</Text>
+                                                    <H3 style={styles.h3}>{item.recipe.label}</H3>
                                                     <Text note>{item.recipe.source}</Text>
                                                 </Body>
                                             </Left>
@@ -398,8 +398,8 @@ class Search extends Component {
                                             <Card  pointerEvents="none">
                                                 <Left>
                                                     <Body>
-                                                            <Text>{item.name}</Text>
-                                                            <Text note>{item.group}</Text>
+                                                        <H3 style={styles.h3}>{item.name}</H3>
+                                                        <Text note>{item.group}</Text>
                                                     </Body>
                                                 </Left>
                                             </Card>

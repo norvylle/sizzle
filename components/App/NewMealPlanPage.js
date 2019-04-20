@@ -50,7 +50,7 @@ class NewMealPlan extends Component{
     }
 
     async handleSearch(){
-        this.setState({searching: true, data:null, renderData0: false, renderData1: false, renderData2: false});        
+        await this.setState({searching: true, renderData0: false, renderData1: false, renderData2: false});
         Keyboard.dismiss();
 
         if(this.state.selected === 0){
@@ -109,17 +109,17 @@ class NewMealPlan extends Component{
 
     addYummlyRecipe(recipe){
         this.state.recipes.push({recipeName: recipe.recipeName, type: "YUMMLY", recipe});
-        this.setState({add: false});
+        this.setState({add: false, renderData0: false});
     }
 
     addEdamamRecipe(recipe){
-        this.state.recipes.push({recipeName: recipe.label, type: "EDAMAM", recipe: { label: recipe.label, source: recipe.source, userUrl: "https://developer.edamam.com/images/logo-dev.png", image: recipe.image, healthLabels: recipe.healthLabels}});
-        this.setState({add: false});
+        this.state.recipes.push({recipeName: recipe.label, type: "EDAMAM", recipe: { label: recipe.label, source: recipe.source, image: recipe.image, healthLabels: recipe.healthLabels, yield: recipe.yield, ingredientLines: recipe.ingredientLines, shareAs: recipe.shareAs}});
+        this.setState({add: false,  renderData1: false});
     }
 
     addUserRecipe(recipe){
         this.state.recipes.push({recipeName: recipe.recipeName, type: "USER", recipe});
-        this.setState({add: false});
+        this.setState({add: false,  renderData2: false});
     }
 
     async handleAddMeal(){

@@ -1,4 +1,5 @@
 import * as firebase from 'firebase';
+import { limits, badges, convert } from './secret';
 
 const config = require("./config.json");
 
@@ -128,7 +129,7 @@ export function validateEmail(email) {
     return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,5})+$/.test(email);
 }
 
-export function getAge(dateString) {
+function getAge(dateString) {
     var today = new Date();
     var birthDate = new Date(dateString);
     var age = today.getFullYear() - birthDate.getFullYear();
@@ -143,13 +144,49 @@ export function computeDate(date){
     let diff = new Date().getTime() - date.getTime()
     
     diff = diff/1000;
-    if(Math.floor(diff) < 60) return Math.floor(diff)+" sec ago"
+    if(Math.floor(diff) < 60)return Math.floor(diff)+" sec"+(Math.floor(diff) > 1?"s":"")+" ago"
     
     diff = diff/60; 
-    if(Math.floor(diff) < 60) return Math.floor(diff)+" min ago"
+    if(Math.floor(diff) < 60) return Math.floor(diff)+" min"+(Math.floor(diff) > 1?"s":"")+" ago"
     
     diff = diff/60; 
-    if(Math.floor(diff) < 24) return Math.floor(diff)+" hr ago"
+    if(Math.floor(diff) < 24) return Math.floor(diff)+" hr"+(Math.floor(diff) > 1?"s":"")+" ago"
     
-    return Math.floor(diff/24)+" days ago"
+    diff = diff/24;
+    return Math.floor(diff)+" day"+(Math.floor(diff) > 1?"s":"")+" ago"
+}
+
+export function calculateValues(recipe){
+    let totals = { "Energy": 0, "Protein": 0, "Total lipid (fat)": 0, "Fiber, total dietary": 0, "Sugars, total": 0, "Sodium, Na": 0 }
+    let toReturn = [];
+
+    recipe.ingredients.forEach((item)=>{
+        if(item.ingredient.ndbno > 0 && item.unit != "piece"){
+            item.nutrients.forEach((nutrient)=>{         
+                totals[nutrient.name]+=(item.qty*convert[item.unit]*nutrient.value*convert[nutrient.unit])/100;
+            })
+        }
+    })
+    
+    return totals;
+}
+
+export function calculateBadges(values, birthday, sex){
+    let age = getAge(birthday);
+
+    let toReturn = [];
+    let limit = limits.filter(item=>item.age.from <= age && item.age.to >= age)[0]
+    
+
+    Object.entries(limit[sex]).forEach(
+        ([key,value])=>{
+            if(values[key] > value.value){
+                toReturn.push(badges.above[key])
+            }else{
+                toReturn.push(badges.low[key])
+            }
+        }
+    );
+
+    return toReturn;
 }

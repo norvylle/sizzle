@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Linking } from 'react-native';
 import { Text, Button, H3 } from 'native-base';
 import { connect } from 'react-redux'
 import { logout } from '../Service/Reducer'
@@ -59,7 +59,7 @@ class Settings extends Component {
                 <View style={styles.viewSpace}>
                     <H3 style={styles.H3}>App</H3>
                     <View style={styles.viewColor}>
-                        <Button full transparent onPress={()=>this.handleRate()} style={styles.button}>
+                        <Button full transparent onPress={()=>Linking.openURL("https://docs.google.com/forms/d/e/1FAIpQLSf6ONwcZ5rxyUE0aDv9Ipym9V--pCcsFk2lv_ZJ_KdODca_HA/viewform")} style={styles.button}>
                             <Text uppercase={false} style={styles.buttonText}>Rate This App!</Text>
                         </Button>
                         <Button full transparent onPress={()=>this.handleLogout()} style={styles.button}>

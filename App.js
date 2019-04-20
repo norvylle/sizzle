@@ -218,7 +218,12 @@ const ProfileStack = createStackNavigator(
             }
         },
         ViewMealPlan:{
-            screen: ViewMealPlanPage
+            screen: ViewMealPlanPage,
+            navigationOptions: {
+                headerStyle:{
+                    backgroundColor: '#ff5733',
+                }
+            }
         },
         NewMealPlan:{
             screen: NewMealPlanPage,

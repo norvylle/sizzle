@@ -3,7 +3,7 @@ import { StyleSheet, Image, Linking, ScrollView, View, Alert } from 'react-nativ
 import { Text, Spinner, H2, List, ListItem, Button, Icon } from 'native-base';
 import { connect } from 'react-redux';
 import { yummly } from '../Service/secret'
-import { getAge } from '../Service/Firebase'
+import { calculateBadges } from '../Service/Firebase'
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
@@ -14,7 +14,7 @@ class ViewRecipe extends Component{
         this.state={
             getDone: false,
             data: null,
-            age: 0
+            badges: []
         }
         autoBind(this)
     }
@@ -37,16 +37,18 @@ class ViewRecipe extends Component{
                     }
                 }catch (error) {
                     await this.setState({data: response.data})
-                    this.setState({getDone: true, age: await getAge(this.props.state.user.birthday)})
+                    this.setState({getDone: true})
                     console.log("RECIPE: GET success.")
                 }
             }.bind(this))
-            //calculate badges given age
-        }else{
+            // this.setState({badges: calculateBadges(this.state.data.values,this.props.state.user.birthday,"YUMMLY")})
+        }else if(this.props.state.view === null){//USER
             await this.setState({data: this.props.navigation.state.params.recipe})
-            if(this.props.state.view === null){
-                //calculate badges given age
-            }
+            await this.setState({badges: calculateBadges(this.state.data.values,this.props.state.user.birthday,this.props.state.user.sex)})
+            console.log(this.state.data.recipeName,"\n",this.state.badges)
+            this.setState({getDone: true})
+        }else{//EDAMAM
+            await this.setState({data: this.props.navigation.state.params.recipe})
             this.setState({getDone: true})
         }
     }
@@ -67,8 +69,10 @@ class ViewRecipe extends Component{
         else if(this.props.state.view === "YUMMLY"){
             return(
             <ScrollView >
-                <H2 style={styles.h2}>{this.state.data.name}</H2>
-                <Text note>{this.state.data.source.sourceDisplayName}</Text>
+                <View style={{marginLeft: 10}}>
+                    <H2 style={styles.h2}>{this.state.data.name}</H2>
+                    <Text note>{this.state.data.source.sourceDisplayName}</Text>
+                </View>
                 <Image source={{uri: this.state.data.images[0].hostedLargeUrl}} style={styles.image}/>
                 <List style={styles.list}>
                     <ListItem itemDivider itemHeader>
@@ -100,15 +104,17 @@ class ViewRecipe extends Component{
                 </List>
                 <Button full info iconRight onPress={()=>{Linking.openURL(this.state.data.source.sourceRecipeUrl)}} style={styles.button}>
                     <Text>Open Recipe</Text>
-                    <Icon type="Feather" name="link"/>
+                    <Icon active type="Feather" name="link"/>
                 </Button>
             </ScrollView>
             )
         }else if(this.props.state.view === "EDAMAM"){
             return(
                 <ScrollView >
-                    <H2 style={styles.h2}>{this.state.data.label}</H2>
-                    <Text note>{this.state.data.source}</Text>
+                    <View style={{marginLeft: 10}}>
+                        <H2 style={styles.h2}>{this.state.data.label}</H2>
+                        <Text note>{this.state.data.source}</Text>
+                    </View>
                     <Image source={{uri: this.state.data.image}} style={styles.image}/>
                     <List style={styles.list}>
                         <ListItem itemDivider itemHeader>
@@ -140,7 +146,7 @@ class ViewRecipe extends Component{
                     </List>
                     <Button full info iconRight onPress={()=>{Linking.openURL(this.state.data.shareAs)}} style={styles.button}>
                         <Text>Open Recipe</Text>
-                        <Icon type="Feather" name="link"/>
+                        <Icon active type="Feather" name="link"/>
                     </Button>
                 </ScrollView>
             )

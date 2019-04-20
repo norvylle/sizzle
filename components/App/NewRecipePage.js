@@ -6,7 +6,7 @@ import ColorPalette from 'react-native-color-palette';
 import { ImagePicker } from 'expo';
 import { connect } from 'react-redux';
 import { units, usda } from './../Service/secret';
-import { insert, searchSingle, update, exportPicture, deletePicture } from '../Service/Firebase';
+import { insert, searchSingle, update, exportPicture, deletePicture, calculateValues } from '../Service/Firebase';
 import { none } from '../Service/Reducer';
 
 const autoBind = require('auto-bind');
@@ -34,7 +34,7 @@ class NewRecipe extends Component{
             searchResults: null,
             searching: false,
             quantity: "",
-            unit: "cup",
+            unit: "gram",
             search: "",
             ingredient: {ndbno: -1},
             //step overlay
@@ -47,7 +47,7 @@ class NewRecipe extends Component{
     }
 
     handleOnOpenIngredient(){
-        this.setState({IngredientVisible: true, header: "Add Ingredient", searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: "c", search: "", ingredient: {ndbno: -1}})
+        this.setState({IngredientVisible: true, header: "Add Ingredient", searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: "gram", search: "", ingredient: {ndbno: -1}})
     }
 
     async handleSubmitIngredient(){
@@ -64,7 +64,7 @@ class NewRecipe extends Component{
             Alert.alert("Sizzle","Please input on the missing field/s.")
         }else{
             await this.state.ingredients.push({qty: parseFloat(this.state.quantity) , unit: this.state.unit, ingredient: this.state.ingredient})
-            this.setState({IngredientVisible: false, searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: "c", search: "", ingredient: {ndbno: -1}, nonTouched: false})
+            this.setState({IngredientVisible: false, searchIngredient: [], searchResults: null, searching: false, quantity: "", unit: "gram", search: "", ingredient: {ndbno: -1}, nonTouched: false})
         }
     }
 
@@ -214,7 +214,10 @@ class NewRecipe extends Component{
                     }
                 }
 
-                await update({link: "recipes/"+key, data: data})
+                let values = calculateValues(data)
+                data.values = values;
+
+                await update({link: "recipes/"+key, data})
                 .then(()=>{
                     this.setState({loading: false});
                     Alert.alert("Sizzle","Recipe updated");
@@ -238,7 +241,11 @@ class NewRecipe extends Component{
                         this.setState({loading: false});
                         Alert.alert("Sizzle","An error occurred"); 
                     }else{
-                        await insert({link:"recipes/",data: { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.user.username, stars: 0, url, recipeName_username: this.state.recipeName+"_"+this.props.state.user.username, userUrl: this.props.state.user.image , dateAdded: new Date().toISOString()}})
+                        let data = { recipeName: this.state.recipeName , ingredients: this.state.ingredients, steps: this.state.steps, color: this.state.selectedColor, username: this.props.state.user.username, stars: 0, url, recipeName_username: this.state.recipeName+"_"+this.props.state.user.username, userUrl: this.props.state.user.image , dateAdded: new Date().toISOString()}
+                        let values = await calculateValues(data)
+                        data.values = values;
+                        
+                        await insert({link:"recipes/",data})
                         .then(()=>{
                             Alert.alert("Sizzle","Recipe upload success!");
                             this.setState({loading: false});

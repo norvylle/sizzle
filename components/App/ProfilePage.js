@@ -141,10 +141,15 @@ class Profile extends Component {
     }
 
     handleOpenMealPlan(meal){
-        console.log(meal);
+        this.props.navigation.navigate('ViewMealPlan',{meal})
     }
 
-    handleDeleteMealPlan(index){}
+    async handleDeleteMealPlan(meal,index){
+        await remove({link: "meals/"+meal.key})
+        .then(()=>{console.log("DB REMOVE success")})
+        this.state.meals.splice(index,1)
+        this.forceUpdate()
+    }
 
     render() {
         return(
@@ -209,7 +214,7 @@ class Profile extends Component {
                                     </Card>)
                                 })
                             }
-                        <Text style={{paddingBottom: 60}}/>
+                        <Text style={{paddingBottom: 60, opacity: 0}}/>
                         </ScrollView>
                     </Tab>
                     <Tab heading="My Meals" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
@@ -220,27 +225,28 @@ class Profile extends Component {
                                 this.state.meals.map((meal,index)=>{
                                     return(
                                         <Card key={index} style={styles.card}>
-                                                <CardItem >
-                                                    <Left>
-                                                        <Thumbnail source={{uri: meal.userUrl}} style={{borderWidth: 1, borderColor: "black"}}/>
-                                                        <Body>
-                                                            <H3 style={styles.h3}>{meal.mealPlanName}</H3>
-                                                            <Text note>{meal.username}</Text>
-                                                        </Body>
-                                                    </Left>
-                                                    <Right>
-                                                        <Button transparent style={styles.buttonRight} onPress={()=>this.handleOpenMealPlan(meal)}>
-                                                            <Icon active type="Feather" name="book-open"/>
-                                                        </Button>
-                                                        <Button transparent danger onPress={() => Alert.alert("Sizzle","Delete "+meal.mealPlanName+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => this.handleDeleteMealPlan(index)},],{cancelable: true})} style={styles.buttonRight}>
-                                                            <Icon active name="trash" />
-                                                        </Button>
-                                                    </Right>
-                                                </CardItem>
+                                            <CardItem >
+                                                <Left>
+                                                    <Thumbnail source={{uri: meal.userUrl}} style={{borderWidth: 1, borderColor: "black"}}/>
+                                                    <Body>
+                                                        <H3 style={styles.h3}>{meal.mealPlanName}</H3>
+                                                        <Text note>{meal.username}</Text>
+                                                    </Body>
+                                                </Left>
+                                                <Right>
+                                                    <Button transparent style={styles.buttonRight} onPress={()=>this.handleOpenMealPlan(meal)}>
+                                                        <Icon active type="Feather" name="book-open"/>
+                                                    </Button>
+                                                    <Button transparent danger onPress={() => Alert.alert("Sizzle","Delete "+meal.mealPlanName+"?",[{ text: 'Cancel',style: 'cancel'},{text: 'OK', onPress: () => this.handleDeleteMealPlan(meal,index)}],{cancelable: true})} style={styles.buttonRight}>
+                                                        <Icon active name="trash" />
+                                                    </Button>
+                                                </Right>
+                                            </CardItem>
                                         </Card>
                                     )
                                 })
                             }
+                            <Text style={{paddingBottom: 60, opacity: 0}}/>
                         </ScrollView>
                     </Tab>
                     <Tab heading="Starred" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
@@ -287,6 +293,7 @@ class Profile extends Component {
                                     </Card>)
                                 })   
                             }
+                        <Text style={{paddingBottom: 60, opacity: 0}}/>
                         </ScrollView>
                     </Tab>
                 </Tabs>
