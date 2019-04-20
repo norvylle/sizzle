@@ -42,14 +42,9 @@ class ViewRecipe extends Component{
                 }
             }.bind(this))
             this.setState({badges: calculateBadges(setYummlyValues(this.state.data.nutritionEstimates),this.props.state.user.birthday,this.props.state.user.sex)})
-        }else if(this.props.state.view === null){//USER
-            await this.setState({data: this.props.navigation.state.params.recipe})
+        }else{//USER && YUMMLY_MEAL && EDAMAM
+            await this.setState({data: this.props.navigation.state.params.recipe});
             await this.setState({badges: calculateBadges(this.state.data.values,this.props.state.user.birthday,this.props.state.user.sex)})
-            this.setState({getDone: true})
-        }else{//EDAMAM
-            console.log(this.props.navigation.state.params.recipe.values)
-            await this.setState({data: this.props.navigation.state.params.recipe})
-            await this.setState({badges: calculateBadges(this.props.navigation.state.params.recipe.values,this.props.state.user.birthday,this.props.state.user.sex)})
             this.setState({getDone: true})
         }
     }
@@ -104,6 +99,48 @@ class ViewRecipe extends Component{
                         }
                 </List>
                 <Button full info iconRight onPress={()=>{Linking.openURL(this.state.data.source.sourceRecipeUrl)}} style={styles.button}>
+                    <Text>Open Recipe</Text>
+                    <Icon active type="Feather" name="link"/>
+                </Button>
+            </ScrollView>
+            )
+        }else if(this.props.state.view === "YUMMLY_MEAL"){
+            return(
+            <ScrollView >
+                <View style={{marginLeft: 10}}>
+                    <H2 style={styles.h2}>{this.state.data.recipeName}</H2>
+                    <Text note>{this.state.data.sourceDisplayName}</Text>
+                </View>
+                <Image source={{uri: this.state.data.hostedLargeUrl}} style={styles.image}/>
+                <List style={styles.list}>
+                    <ListItem itemDivider itemHeader>
+                        <Text style={styles.header}>Ingredients</Text>
+                    </ListItem>
+                    {
+                        this.state.data.ingredientLines.map((item,index)=>{
+                            return(
+                                <ListItem key={index}>
+                                    <Text>{item}</Text>
+                                </ListItem>
+                            )
+                        })
+                    }
+                </List>
+                <List style={styles.list}>
+                        <ListItem itemDivider itemHeader>
+                            <Text style={styles.header}>Badges</Text>
+                        </ListItem>
+                        {   
+                            this.state.badges.map((item,index)=>{
+                                return(
+                                    <ListItem key={index}>
+                                        <Text>{item}</Text>
+                                    </ListItem>
+                                )
+                            })
+                        }
+                </List>
+                <Button full info iconRight onPress={()=>{Linking.openURL(this.state.data.sourceRecipeUrl)}} style={styles.button}>
                     <Text>Open Recipe</Text>
                     <Icon active type="Feather" name="link"/>
                 </Button>

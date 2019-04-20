@@ -179,6 +179,7 @@ class NewMealPlan extends Component{
                 delete this.state.recipes[index].recipe['attributes']
                 delete this.state.recipes[index].recipe['flavors']
             }
+
             totals["Energy"]+=this.state.recipes[index].recipe.values["Energy"];
             totals["Protein"]+=this.state.recipes[index].recipe.values["Protein"];
             totals["Total lipid (fat)"]+=this.state.recipes[index].recipe.values["Total lipid (fat)"];

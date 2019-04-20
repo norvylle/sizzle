@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { ScrollView, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { View, Text, H2, H3, Spinner, Card, CardItem, Left, Right, Body, Thumbnail, Button, Icon } from 'native-base';
 import { computeDate, transact, update } from '../Service/Firebase'
-import { viewYummly, viewEdamam, view } from '../Service/Reducer';
+import { viewYummlyMeal, viewEdamam, view } from '../Service/Reducer';
 
 const autoBind = require('auto-bind');
 
@@ -17,10 +17,9 @@ class  ViewMealPlan extends Component{
         autoBind(this)
     }
 
-    async handleOpenYummly(id){
-        //push id to View Recipe
-        await this.props.dispatch(viewYummly());
-        this.props.navigation.navigate('ViewRecipe',{id});
+    async handleOpenYummly(recipe){
+        await this.props.dispatch(viewYummlyMeal());
+        this.props.navigation.navigate('ViewRecipe',{recipe});
     }
 
     async showHealthLabels(labels){
@@ -142,7 +141,7 @@ class  ViewMealPlan extends Component{
                                                     </Button>
                                                 </Right>
                                             </CardItem>
-                                            <TouchableOpacity onPress={()=>{this.handleOpenYummly(recipe.recipe.id)}}>
+                                            <TouchableOpacity onPress={()=>{this.handleOpenYummly(recipe.recipe)}}>
                                                 <CardItem cardBody>
                                                     <Image source={{uri: recipe.recipe.imageUrlsBySize[90]}} style={styles.image}/>
                                                 </CardItem>

@@ -8,6 +8,7 @@ const EDIT = 'MODE EDIT';
 const POST_EDIT = "MODE POST_EDIT"
 const NONE = 'MODE NONE';
 const VIEW_YUMMLY = "RECIPE YUMMLY"
+const VIEW_YUMMLY_MEAL = "RECIPE YUMMLY_MEAL"
 const VIEW_EDAMAM = "RECIPE EDAMAM"
 const VIEW = "RECIPE DB"
 
@@ -48,6 +49,10 @@ export function viewYummly(){
     return {type: VIEW_YUMMLY, view: "YUMMLY"}
 }
 
+export function viewYummlyMeal(){
+    return {type: VIEW_YUMMLY_MEAL, view: "YUMMLY_MEAL"}
+}
+
 export function viewEdamam(){
     return {type: VIEW_EDAMAM, view: "EDAMAM"}
 }
@@ -71,6 +76,7 @@ function dispatcher(state, action){
                 mode: action.mode
             })
         case VIEW_YUMMLY:
+        case VIEW_YUMMLY_MEAL:
         case VIEW_EDAMAM:
         case VIEW:
             return Object.assign({}, state, {
