@@ -4,7 +4,7 @@ import { CardItem, Input, Form, Item, Button, Icon, Left, Right, Picker, Text, C
 import { usda, yummly, edamam } from '../Service/secret';
 import { connect } from 'react-redux';
 import { view, viewYummly, viewEdamam } from '../Service/Reducer'
-import { searchMultiStartsAt, snapshotToArray, transact, computeDate, update } from '../Service/Firebase';
+import { searchMultiStartsAt, snapshotToArray, transact, computeDate, update, setEdamamValues } from '../Service/Firebase';
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
@@ -165,6 +165,7 @@ class Search extends Component {
 
     async handleOpenEdamam(recipe){
         await this.props.dispatch(viewEdamam());
+        recipe.values = setEdamamValues(recipe.totalNutrients);
         this.props.navigation.navigate('ViewRecipe',{recipe})
     }
 

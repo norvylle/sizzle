@@ -5,7 +5,7 @@ import { Overlay } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { view, viewYummly, viewEdamam } from '../Service/Reducer';
 import { yummly, edamam } from '../Service/secret';
-import { searchMultiStartsAt,snapshotToArray, insert } from '../Service/Firebase';
+import { searchMultiStartsAt, snapshotToArray, insert, setEdamamValues, setYummlyValues } from '../Service/Firebase';
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
@@ -113,13 +113,40 @@ class NewMealPlan extends Component{
     }
 
     addEdamamRecipe(recipe){
-        this.state.recipes.push({recipeName: recipe.label, type: "EDAMAM", recipe: { label: recipe.label, source: recipe.source, image: recipe.image, healthLabels: recipe.healthLabels, yield: recipe.yield, ingredientLines: recipe.ingredientLines, shareAs: recipe.shareAs}});
+        this.state.recipes.push({recipeName: recipe.label, type: "EDAMAM", recipe: { label: recipe.label, source: recipe.source, image: recipe.image, healthLabels: recipe.healthLabels, yield: recipe.yield, ingredientLines: recipe.ingredientLines, shareAs: recipe.shareAs, values: setEdamamValues(recipe.totalNutrients)}});
         this.setState({add: false,  renderData1: false});
     }
 
     addUserRecipe(recipe){
         this.state.recipes.push({recipeName: recipe.recipeName, type: "USER", recipe});
         this.setState({add: false,  renderData2: false});
+    }
+
+    async getYummlyValues(id){
+        let recipe = { hostedLargeUrl: "", ingredientLines: [], sourceRecipeUrl: "", values: {} }
+        await axios.get(yummly.get+id+"?",
+                {
+                    params:{
+                        _app_id: yummly.id,
+                        _app_key: yummly.api_key,
+                    }
+                }
+            ).then(async function(response){
+                try {
+                    if(response.data.errors.error[0].status === 400){
+                        console.log("An error occurred.");
+                    }
+                }catch (error) {
+                    let data = response.data;
+                    recipe.hostedLargeUrl = data.images[0].hostedLargeUrl;
+                    recipe.ingredientLines = data.ingredientLines;
+                    recipe.sourceRecipeUrl = data.source.sourceRecipeUrl;
+                    recipe.values = setYummlyValues(data.nutritionEstimates);
+                    console.log("RECIPE: GET success.");
+                }
+            }.bind(this))
+
+            return recipe;
     }
 
     async handleAddMeal(){
@@ -136,12 +163,29 @@ class NewMealPlan extends Component{
 
         this.setState({loading: true});
 
-        await insert({link:"meals", data: {mealPlanName: this.state.mealPlanName, recipes: this.state.recipes, username: this.props.state.user.username, userUrl: this.props.state.user.image} })
+        //FETCH YUMMLY RECIPE VALUES
+        for(let index = 0; index < this.state.recipes.length; index++) {
+            if(this.state.recipes[index].type === "YUMMLY"){
+                let toReturn = await this.getYummlyValues(this.state.recipes[index].recipe.id);
+                this.state.recipes[index].recipe.values = toReturn.values;
+                this.state.recipes[index].recipe.hostedLargeUrl = toReturn.hostedLargeUrl;
+                this.state.recipes[index].recipe.sourceRecipeUrl = toReturn.sourceRecipeUrl;
+                this.state.recipes[index].recipe.ingredientLines = toReturn.ingredientLines;
+                
+                delete this.state.recipes[index].recipe['ingredients']
+                delete this.state.recipes[index].recipe['imageUrlsBySize']
+                delete this.state.recipes[index].recipe['attributes']
+                delete this.state.recipes[index].recipe['flavors']
+            }
+        }
+        
+        insert({link:"meals", data: {mealPlanName: this.state.mealPlanName, recipes: this.state.recipes, username: this.props.state.user.username, userUrl: this.props.state.user.image} })
         .then(function(response){
             Alert.alert("Sizzle","Upload successful.")
             this.setState({loading: false});
             this.props.navigation.pop();
         }.bind(this))
+
 
         this.setState({loading: false});
     }

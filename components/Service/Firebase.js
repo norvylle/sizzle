@@ -161,7 +161,7 @@ export function calculateValues(recipe){
     let toReturn = [];
 
     recipe.ingredients.forEach((item)=>{
-        if(item.ingredient.ndbno > 0 && item.unit != "piece"){
+        if(item.ingredient.ndbno > 0 && item.unit !== "piece"){
             item.nutrients.forEach((nutrient)=>{         
                 totals[nutrient.name]+=(item.qty*convert[item.unit]*nutrient.value*convert[nutrient.unit])/100;
             })
@@ -171,42 +171,57 @@ export function calculateValues(recipe){
     return totals;
 }
 
-export function calculateBadges(values, birthday, sex, mode){
-    let age = getAge(birthday);
+export function setEdamamValues(totalNutrients){
+    const needed = ["ENERC_KCAL", "FAT", "FIBTG", "SUGAR", "NA", "PROCNT"];
+    const filtered = Object.keys(totalNutrients)
+        .filter(key => needed.includes(key))
+        .reduce((obj, key) => {
+            obj[key] = totalNutrients[key];
+            return obj;
+        }, {});
+    return{ "Energy": filtered["ENERC_KCAL"].quantity*convert[filtered["ENERC_KCAL"].unit],
+            "Protein": filtered["PROCNT"].quantity*convert[filtered["PROCNT"].unit],
+            "Total lipid (fat)": filtered["FAT"].quantity*convert[filtered["FAT"].unit],
+            "Fiber, total dietary": filtered["FIBTG"].quantity*convert[filtered["FIBTG"].unit],
+            "Sugars, total": filtered["SUGAR"].quantity*convert[filtered["SUGAR"].unit],
+            "Sodium, Na": filtered["NA"].quantity*convert[filtered["NA"].unit]
+    }
+        
+}
 
+export function setYummlyValues(values){
+    if(values.length === 0) return null;
+    
+    const needed = ["Energy", "Protein", "Total lipid (fat)", "Fiber, total dietary", "Sugars, total", "Sodium, Na"];
+    let filtered = values.filter(item=>needed.includes(item.description))
+    let toReturn = { "Energy": 0, "Protein": 0, "Total lipid (fat)": 0, "Fiber, total dietary": 0, "Sugars, total": 0, "Sodium, Na": 0};
+
+    filtered.forEach((item)=>{
+        toReturn[item.description] = item.value;
+    })
+
+    return toReturn
+}
+
+export function calculateBadges(values, birthday, sex){
+    if(values === null) return [];
+    
     let toReturn = [];
+    let age = getAge(birthday);
     let limit = limits.filter(item=>item.age.from <= age && item.age.to >= age)[0]
     
-
-
-    switch (mode) {
-        case "YUMMLY":
-            let nutri = values.filter(item=>["Energy", "Protein", "Total lipid (fat)", "Fiber, total dietary", "Sugars, total", "Sodium, Na"].includes(item.description))
-            if(nutri.length === 0){
-                return []
+    Object.entries(values).forEach(
+        ([key,value])=>{
+            if(value > limit[sex][key].value){
+                toReturn.push(badges.above[key])
             }else{
-                nutri.forEach((item)=>{
-                    if(item.value > limit[sex][item.description].value){
-                        toReturn.push(badges.above[item.description])
-                    }else{
-                        toReturn.push(badges.low[item.description])
-                    }
-                })
-                return toReturn;
+                toReturn.push(badges.low[key])
             }
-        case "USER":
-            Object.entries(values).forEach(
-                ([key,value])=>{
-                    if(value > limit[sex][key].value){
-                        toReturn.push(badges.above[key])
-                    }else{
-                        toReturn.push(badges.low[key])
-                    }
-                }
-            );
-            return toReturn;
-        default:
-            return [];
-    }    
+        }
+    );
+    return toReturn;
+}
+
+export function computeTotal(nutrientArray){
 
 }
