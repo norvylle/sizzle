@@ -221,7 +221,3 @@ export function calculateBadges(values, birthday, sex){
     );
     return toReturn;
 }
-
-export function computeTotal(nutrientArray){
-
-}

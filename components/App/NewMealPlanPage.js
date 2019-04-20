@@ -46,7 +46,7 @@ class NewMealPlan extends Component{
     }
 
     handleAddRecipe(){
-        this.setState({text: "",data: null, add: true})
+        this.setState({text: "",data: null, add: true, selected: 2})
     }
 
     async handleSearch(){
@@ -163,7 +163,9 @@ class NewMealPlan extends Component{
 
         this.setState({loading: true});
 
-        //FETCH YUMMLY RECIPE VALUES
+        let totals = { "Energy": 0, "Protein": 0, "Total lipid (fat)": 0, "Fiber, total dietary": 0, "Sugars, total": 0, "Sodium, Na": 0 }
+
+        //FETCH YUMMLY RECIPE VALUES AND COMPUTE TOTALS
         for(let index = 0; index < this.state.recipes.length; index++) {
             if(this.state.recipes[index].type === "YUMMLY"){
                 let toReturn = await this.getYummlyValues(this.state.recipes[index].recipe.id);
@@ -173,13 +175,19 @@ class NewMealPlan extends Component{
                 this.state.recipes[index].recipe.ingredientLines = toReturn.ingredientLines;
                 
                 delete this.state.recipes[index].recipe['ingredients']
-                delete this.state.recipes[index].recipe['imageUrlsBySize']
+                delete this.state.recipes[index].recipe['smallImageUrls']
                 delete this.state.recipes[index].recipe['attributes']
                 delete this.state.recipes[index].recipe['flavors']
             }
+            totals["Energy"]+=this.state.recipes[index].recipe.values["Energy"];
+            totals["Protein"]+=this.state.recipes[index].recipe.values["Protein"];
+            totals["Total lipid (fat)"]+=this.state.recipes[index].recipe.values["Total lipid (fat)"];
+            totals["Fiber, total dietary"]+=this.state.recipes[index].recipe.values["Fiber, total dietary"];
+            totals["Sugars, total"]+=this.state.recipes[index].recipe.values["Sugars, total"];
+            totals["Sodium, Na"]+=this.state.recipes[index].recipe.values["Sodium, Na"];
         }
         
-        insert({link:"meals", data: {mealPlanName: this.state.mealPlanName, recipes: this.state.recipes, username: this.props.state.user.username, userUrl: this.props.state.user.image} })
+        insert({link:"meals", data: {mealPlanName: this.state.mealPlanName, recipes: this.state.recipes, username: this.props.state.user.username, userUrl: this.props.state.user.image, totals} })
         .then(function(response){
             Alert.alert("Sizzle","Upload successful.")
             this.setState({loading: false});
