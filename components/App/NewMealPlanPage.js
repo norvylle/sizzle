@@ -31,7 +31,6 @@ class NewMealPlan extends Component{
     }
 
     async handleOpenRecipe(recipe){
-        
         if(recipe.type === "YUMMLY"){
             await this.props.dispatch(viewYummly());
         }else if(recipe.type === "EDAMAM"){
@@ -47,7 +46,7 @@ class NewMealPlan extends Component{
     }
 
     handleAddRecipe(){
-        this.setState({add: true})
+        this.setState({text: "",data: null, add: true})
     }
 
     async handleSearch(){
@@ -137,7 +136,7 @@ class NewMealPlan extends Component{
 
         this.setState({loading: true});
 
-        await insert({link:"meals", data: {mealPlanName: this.state.mealPlanName, recipes: this.state.recipes} })
+        await insert({link:"meals", data: {mealPlanName: this.state.mealPlanName, recipes: this.state.recipes, username: this.props.state.user.username, userUrl: this.props.state.user.image} })
         .then(function(response){
             Alert.alert("Sizzle","Upload successful.")
             this.setState({loading: false});

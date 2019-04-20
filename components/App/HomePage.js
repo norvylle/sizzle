@@ -21,8 +21,8 @@ class Home extends Component {
     }
 
     async handleStar(recipe){
-        if(this.props.state.user.starred.includes(recipe.recipeName_username)){ //unstar
-            this.props.state.user.starred.splice(this.props.state.user.starred.indexOf(recipe.recipeName_username),1);
+        if(this.props.state.user.starred.includes(recipe.key)){ //unstar
+            this.props.state.user.starred.splice(this.props.state.user.starred.indexOf(recipe.key),1);
             
             await update({link: "users/"+this.props.state.user.key, data: { starred: this.props.state.user.starred }})
             .then(async ()=>{
@@ -45,7 +45,7 @@ class Home extends Component {
             })
 
         }else{ //star
-            this.props.state.user.starred.push(recipe.recipeName_username);
+            this.props.state.user.starred.push(recipe.key);
 
             await update({link: "users/"+this.props.state.user.key, data: { starred: this.props.state.user.starred }})
             .then(async ()=>{
@@ -71,8 +71,8 @@ class Home extends Component {
         this.forceUpdate()
     }
 
-    evaluateStar(recipeName_username){
-        if(this.props.state.user.starred.includes(recipeName_username)){
+    evaluateStar(key){
+        if(this.props.state.user.starred.includes(key)){
             return true
         }else{
             return false
@@ -128,7 +128,7 @@ class Home extends Component {
                                     <CardItem>
                                         <Left>
                                             <Button transparent onPress={() => this.handleStar(recipe)}>
-                                                <Icon type='FontAwesome' name='star' style={ this.evaluateStar(recipe.recipeName_username) ? (styles.icon) : (styles.icon1) }/>
+                                                <Icon type='FontAwesome' name='star' style={ this.evaluateStar(recipe.key) ? (styles.icon) : (styles.icon1) }/>
                                             </Button>
                                             <Text>{recipe.stars} Stars</Text>
                                         </Left>

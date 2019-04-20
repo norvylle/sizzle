@@ -4,7 +4,7 @@ import { Text, Button, Tabs, Tab, Icon, Card, CardItem, Left, Right, Body, H3, S
 import ActionButton from 'react-native-action-button'
 import { connect } from 'react-redux';
 import { add, edit, view } from '../Service/Reducer';
-import { searchMulti, remove, deletePicture, snapshotToArray, computeDate, update, transact } from '../Service/Firebase';
+import { searchMulti, remove, deletePicture, snapshotToArray, computeDate, update, transact, retrieveByChild } from '../Service/Firebase';
 
 const autoBind = require('auto-bind');
 
@@ -20,11 +20,7 @@ class Profile extends Component {
             recipes: [],
             meals: [],
             starred: [],
-            user: {
-                image: "",
-                firstName: "",
-                lastName: ""
-            }
+            removal: []
         }
         autoBind(this)
     }
@@ -62,8 +58,8 @@ class Profile extends Component {
     }
 
     async handleStar(recipe){
-        if(this.props.state.user.starred.includes(recipe.recipeName_username)){ //unstar
-            this.props.state.user.starred.splice(this.props.state.user.starred.indexOf(recipe.recipeName_username),1);
+        if(this.props.state.user.starred.includes(recipe.key)){ //unstar
+            this.props.state.user.starred.splice(this.props.state.user.starred.indexOf(recipe.key),1);
             
             await update({link: "users/"+this.props.state.user.key, data: { starred: this.props.state.user.starred }})
             .then(async ()=>{
@@ -86,7 +82,7 @@ class Profile extends Component {
             })
 
         }else{ //star
-            this.props.state.user.starred.push(recipe.recipeName_username);
+            this.props.state.user.starred.push(recipe.key);
 
             await update({link: "users/"+this.props.state.user.key, data: { starred: this.props.state.user.starred }})
             .then(async ()=>{
@@ -112,8 +108,8 @@ class Profile extends Component {
         this.forceUpdate()
     }
 
-    evaluateStar(recipeName_username){
-        if(this.props.state.user.starred.includes(recipeName_username)){
+    evaluateStar(key){
+        if(this.props.state.user.starred.includes(key)){
             return true
         }else{
             return false
@@ -125,12 +121,26 @@ class Profile extends Component {
         .on("value",function(snapshot){
            this.setState({recipes: snapshotToArray(snapshot), renderRecipes: true})
         }.bind(this))
-        // searchSingle({link: "meals", child: "username", search: this.props.state.user.username})
-        // .once("value",function(snapshot){
-        //  this.setState({meals: snapshotToArray(snapshot), renderMeals: true})
-        // }.bind(this)) //get meals
-        
+
+        searchMulti({link: "meals", child: "username", search: this.props.state.user.username})
+        .on("value",function(snapshot){
+         this.setState({meals: snapshotToArray(snapshot), renderMeals: true})
+        }.bind(this))
+
+        await this.props.state.user.starred.filter((item)=>item !== "dummy")
+        .forEach((key,index)=>{
+            retrieveByChild({link: "recipes/"+key})
+            .once('value',function(snapshot){
+                if(snapshot.exists()){
+                    if(!this.state.starred.includes({...snapshot.val(), key})) this.state.starred.push({...snapshot.val(), key});
+                }
+            }.bind(this))
+        })
+
+        this.setState({renderStarred: true});
     }
+
+    handleOpenMeal(meal){}
 
     render() {
         return(
@@ -178,7 +188,7 @@ class Profile extends Component {
                                         <CardItem>
                                             <Left>
                                                 <Button transparent onPress={() => this.handleStar(recipe)}>
-                                                    <Icon type='FontAwesome' name='star' style={ this.evaluateStar(recipe.recipeName_username) ? (styles.icon) : (styles.icon1) }/>
+                                                    <Icon type='FontAwesome' name='star' style={ this.evaluateStar(recipe.key) ? (styles.icon) : (styles.icon1) }/>
                                                 </Button>
                                                 <Text>{recipe.stars} Stars</Text>
                                             </Left>
@@ -200,16 +210,72 @@ class Profile extends Component {
                     </Tab>
                     <Tab heading="My Meals" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
                         <ScrollView>
+                            {
+                                !this.state.renderMeals ?
+                                (this.state.noErrors ? <Spinner color="blue" style={{paddingTop: 50}}/> : null) :
+                                this.state.meals.map((meal,index)=>{
+                                    return(
+                                        <Card key={index} style={styles.card}>
+                                            <TouchableOpacity onPress={()=>this.handleOpenMeal(meal)}>
+                                                <CardItem>
+                                                    <Left>
+                                                        <Thumbnail source={{uri: meal.userUrl}} style={{borderWidth: 1, borderColor: "black"}}/>
+                                                        <Body>
+                                                            <H3 style={styles.h3}>{meal.mealPlanName}</H3>
+                                                            <Text note>{meal.username}</Text>
+                                                        </Body>
+                                                    </Left>
+                                                </CardItem>
+                                            </TouchableOpacity>
+                                        </Card>
+                                    )
+                                })
+                            }
                         </ScrollView>
                     </Tab>
                     <Tab heading="Starred" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
                         <ScrollView>
                             {
-                                this.props.state.user.starred.filter((item)=>item !== "dummy").map((item,index)=>{
-                                    return(
-                                        <Text key={index}>{item}</Text>
-                                    )
-                                })
+                                !this.state.renderStarred ?
+                                (this.state.noErrors ? <Spinner color="blue" style={{paddingTop: 50}}/> : null) :
+                                this.state.starred.map((recipe,index)=>{
+                                    return(<Card key={index} style={styles.card}>
+                                        <CardItem>
+                                            <Left>
+                                                <Thumbnail source={{uri: recipe.userUrl}} style={{borderWidth: 1, borderColor: "black"}}/>
+                                                <Body>
+                                                    <H3 style={styles.h3}>{recipe.recipeName}</H3>
+                                                    <Text note>{recipe.username}</Text>
+                                                </Body>
+                                            </Left>
+                                            <Right>
+                                                <Text>{computeDate(new Date(recipe.dateAdded))}</Text>
+                                            </Right>
+                                        </CardItem>
+                                        <TouchableOpacity onPress={()=>{this.handleOpenRecipe(recipe)}}>
+                                            <CardItem cardBody>
+                                                <Image source={{uri: recipe.url}} style={styles.image}/>
+                                            </CardItem>
+                                        </TouchableOpacity>
+                                        <CardItem>
+                                            <Left>
+                                                <Button transparent onPress={() => this.handleStar(recipe)}>
+                                                    <Icon type='FontAwesome' name='star' style={ this.evaluateStar(recipe.key) ? (styles.icon) : (styles.icon1) }/>
+                                                </Button>
+                                                <Text>{recipe.stars} Stars</Text>
+                                            </Left>
+                                            <Body/><Body/>
+                                            <Right style={{flexDirection: "row", alignContents: "flex-end"}}>
+                                                <Button transparent onPress={() => this.handleEditRecipe(index)} style={styles.buttonRight}>
+                                                    <Icon active type="Feather" name="edit" />
+                                                </Button>
+                                                <Button transparent danger onPress={() => Alert.alert("Sizzle","Delete "+recipe.recipeName+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => this.handleDeleteRecipe(index,recipe)},],{cancelable: true})} style={styles.buttonRight}>
+                                                    <Icon active name="trash" />
+                                                </Button>
+                                            </Right>
+                                        </CardItem>
+                                    </Card>)
+                                })   
                             }
                         </ScrollView>
                     </Tab>

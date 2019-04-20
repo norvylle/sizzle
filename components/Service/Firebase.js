@@ -52,6 +52,11 @@ export function retrieveMulti(data){
     .limitToLast(data.limit)
 }
 
+export function retrieveByChild(data){
+    return database.ref(data.link)
+    
+}
+
 export function registerEmail(email, password){
     return auth.createUserWithEmailAndPassword(email,password)
 }
