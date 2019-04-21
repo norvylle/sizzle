@@ -2,11 +2,11 @@ import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage,
 import { createStackNavigator, createSwitchNavigator, createBottomTabNavigator, createAppContainer} from 'react-navigation';
 import React, { Component } from 'react';
 import { StyleSheet } from 'react-native';
-import { Icon, } from 'native-base';
+import { Icon } from 'native-base';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import { reducer } from './components/Service/Reducer';
-
+import { EventEmitter } from 'events';
 
 const styles = StyleSheet.create({
     icon: {
@@ -244,6 +244,38 @@ const ProfileStack = createStackNavigator(
     }
 );
 
+const GuestStack = createBottomTabNavigator(
+    {
+        Home:{
+            screen: HomeStack,
+            navigationOptions:{
+                tabBarIcon: (<Icon type='Octicons' name='home' style={styles.icon}/>)
+            }
+        },
+        Search:{
+            screen: SearchStack,
+            navigationOptions:{
+                tabBarIcon: (<Icon type='Feather' name='search' style={styles.icon}/>)
+            }
+        }
+    },
+    {
+        initialRouteName: 'Home',
+        tabBarOptions:{
+            activeBackgroundColor: '#da634a',
+            labelStyle:{
+                color: '#fff'
+            },
+            style:{
+                backgroundColor: '#ff5733',
+            },
+            headerTitleStyle:{
+                color: '#fff',
+            },
+        }
+    }
+);
+
 const AppStack = createBottomTabNavigator(
     {
         Home:{
@@ -272,7 +304,7 @@ const AppStack = createBottomTabNavigator(
         }
     },
     {
-        initialRouteName: 'Profile',
+        initialRouteName: 'Home',
         tabBarOptions:{
             activeBackgroundColor: '#da634a',
             labelStyle:{
@@ -312,7 +344,8 @@ const AuthStack = createStackNavigator(
 const Switch = createSwitchNavigator(
     {
         Auth: AuthStack,
-        App: AppStack
+        App: AppStack,
+        Guest: GuestStack,
     },
     {
         initialRouteName: 'Auth',

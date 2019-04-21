@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { Image, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Card, CardItem, Toast, Root, Spinner, H3, Text, Thumbnail, Left, Right, Body, Button, Icon} from 'native-base';
 import { connect } from 'react-redux';
-import { computeDate, retrieveMulti, snapshotToArray, transact, update } from '../Service/Firebase';
-import { view } from '../Service/Reducer';
+import { computeDate, retrieveMulti, snapshotToArray, transact, update, getUser, signOut, storeData, retrieveData } from '../Service/Firebase';
+import { view, logout, addKey, removeKey } from '../Service/Reducer';
 
 const autoBind = require('auto-bind');
 
@@ -16,8 +16,27 @@ class Home extends Component {
             db: null,
             renderdb: false,
             noErrors: true,
+            guest: false
         }
         autoBind(this);
+    }
+
+    static navigationOptions = ({navigation})=> {
+        const { params = {} } = navigation.state;
+        
+        if(params.guest === true)
+            return{
+                headerRight: <Button bordered rounded light onPress={navigation.getParam('handleGuestLogOut')}><Icon type="Feather" name="log-out"/></Button>
+            }
+    };
+
+    handleGuestLogOut(){
+        signOut()
+        .then(async()=>{
+            await this.props.navigation.popToTop();
+            await this.props.navigation.navigate('Auth');
+            this.props.dispatch(logout())
+        })
     }
 
     async handleStar(recipe){
@@ -72,6 +91,10 @@ class Home extends Component {
     }
 
     evaluateStar(key){
+        if(this.state.guest){
+            return false
+        }
+
         if(this.props.state.user.starred.includes(key)){
             return true
         }else{
@@ -79,11 +102,27 @@ class Home extends Component {
         }
     }
 
-    handleDownload(recipe){
-        Toast.show({
-            text: "Downloading...",
-            duration: 3000
-        })
+    async handleDownload(recipe){
+        let data = await retrieveData("downloads");
+        data = JSON.parse(data);
+
+        if(data.filter((item)=> item.key === recipe.key).length === 0){
+            Toast.show({
+                text: "Added to Downloads",
+                duration: 2000,
+                buttonText: 'CLOSE',
+                buttonTextStyle: { color: "red" }
+            })
+
+            data.push(recipe)
+            await this.props.dispatch(addKey(recipe.key));
+            storeData("downloads",JSON.stringify(data));
+        }else{
+            data = data.filter((item)=> item.key !== recipe.key)
+            await this.props.dispatch(removeKey(recipe.key));
+            storeData("downloads",JSON.stringify(data));
+        }
+        this.forceUpdate()
     }
     
     async handleOpenRecipe(recipe){
@@ -96,6 +135,13 @@ class Home extends Component {
         .on("value",function(snapshot){
            this.setState({db: snapshotToArray(snapshot).reverse(), renderdb: true})
         }.bind(this))
+
+        if(getUser().isAnonymous === true){//GUEST
+            this.setState({guest: true})
+            this.props.navigation.setParams({guest: true, handleGuestLogOut: this.handleGuestLogOut})
+        }else{
+            this.props.navigation.setParams({guest: false})
+        }
     }        
 
     render() {
@@ -127,14 +173,14 @@ class Home extends Component {
                                     </TouchableOpacity>
                                     <CardItem>
                                         <Left>
-                                            <Button transparent onPress={() => this.handleStar(recipe)}>
-                                                <Icon type='FontAwesome' name='star' style={ this.evaluateStar(recipe.key) ? (styles.icon) : (styles.icon1) }/>
+                                            <Button transparent onPress={() => this.handleStar(recipe)} disabled={this.state.guest}>
+                                                <Icon type='FontAwesome' name='star' style={this.evaluateStar(recipe.key) ? (styles.icon) : (styles.icon1) }/>
                                             </Button>
                                             <Text>{recipe.stars} Stars</Text>
                                         </Left>
                                         <Right>
-                                            <Button transparent onPress={() => this.handleDownload(recipe)}>
-                                                <Icon type='Feather' name='download' style={ true ? (styles.icon) : (styles.icon1) }/>
+                                            <Button transparent onPress={() => this.handleDownload(recipe)} disabled={this.state.guest}>
+                                                <Icon type='Feather' name='download' style={this.props.state.downloadedKeys.includes(recipe.key) ? (styles.icon) : (styles.icon1) }/>
                                             </Button>
                                         </Right>
                                     </CardItem>

@@ -3,7 +3,7 @@ import { StyleSheet, Image, Linking, ScrollView, View, Alert } from 'react-nativ
 import { Text, Spinner, H2, List, ListItem, Button, Icon } from 'native-base';
 import { connect } from 'react-redux';
 import { yummly } from '../Service/secret'
-import { calculateBadges, setYummlyValues } from '../Service/Firebase'
+import { calculateBadges, setYummlyValues, getUser } from '../Service/Firebase'
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
@@ -44,7 +44,11 @@ class ViewRecipe extends Component{
             this.setState({badges: calculateBadges(setYummlyValues(this.state.data.nutritionEstimates),this.props.state.user.birthday,this.props.state.user.sex)})
         }else{//USER && YUMMLY_MEAL && EDAMAM
             await this.setState({data: this.props.navigation.state.params.recipe});
-            await this.setState({badges: calculateBadges(this.state.data.values,this.props.state.user.birthday,this.props.state.user.sex)})
+            if(!getUser().isAnonymous){// NOT GUEST
+                await this.setState({badges: calculateBadges(this.state.data.values,this.props.state.user.birthday,this.props.state.user.sex)})
+            }else{
+                this.setState({badges: ["Not available for guest users."] })
+            }            
             this.setState({getDone: true})
         }
     }
@@ -245,8 +249,8 @@ class ViewRecipe extends Component{
 
 const styles = StyleSheet.create({
     viewSpin:{
-        alignContent: "center",
-        justifyContent: "center"
+        justifyContent: "center",
+        alignSelf: "center"
     },
     image:{
         width: 360,

@@ -11,11 +11,14 @@ const VIEW_YUMMLY = "RECIPE YUMMLY"
 const VIEW_YUMMLY_MEAL = "RECIPE YUMMLY_MEAL"
 const VIEW_EDAMAM = "RECIPE EDAMAM"
 const VIEW = "RECIPE DB"
+const ADD_KEY = "DOWNLOAD"
+const REMOVE_KEY = "REMOVE"
 
 const initialState = {
     user: null,
     mode: 'NONE',
-    view: null
+    view: null,
+    downloadedKeys: []
 }
 
 export function login(user){
@@ -53,6 +56,14 @@ export function viewYummlyMeal(){
     return {type: VIEW_YUMMLY_MEAL, view: "YUMMLY_MEAL"}
 }
 
+export function addKey(key){
+    return {type: ADD_KEY, key}
+}
+
+export function removeKey(key){
+    return {type: REMOVE_KEY, key}
+}
+
 export function viewEdamam(){
     return {type: VIEW_EDAMAM, view: "EDAMAM"}
 }
@@ -82,6 +93,16 @@ function dispatcher(state, action){
             return Object.assign({}, state, {
                 view: action.view
             })
+        case ADD_KEY:
+            return { 
+                ...state,
+                downloadedKeys: [...state.downloadedKeys, action.key]
+            }
+        case REMOVE_KEY:
+            return { 
+                ...state,
+                downloadedKeys: state.downloadedKeys.filter((key)=> key !== action.key)
+            }
         case LOGOUT:
         default:
             return initialState;

@@ -1,5 +1,6 @@
 import * as firebase from 'firebase';
 import { limits, badges, convert } from './secret';
+import { AsyncStorage } from 'react-native';
 
 const config = require("./config.json");
 
@@ -66,6 +67,10 @@ export function signInWithEmail(email, password){
     return auth.signInWithEmailAndPassword(email,password)
 }
 
+export function signInAnonmyous(){
+    return auth.signInAnonymously()
+}
+
 function upload(data){
     return storage.ref(data.link)
     .child(data.child)
@@ -78,6 +83,46 @@ export function getUser(){
 
 export function getEmailAuthProvider(){
     return firebase.auth.EmailAuthProvider
+}
+
+export function signOut(){
+    return firebase.auth().signOut()
+}
+
+export async function storeData(key,data){
+    try {
+        await AsyncStorage.setItem(key,data)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export async function retrieveData(key){
+    try {
+        const value = await AsyncStorage.getItem(key);
+        if(value !== null){
+            return value
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export function retrieveDataKeys(){
+    return AsyncStorage.getAllKeys()
+}
+
+export async function removeData(key){
+    try{
+        await AsyncStorage.removeItem(key);
+    }catch(error){
+        console.log(error)
+    }
+}
+
+export function deletePicture(data){
+    return storage.refFromURL(data)
+    .delete()
 }
 
 export async function exportPicture(data){
@@ -107,10 +152,6 @@ export async function exportPicture(data){
     else return null;
 }
 
-export function deletePicture(data){
-    return storage.refFromURL(data)
-    .delete()
-}
 
 export function snapshotToArray(snapshot) {
     var returnArr = [];

@@ -3,8 +3,8 @@ import { View, StyleSheet, ScrollView, Alert, Keyboard, TouchableOpacity, Image 
 import { CardItem, Input, Form, Item, Button, Icon, Left, Right, Picker, Text, Card, Body, Spinner, Thumbnail, H3 } from 'native-base';
 import { usda, yummly, edamam } from '../Service/secret';
 import { connect } from 'react-redux';
-import { view, viewYummly, viewEdamam } from '../Service/Reducer'
-import { searchMultiStartsAt, snapshotToArray, transact, computeDate, update, setEdamamValues } from '../Service/Firebase';
+import { view, viewYummly, viewEdamam, addKey, removeKey } from '../Service/Reducer'
+import { searchMultiStartsAt, snapshotToArray, transact, computeDate, update, setEdamamValues, getUser, storeData, retrieveData } from '../Service/Firebase';
 
 const autoBind = require('auto-bind');
 const axios = require('axios');
@@ -15,14 +15,15 @@ class Search extends Component {
         this.state={
             text: "",
             searched:"",
-            selected: 3,
+            selected: 2,
             data: null,
             searching: false,
             clickedInfo: false,
             renderData0: false,
             renderData1: false,
             renderData2: false,
-            renderData3: false
+            renderData3: false,
+            guest: false,
         }
         autoBind(this)
     }
@@ -174,7 +175,26 @@ class Search extends Component {
         this.props.navigation.navigate('ViewRecipe',{recipe})
     }
 
-    handleDownload(recipe){}
+    async handleDownload(recipe){
+        let data = await retrieveData("downloads");
+        data = JSON.parse(data);
+
+        if(data.filter((item)=> item.key === recipe.key).length === 0){
+            Toast.show({
+                text: "Added to Downloads",
+                duration: 3000,
+            })
+
+            data.push(recipe)
+            await this.props.dispatch(addKey(recipe.key));
+            storeData("downloads",JSON.stringify(data));
+        }else{
+            data = data.filter((item)=> item.key !== recipe.key)
+            await this.props.dispatch(removeKey(recipe.key));
+            storeData("downloads",JSON.stringify(data));
+        }
+        this.forceUpdate()
+    }
     
     async handleStar(recipe){
         if(this.props.state.user.starred.includes(recipe.key)){ //unstar
@@ -227,6 +247,10 @@ class Search extends Component {
     }
 
     evaluateStar(key){
+        if(this.state.guest){
+            return false
+        }
+
         if(this.props.state.user.starred.includes(key)){
             return true
         }else{
@@ -241,6 +265,12 @@ class Search extends Component {
         this.setState({selected})
     }
 
+    componentWillMount(){
+        if(getUser().isAnonymous === true){//GUEST
+            this.setState({guest: true})
+        }
+    }
+
     render() {
         return(
             <View>
@@ -252,12 +282,19 @@ class Search extends Component {
                         </Button>
                     </Item>
                     <Item>
-                    <Picker mode="dropdown" selectedValue={this.state.selected} onValueChange={(selected)=>{this.handleSelected(selected)}}>
-                        <Picker.Item key={0} label={"Recipes by Yummly"} value={0}/>
-                        <Picker.Item key={1} label={"Recipes by Edamam"} value={1}/>
-                        <Picker.Item key={2} label={"Recipes by Sizzle Users"} value={2}/>
-                        <Picker.Item key={3} label={"Ingredients"} value={3}/>
-                    </Picker>
+                    {
+                        this.state.guest ?
+                        <Picker mode="dropdown" selectedValue={this.state.selected} onValueChange={(selected)=>{this.handleSelected(selected)}}>
+                            <Picker.Item key={2} label={"Recipes by Sizzle Users"} value={2}/>
+                        </Picker>
+                        :
+                        <Picker mode="dropdown" selectedValue={this.state.selected} onValueChange={(selected)=>{this.handleSelected(selected)}}>
+                            <Picker.Item key={0} label={"Recipes by Yummly"} value={0}/>
+                            <Picker.Item key={1} label={"Recipes by Edamam"} value={1}/>
+                            <Picker.Item key={2} label={"Recipes by Sizzle Users"} value={2}/>
+                            <Picker.Item key={3} label={"Ingredients"} value={3}/>
+                        </Picker>
+                    }
                     </Item>
                 </Form>
                 <ScrollView>
@@ -372,14 +409,14 @@ class Search extends Component {
                                         </TouchableOpacity>
                                         <CardItem>
                                             <Left>
-                                                <Button transparent onPress={() => this.handleStar(recipe)}>
+                                                <Button transparent onPress={() => this.handleStar(recipe)} disabled={this.state.guest}>
                                                     <Icon type='FontAwesome' name='star' style={ this.evaluateStar(recipe.key) ? (styles.icon) : (styles.icon1) }/>
                                                 </Button>
                                                 <Text>{recipe.stars} Stars</Text>
                                             </Left>
                                             <Right>
-                                                <Button transparent onPress={() => this.handleDownload(recipe)}>
-                                                    <Icon type='Feather' name='download' style={ true ? (styles.icon) : (styles.icon1) }/>
+                                                <Button transparent onPress={() => this.handleDownload(recipe)} disabled={this.state.guest}>
+                                                    <Icon type='Feather' name='download' style={ this.props.state.downloadedKeys.includes(recipe.key) ? (styles.icon) : (styles.icon1) }/>
                                                 </Button>
                                             </Right>
                                         </CardItem>

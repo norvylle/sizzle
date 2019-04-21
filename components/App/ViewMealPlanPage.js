@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { ScrollView, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
-import { View, Text, H2, H3, Spinner, Card, CardItem, Left, Right, Body, Thumbnail, Button, Icon } from 'native-base';
-import { computeDate, transact, update } from '../Service/Firebase'
+import { View, Text, H2, H3, Spinner, Card, CardItem, Left, Right, Body, Thumbnail, Button, Icon, List, ListItem } from 'native-base';
+import { computeDate, transact, update, calculateBadges } from '../Service/Firebase'
 import { viewYummlyMeal, viewEdamam, view } from '../Service/Reducer';
 
 const autoBind = require('auto-bind');
@@ -12,7 +12,8 @@ class  ViewMealPlan extends Component{
         super(props)
         this.state={
             data: null,
-            getDone: false
+            getDone: false,
+            badges: []
         }
         autoBind(this)
     }
@@ -39,8 +40,6 @@ class  ViewMealPlan extends Component{
         await this.props.dispatch(view());
         this.props.navigation.navigate('ViewRecipe',{recipe})
     }
-
-    handleDownload(recipe){}
     
     async handleStar(recipe){
         if(this.props.state.user.starred.includes(recipe.key)){ //unstar
@@ -102,6 +101,7 @@ class  ViewMealPlan extends Component{
 
     async componentWillMount(){
         await this.setState({data: this.props.navigation.state.params.meal})
+        this.setState({badges: calculateBadges(this.state.data.totals,this.props.state.user.birthday,this.props.state.user.sex)})
         this.setState({getDone: true})
     }
 
@@ -115,23 +115,23 @@ class  ViewMealPlan extends Component{
             )
         }else{
             return(
-                <View>
+                <ScrollView>
                     <View style={styles.view}>
                         <H2 style={styles.h2}>{this.state.data.mealPlanName}</H2>
                         <Text note>{this.state.data.username}</Text>
                     </View>
                     <Text note style={styles.header}>Recipe/s</Text>
-                    <ScrollView style={styles.scroll}>
+                    <ScrollView style={styles.scroll} horizontal={true}>
                         {
                             this.state.data.recipes.map((recipe, index)=>{
                                 if(recipe.type === "YUMMLY"){
                                     return(
                                         <Card key={index} style={styles.card}>
-                                            <CardItem>
+                                            <CardItem style={{marginBottom: 10}}>
                                                 <Left style={{width: "80%"}}>
                                                     <Thumbnail source={{uri: "https://static.yummly.co/api-logo.png"}} style={styles.thumbnail}/>
                                                     <Body>
-                                                        <H3 style={styles.h2}>{recipe.recipe.recipeName}</H3>
+                                                        <H3 style={styles.h2}>{recipe.recipe.recipeName.length > 15 ? recipe.recipe.recipeName.slice(0,13)+"..." : recipe.recipe.recipeName}</H3>
                                                         <Text note>{recipe.recipe.sourceDisplayName}</Text>
                                                     </Body>
                                                 </Left>
@@ -143,7 +143,7 @@ class  ViewMealPlan extends Component{
                                             </CardItem>
                                             <TouchableOpacity onPress={()=>{this.handleOpenYummly(recipe.recipe)}}>
                                                 <CardItem cardBody>
-                                                    <Image source={{uri: recipe.recipe.imageUrlsBySize[90]}} style={styles.image}/>
+                                                    <Image source={{uri: recipe.recipe.imageUrlsBySize[90]}} style={styles.userImage}/>
                                                 </CardItem>
                                             </TouchableOpacity>
                                             <CardItem>
@@ -159,11 +159,11 @@ class  ViewMealPlan extends Component{
                                 }else if(recipe.type === "EDAMAM"){
                                     return(
                                         <Card key={index} style={styles.card}>
-                                            <CardItem>
+                                            <CardItem style={{marginBottom: 10}}>
                                                 <Left style={{width: "80%"}}>
                                                     <Thumbnail source={{uri: "https://developer.edamam.com/images/logo-dev.png"}} style={styles.thumbnail}/>
                                                     <Body>
-                                                        <H3 style={styles.h2}>{recipe.recipe.label}</H3>
+                                                        <H3 style={styles.h2}>{recipe.recipe.label.length > 15 ? recipe.recipe.label.slice(0,13)+"..." : recipe.recipe.label}</H3>
                                                         <Text note>{recipe.recipe.source}</Text>
                                                     </Body>
                                                 </Left>
@@ -175,7 +175,7 @@ class  ViewMealPlan extends Component{
                                             </CardItem>
                                             <TouchableOpacity onPress={()=>{this.handleOpenEdamam(recipe.recipe)}}>
                                                 <CardItem cardBody>
-                                                    <Image source={{uri: recipe.recipe.image}} style={styles.image}/>
+                                                    <Image source={{uri: recipe.recipe.image}} style={styles.userImage}/>
                                                 </CardItem>
                                             </TouchableOpacity>
                                             <CardItem>
@@ -192,7 +192,7 @@ class  ViewMealPlan extends Component{
                                                 <Left>
                                                     <Thumbnail source={{uri: recipe.recipe.userUrl}} style={{borderWidth: 1, borderColor: "black"}}/>
                                                     <Body>
-                                                        <H3 style={styles.h2}>{recipe.recipe.recipeName}</H3>
+                                                        <H3 style={styles.h2}>{recipe.recipe.recipeName.length > 15 ? recipe.recipe.recipeName.slice(0,13)+"..." : recipe.recipe.recipeName}</H3>
                                                         <Text note>{recipe.recipe.username}</Text>
                                                     </Body>
                                                 </Left>
@@ -212,11 +212,6 @@ class  ViewMealPlan extends Component{
                                                     </Button>
                                                     <Text>{recipe.recipe.stars} Stars</Text>
                                                 </Left>
-                                                <Right>
-                                                    <Button transparent onPress={() => this.handleDownload(recipe.recipe)}>
-                                                        <Icon type='Feather' name='download' style={ true ? (styles.icon) : (styles.icon1) }/>
-                                                    </Button>
-                                                </Right>
                                             </CardItem>
                                         </Card>
                                     )
@@ -225,7 +220,22 @@ class  ViewMealPlan extends Component{
                         }
                         <Text style={{paddingBottom: 100}}/>
                     </ScrollView>
-                </View>
+                    <List style={styles.list}>
+                        <ListItem itemDivider itemHeader>
+                            <Text style={styles.header}>Badges</Text>
+                        </ListItem>
+                        {
+                            this.state.badges.map((item,index)=>{
+                                return(
+                                    <ListItem key={index}>
+                                        <Text>{item}</Text>
+                                    </ListItem>
+                                )
+                            })
+                        }
+                    </List>
+                    <Text style={{paddingBottom: 20, opacity: 0}}/>
+                </ScrollView>
             )
         }
     }
@@ -241,7 +251,8 @@ const styles = StyleSheet.create({
     },
     scroll:{
         borderTopWidth: 0.75,
-        borderTopColor: "#e5e8e8"
+        borderTopColor: "#e5e8e8",
+        height: "auto"
     },
     header:{
         alignSelf: "center",
@@ -256,15 +267,13 @@ const styles = StyleSheet.create({
     icon1:{
         color: '#000'
     },
-    image:{
-        height: 180, 
-        width: 120, 
-        flex: 1
-    },
     userImage:{
         height: 200, 
         width: 300, 
         flex: 1
+    },
+    card:{
+        height: 350,
     },
 })
 

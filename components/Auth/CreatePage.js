@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, StyleSheet,Text, Alert } from 'react-native';
-import { Form, Item, Input, Label, Button, Icon, DatePicker, Radio, Spinner } from 'native-base';
-import { insert, searchSingle, registerEmail, validateEmail, snapshotToArray } from '../Service/Firebase';
+import { Form, Item, Input, Label, Button, Icon, DatePicker, Radio } from 'native-base';
+import { insert, searchSingle, registerEmail, validateEmail } from '../Service/Firebase';
 import { login } from '../Service/Reducer'
 import { connect } from 'react-redux';
 
@@ -74,6 +74,12 @@ class Create extends Component {
         })        
     }
 
+    getDateLimit(){
+        let date = new Date();
+        date.setFullYear(date.getFullYear()-1);
+        return date
+    }
+
     render() {
         return(
             <View style={styles.view}>
@@ -90,7 +96,7 @@ class Create extends Component {
                     <Item>
                         <Item stackedLabel style={styles.halfItem}>
                             <Label style={styles.label}>Date of Birth</Label>
-                            <DatePicker maximumDate={new Date()} placeHolderText="Select Date" onDateChange={(birthday)=>{this.setState({birthday})}} textStyle={{color: "white"}} placeHolderTextStyle={{color: "#d3d3d3"}} timeZoneOffsetInMinutes={undefined}/>
+                            <DatePicker maximumDate={this.getDateLimit()} placeHolderText="Select Date" onDateChange={(birthday)=>{this.setState({birthday})}} textStyle={{color: "white"}} placeHolderTextStyle={{color: "#d3d3d3"}} timeZoneOffsetInMinutes={undefined}/>
                         </Item>
                         <Item stackedLabel style={styles.halfItem}>
                             <Label style={styles.label}>Sex</Label>

@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Linking } from 'react-native';
 import { Text, Button, H3 } from 'native-base';
-import { connect } from 'react-redux'
-import { logout } from '../Service/Reducer'
+import { connect } from 'react-redux';
+import { logout } from '../Service/Reducer';
+import { signOut } from '../Service/Firebase';
 
 const autoBind = require('auto-bind');
 
@@ -13,9 +14,12 @@ class Settings extends Component {
     }
 
     async handleLogout(){
-        await this.props.navigation.popToTop();
-        await this.props.navigation.navigate('Auth');
-        this.props.dispatch(logout())
+        signOut()
+        .then(async()=>{
+            await this.props.navigation.popToTop();
+            await this.props.navigation.navigate('Auth');
+            this.props.dispatch(logout())
+        })
     }
 
     handleEditDetails(){

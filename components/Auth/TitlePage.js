@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Alert, Keyboard } from 'react-native';
 import { Form, Item, Input, Label, Button, Icon, Root } from 'native-base';
-import { signInWithEmail, searchSingle, snapshotToArray, validateEmail } from '../Service/Firebase';
+import { signInWithEmail, searchSingle, snapshotToArray, validateEmail, signInAnonmyous, storeData } from '../Service/Firebase';
 import { Font, AppLoading } from 'expo';
 import { connect } from 'react-redux';
-import { login, guestLogin } from '../Service/Reducer'
+import { login, guestLogin } from '../Service/Reducer';
 
 const autoBind = require('auto-bind');
 
@@ -12,12 +12,12 @@ class Title extends Component {
     constructor(props){
         super(props)
         this.state = {
-        loaded: false,
-        username: "admin",
-        password: "",
-        showPassword: true,
-        loading:false,
-        user: null,
+            loaded: false,
+            username: "",
+            password: "",
+            showPassword: true,
+            loading:false,
+            user: null,
         }
         autoBind(this);
     }
@@ -25,12 +25,23 @@ class Title extends Component {
     async handleLogin(){
         Keyboard.dismiss();
         
+        if(this.state.username === ""){
+            Alert.alert("Sizzle","Please provide a username.");
+            return;
+        }
+
+        if(this.state.password === ""){
+            Alert.alert("Sizzle","Please provide a passowrd.");
+            return;
+        }
+
         if(validateEmail(this.state.username)){
-            signInWithEmail(this.state.username,this.state.password)
+            signInWthEmail(this.state.username,this.state.password)
             .then(async (user)=>{
                 await searchSingle({link: "users", child: "username", search: user.user.displayName})
                 .once("value",async function(snapshot){
                     await this.props.dispatch(login(await snapshotToArray(snapshot)[0]))
+                    await storeData("downloads",JSON.stringify([]));
                     this.props.navigation.navigate('App');
                 }.bind(this))
             })
@@ -38,11 +49,20 @@ class Title extends Component {
                 Alert.alert("Sizzle",error.message)
             })
         }
-        else{ // dev purposes
+        else{
             await searchSingle({link: "users", child: "username", search: this.state.username})
             .once("value",async function(snapshot){
-                await this.props.dispatch(login(await snapshotToArray(snapshot)[0]))
-                this.props.navigation.navigate('App');
+                if(snapshot.exists()){
+                    let user = snapshotToArray(snapshot)[0];
+                    if(user.password === this.state.password){
+                        await signInWithEmail(user.email,user.password);
+                        await this.props.dispatch(login(user))
+                        await storeData("downloads",JSON.stringify([]));
+                        this.props.navigation.navigate('App');
+                        return;
+                    }
+                }
+                Alert.alert("Sizzle","Incorrect username/password.");
             }.bind(this))
         }
     }
@@ -53,6 +73,14 @@ class Title extends Component {
 
     handleShowPassword(){
         this.setState({ showPassword: !this.state.showPassword })
+    }
+
+    handleGuest(){
+        signInAnonmyous()
+        .then(()=>{
+            this.props.dispatch(guestLogin());
+            this.props.navigation.navigate('Guest');
+        })
     }
 
     async componentWillMount(){
@@ -77,44 +105,46 @@ class Title extends Component {
 
     render() {
         if(!this.state.loaded){
-        return(
-            <Root>
-            <AppLoading/>
-            </Root>
-        )
+            return(
+                <Root>
+                    <AppLoading/>
+                </Root>
+            )
         }
-        
-        return (
-        <View style={styles.view}>
-            <View>
-                <Text style={styles.title}>Sizzle</Text>
-                <Text style={styles.text}>Login to Sizzle.</Text>
+        else{
+            return (
+            <View style={styles.view}>
+                <View>
+                    <Text style={styles.title}>Sizzle</Text>
+                    <Text style={styles.text}>Login to Sizzle.</Text>
+                </View>
+                <Form>
+                    <Item stackedLabel >
+                        <Label style={styles.label}>Username/Email</Label>
+                        <Input style={styles.input} value={this.state.username} onChangeText={(username)=> this.setState({username})} maxLength={50}/>
+                    </Item>
+                    <Item stackedLabel >
+                        <Label style={styles.label}>Password</Label>
+                        <Input style={styles.input} value={this.state.password} secureTextEntry={this.state.showPassword} onChangeText={(password)=> this.setState({password})} maxLength={32}/>
+                        <Button transparent style={styles.passwordButton} onPress={()=>this.handleShowPassword()}>
+                            {
+                            this.state.showPassword ? (<Icon type='Ionicons' name='ios-eye' style={styles.label}/>) : (<Icon type='Ionicons' name='ios-eye-off' style={styles.label}/>)
+                            }
+                        </Button>
+                    </Item>
+                </Form>
+                <Button default block rounded style={styles.button} onPress={()=>this.handleLogin()}>
+                    <Text style={styles.buttonText}>LOGIN</Text>
+                </Button>
+                <Button warning rounded style={styles.guestButton} onPress={()=>this.handleGuest()}>
+                    <Text style={styles.buttonText}>LOGIN AS GUEST</Text>
+                </Button>
+                <Button transparent style={styles.lineButton} onPress={()=>this.handleCreate()}>
+                    <Text style={styles.createText}>Create Account</Text>
+                </Button>
             </View>
-            <Form>
-                <Item stackedLabel >
-                    <Label style={styles.label}>Username/Email</Label>
-                    <Input style={styles.input} value={this.state.username} onChangeText={(username)=> this.setState({username})} maxLength={50}/>
-                </Item>
-                <Item stackedLabel >
-                    <Label style={styles.label}>Password</Label>
-                    <Input style={styles.input} value={this.state.password} secureTextEntry={this.state.showPassword} onChangeText={(password)=> this.setState({password})} maxLength={32}/>
-                    <Button transparent style={styles.passwordButton} onPress={this.handleShowPassword}>
-                        {
-                        this.state.showPassword ? (<Icon type='Ionicons' name='ios-eye' style={styles.label}/>) : (<Icon type='Ionicons' name='ios-eye-off' style={styles.label}/>)
-                        }
-                    </Button>
-                </Item>
-            </Form>
-            <Text style={{paddingTop:10}}/>
-            <Button default block rounded style={styles.button} onPress={this.handleLogin}>
-                <Text style={styles.buttonText}>LOGIN</Text>
-            </Button>
-            <Text style={{paddingTop:50}}/>
-            <Button transparent style={styles.create} onPress={this.handleCreate}>
-                <Text style={styles.createText}>Create Account</Text>
-            </Button>
-        </View>
-        );
+            );
+        }
     }
 }
 
@@ -122,13 +152,20 @@ const styles = StyleSheet.create({
     button:{
         width: 200,
         alignSelf: "center",
+        marginTop: 10
     },
     buttonText:{
         fontFamily:'Roboto_medium',
         color:'#fff'
     },
-    create:{
-        paddingVertical: 10,
+    guestButton:{
+        marginTop: 40,
+        alignSelf: "center",
+        justifyContent: "center",
+        width: 150
+    },
+    lineButton:{
+        marginTop: 15,
         alignSelf: "center",
     },
     createText:{

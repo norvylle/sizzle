@@ -204,7 +204,7 @@ class Profile extends Component {
                                             <Body/><Body/>
                                             <Right style={{flexDirection: "row", alignContents: "flex-end"}}>
                                                 <Button transparent onPress={() => this.handleEditRecipe(index)} style={styles.buttonRight}>
-                                                    <Icon active type="Feather" name="edit" />
+                                                    <Icon type="Feather" name="edit" />
                                                 </Button>
                                                 <Button transparent danger onPress={() => Alert.alert("Sizzle","Delete "+recipe.recipeName+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => this.handleDeleteRecipe(index,recipe)},],{cancelable: true})} style={styles.buttonRight}>
                                                     <Icon active name="trash" />
