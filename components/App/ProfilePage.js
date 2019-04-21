@@ -26,6 +26,12 @@ class Profile extends Component {
         autoBind(this)
     }
 
+    static navigationOptions = ({navigation})=> {
+            return{
+                headerRight: <Button transparent light onPress={navigation.getParam('handleHelp')}><Icon type="Feather" name="help-circle"/></Button>
+            }
+    };
+
     handleSettings(){
         this.props.navigation.navigate('Settings')
     }
@@ -126,8 +132,14 @@ class Profile extends Component {
         }
     }
 
+    handleHelp(){
+        this.props.navigation.navigate('Help')
+    }
+
     async componentWillMount(){
         this.setState({renderStarred: false, renderMeals: false, renderRecipes: false});
+
+        this.props.navigation.setParams({handleHelp: this.handleHelp})
 
         if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
             Alert.alert("Sizzle","You are offline. Try again later.");
@@ -150,7 +162,9 @@ class Profile extends Component {
                 retrieveByChild({link: "recipes/"+key})
                 .once('value',function(snapshot){
                     if(snapshot.exists()){
-                        if(!this.state.starred.includes({...snapshot.val(), key})) this.state.starred.push({...snapshot.val(), key});
+                        if(this.state.starred.filter(item=>item.key === key).length === 0){
+                            this.state.starred.push({...snapshot.val(), key});
+                        }
                     }
             }.bind(this))
         })
@@ -298,15 +312,6 @@ class Profile extends Component {
                                                 </Button>
                                                 <Text>{recipe.stars} Stars</Text>
                                             </Left>
-                                            <Body/><Body/>
-                                            <Right style={{flexDirection: "row", alignContents: "flex-end"}}>
-                                                <Button transparent onPress={() => this.handleEditRecipe(index)} style={styles.buttonRight}>
-                                                    <Icon active type="Feather" name="edit" />
-                                                </Button>
-                                                <Button transparent danger onPress={() => Alert.alert("Sizzle","Delete "+recipe.recipeName+"?",[{ text: 'Cancel',style: 'cancel',},{text: 'OK', onPress: () => this.handleDeleteRecipe(index,recipe)},],{cancelable: true})} style={styles.buttonRight}>
-                                                    <Icon active name="trash" />
-                                                </Button>
-                                            </Right>
                                         </CardItem>
                                     </Card>)
                                 })   

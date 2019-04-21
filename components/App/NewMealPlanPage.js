@@ -215,7 +215,7 @@ class NewMealPlan extends Component{
         return(
             <View>
 
-                <Overlay isVisible={this.state.add} height="auto" width="auto">
+                <Overlay isVisible={this.state.add} height="80%" width="auto">
                     <View>
                         <H2>Add Recipe</H2>
                         <Form style={styles.form}>

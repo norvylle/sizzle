@@ -1,4 +1,4 @@
-import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage, SettingsPage, NewRecipePage, AvatarPage, ProfilePicturePage, PasswordPage, EmailPage, EditDetailsPage, NewMealPlanPage, ViewMealPlanPage, ViewRecipePage, CookPage } from './components/Export';
+import { TitlePage, CreatePage, HomePage, DownloadPage, ProfilePage, SearchPage, SettingsPage, NewRecipePage, AvatarPage, ProfilePicturePage, PasswordPage, EmailPage, EditDetailsPage, NewMealPlanPage, ViewMealPlanPage, ViewRecipePage, CookPage, HelpPage } from './components/Export';
 import { createStackNavigator, createSwitchNavigator, createBottomTabNavigator, createAppContainer} from 'react-navigation';
 import React, { Component } from 'react';
 import { StyleSheet } from 'react-native';
@@ -134,6 +134,18 @@ const ProfileStack = createStackNavigator(
             screen: SettingsPage,
             navigationOptions: {
                 headerTitle: "Settings",
+                headerStyle:{
+                    backgroundColor: '#ff5733',
+                },
+                headerTitleStyle:{
+                   color: "#fff",
+                }
+            }
+        },
+        Help:{
+            screen: HelpPage,
+            navigationOptions: {
+                headerTitle: "Help",
                 headerStyle:{
                     backgroundColor: '#ff5733',
                 },

@@ -326,7 +326,7 @@ class NewRecipe extends Component{
     render(){    
         return(
             <ScrollView>
-                <Overlay isVisible={this.state.IngredientVisible} height="auto" width="auto">
+                <Overlay isVisible={this.state.IngredientVisible} height="80%" width="auto">
                     <View>
                         <H2>{this.state.header}</H2>
                         <Form style={styles.form}>
@@ -391,7 +391,7 @@ class NewRecipe extends Component{
                     </View>
                 </Overlay>
 
-                <Overlay isVisible={this.state.StepVisible} height="auto"  width="auto">
+                <Overlay isVisible={this.state.StepVisible} height="auto"  width="60%">
                     <View>
                         <H2>{this.state.header}</H2>
                         <Textarea rowSpan={5} bordered placeholder={"Put directions here."} value={this.state.direction} onChangeText={(direction)=>this.setState({direction})} style={{marginTop:20}}/>

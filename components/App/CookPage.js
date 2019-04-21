@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { StyleSheet } from 'react-native';
 import { View, Text, Button } from 'native-base';
-import Swiper from 'react-native-swiper'
+import Swiper from 'react-native-swiper';
 
 const autoBind = require('auto-bind');
 

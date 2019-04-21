@@ -11,10 +11,11 @@ import ProfilePicturePage from './App/ProfilePicturePage';
 import PasswordPage from './App/PasswordPage';
 import EmailPage from './App/EmailPage';
 import EditDetailsPage from './App/EditDetailsPage';
-import NewMealPlanPage from './App/NewMealPlanPage'
-import ViewMealPlanPage from './App/ViewMealPlanPage'
-import ViewRecipePage from './App/ViewRecipePage'
-import CookPage from './App/CookPage'
+import NewMealPlanPage from './App/NewMealPlanPage';
+import ViewMealPlanPage from './App/ViewMealPlanPage';
+import ViewRecipePage from './App/ViewRecipePage';
+import CookPage from './App/CookPage';
+import HelpPage from './App/HelpPage';
 
 export {
     TitlePage,
@@ -33,5 +34,6 @@ export {
     NewMealPlanPage,
     ViewMealPlanPage,
     ViewRecipePage,
-    CookPage
+    CookPage,
+    HelpPage
 }
