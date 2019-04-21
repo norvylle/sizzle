@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Image, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Image, ScrollView, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import { Card, CardItem, Left, Right, Body, Text, H3, Thumbnail, Icon, Button, Toast, Root } from 'native-base';
 import { connect } from 'react-redux';
 import { retrieveData, storeData, computeDate, update, transact } from '../Service/Firebase';
@@ -11,7 +11,8 @@ class Download extends Component {
     constructor(props){
         super(props)
         this.state={
-            data:[]
+            data:[],
+            render: false
         }
         autoBind(this)
     }
@@ -102,14 +103,16 @@ class Download extends Component {
     }
     
     async componentWillMount(){
+        this.setState({render: false})
         let data = await retrieveData("downloads");
         this.setState({data: JSON.parse(data)})
+        this.setState({render: true})
     }
 
     render() {
         return(
             <Root>
-                <ScrollView>
+                <ScrollView refreshControl={<RefreshControl refreshing={!this.state.render} onRefresh={()=>{this.componentWillMount()}} colors={["darkorchid"]}/>}>
                     {
                     this.state.data.map((recipe,index)=>{
                         return(

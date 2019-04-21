@@ -38,6 +38,7 @@ class Create extends Component {
         this.setState({submitting: true});
         let clone = JSON.parse(JSON.stringify(this.state));
         delete clone["showPassword"]
+        delete clone["submitting"]
         
         if(clone["password"].length < 6){
             Alert.alert("Sizzle", "Password should be at least 6 characters.")
