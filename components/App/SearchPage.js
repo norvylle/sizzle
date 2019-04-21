@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Keyboard, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Keyboard, TouchableOpacity, Image, NetInfo } from 'react-native';
 import { CardItem, Input, Form, Item, Button, Icon, Left, Right, Picker, Text, Card, Body, Spinner, Thumbnail, H3 } from 'native-base';
 import { usda, yummly, edamam } from '../Service/secret';
 import { connect } from 'react-redux';
@@ -24,6 +24,7 @@ class Search extends Component {
             renderData2: false,
             renderData3: false,
             guest: false,
+            isConnected: false
         }
         autoBind(this)
     }
@@ -37,6 +38,12 @@ class Search extends Component {
         this.setState({searching: true, data:null, renderData0: false, renderData1: false, renderData2: false, renderData3: false});        
         Keyboard.dismiss();
 
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            this.setState({searching: false});
+            return;
+        }
+
         if(this.state.selected === 0){
             await axios.get(yummly.search,
                 {
@@ -48,17 +55,17 @@ class Search extends Component {
                 }
             )
             .then(async function(response){
-                if(response.status === 200){
-                    try {
-                        if(response.data.errors.error[0].status === 400){
-                            Alert.alert("Sizzle","Your searched returned 0 results. Try again.");
-                        }
-                    }catch (error) {
-                        await this.setState({data: response.data})
-                        this.setState({renderData0: true, searched: this.state.text})
-                        console.log("RECIPE (YUMMLY): Search success.")
-                    }
+                await this.setState({data: response.data})
+                if(this.state.data.totalMatchCount  == 0){
+                    Alert.alert("Sizzle","Your searched returned 0 results. Try again.");
+                }else{
+                    this.setState({renderData0: true, searched: this.state.text})
                 }
+                console.log("RECIPE (YUMMLY): Search success.")
+            }.bind(this))
+            .catch(function(error){
+                Alert.alert("Sizzle",error.response)
+                this.setState({searching: false});
             }.bind(this))
 
             this.setState({searching: false});
@@ -73,18 +80,35 @@ class Search extends Component {
                 }
             ).then(async function(response){
                 await this.setState({data: response.data.hits})
-                this.setState({renderData1: true})
                 console.log("RECIPE (EDAMAM): Search success.")
-            }.bind(this)).catch(function(error){
-                Alert.alert("Sizzle",error.message)
-            })
+                if(data.length == 0){
+                    Alert.alert("Sizzle","Your searched returned 0 results. Try again.");
+                }else{
+                    this.setState({renderData1: true})
+                }
+            }.bind(this))
+            .catch(function(error){
+                Alert.alert("Sizzle","An error occurred.");
+                this.setState({searching: false});
+            }.bind(this))
+            
             this.setState({searching: false});
         }else if(this.state.selected === 2){
-            await searchMultiStartsAt({link: "recipes", child: "recipeName", search: this.state.text})
-            .on("value",async function(snapshot){
-                await this.setState({data: snapshotToArray(snapshot)});
-                this.setState({renderData2: true})
-            }.bind(this))
+            try {
+                await searchMultiStartsAt({link: "recipes", child: "recipeName", search: this.state.text})
+                .on("value",async function(snapshot){
+                    if(snapshot.exists()){
+                        await this.setState({data: snapshotToArray(snapshot)});
+                        this.setState({renderData2: true})
+                    }else{
+                        Alert.alert("Sizzle","Your searched returned 0 results. Try again.");
+                    }
+                }.bind(this))
+            } catch (error) {
+                Alert.alert("Sizzle","An error occurred.");
+                this.setState({searching: false});
+            }
+
             this.setState({searching: false});
         }else{    
             await axios.get(usda.search,
@@ -112,14 +136,19 @@ class Search extends Component {
                 }
             }.bind(this))
             .catch(function(error){
-                Alert.alert("Sizzle","An error occurred.")
+                Alert.alert("Sizzle","An error occurred.");
             })
             this.setState({searching: false});
         }
         this.setState({searching: false});
     }
 
-    handleInfo(ndbno){
+    async handleInfo(ndbno){
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            return;
+        }
+
         axios.get(usda.report,
             {
                 params:{
@@ -197,6 +226,10 @@ class Search extends Component {
     }
     
     async handleStar(recipe){
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            return;
+        }
         if(this.props.state.user.starred.includes(recipe.key)){ //unstar
             this.props.state.user.starred.splice(this.props.state.user.starred.indexOf(recipe.key),1);
             
@@ -265,10 +298,11 @@ class Search extends Component {
         this.setState({selected})
     }
 
-    componentWillMount(){
-        if(getUser().isAnonymous === true){//GUEST
+    componentWillMount(){        
+          if(getUser().isAnonymous === true){//GUEST
             this.setState({guest: true})
         }
+
     }
 
     render() {
@@ -341,7 +375,7 @@ class Search extends Component {
                     {
                         this.state.selected === 0 ? 
                         (this.state.renderData0 ? 
-                            (<Text style={{fontFamily: "geoSansLight",paddingBottom: 120, textAlign: "center", color: "gray"}}>{this.state.data.attribution.text}</Text>)   
+                            (<Text style={{fontFamily: "geoSansLight", textAlign: "center", color: "gray"}}>{this.state.data.attribution.text}</Text>)   
                             :null)
                         :
                         null
@@ -436,7 +470,7 @@ class Search extends Component {
                                             <Card  pointerEvents="none">
                                                 <Left>
                                                     <Body>
-                                                        <H3 style={styles.h3}>{item.name}</H3>
+                                                        <Text style={{textAlign: "justify"}}>{item.name}</Text>
                                                         <Text note>{item.group}</Text>
                                                     </Body>
                                                 </Left>
@@ -450,7 +484,7 @@ class Search extends Component {
                     {
                         this.state.selected === 3 ?
                         (this.state.renderData3 ? 
-                            (<Text style={{fontFamily: "geoSansLight", paddingBottom: 120, textAlign: "center", color: "gray"}}>Showing 1-50 of 50 results"{this.state.searched}"</Text>)
+                            (<Text style={{fontFamily: "geoSansLight", textAlign: "center", color: "gray"}}>Showing 1-50 of 50 results"{this.state.searched}"</Text>)
                             : null) 
                         :
                         null   
@@ -458,6 +492,7 @@ class Search extends Component {
                     {
                         this.state.searching ? <Spinner color="blue" style={{paddingTop: 50}}/> : null
                     }
+                <Text style={{paddingBottom: 120, opacity: 0}}/>
                 </ScrollView>
             </View>
         );

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Alert } from 'react-native';
+import { StyleSheet, Alert, NetInfo } from 'react-native';
 import { View, Label, Input, DatePicker, Form, Text, Item, Button } from 'native-base';
 import { update, searchSingle, snapshotToArray } from '../Service/Firebase';
 import { login } from '../Service/Reducer';
@@ -23,7 +23,12 @@ class EditDetails extends Component{
         this.setState({firstName: this.props.state.user.firstName, lastName: this.props.state.user.lastName, email: this.props.state.user.email, birthday: new Date(this.props.state.user.birthday)})
     }
 
-    handleSubmit(){
+    async handleSubmit(){
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            return;
+        }
+        
         let data = {link: "users/"+this.props.state.user.key, data:{}}
 
         if(this.props.state.user.firstName != this.state.firstName) data.data.firstName = this.state.firstName

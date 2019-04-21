@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { View, Text, Form, Item, Label, Input, Button } from 'native-base';
-import { StyleSheet, Keyboard, Alert } from 'react-native';
+import { StyleSheet, Keyboard, Alert, NetInfo } from 'react-native';
 import { validateEmail, update, snapshotToArray, getUser, getEmailAuthProvider, searchSingle } from '../Service/Firebase';
 import { login } from '../Service/Reducer';
 
@@ -28,6 +28,11 @@ class Email extends Component{
     }
 
     async handleChangeEmail(){
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            return;
+        }
+
         await update({link: "users/"+this.props.state.user.key, data: {email: this.state.newEmail} })
         .then(()=>{
             getUser().reauthenticateAndRetrieveDataWithCredential(getEmailAuthProvider().credential(this.props.state.user.email,this.props.state.user.password))

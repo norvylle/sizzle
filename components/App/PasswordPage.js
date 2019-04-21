@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { StyleSheet, Alert, Keyboard } from 'react-native';
+import { StyleSheet, Alert, Keyboard, NetInfo } from 'react-native';
 import { View, Text, Form, Item, Label, Input, Button, Icon } from 'native-base';
 import { update, snapshotToArray, getUser, getEmailAuthProvider, searchSingle } from '../Service/Firebase';
 import { login } from '../Service/Reducer';
@@ -30,6 +30,7 @@ class Password extends Component{
 
     handleSubmit(){
         Keyboard.dismiss();
+        
         if(this.state.currentPassword === this.props.state.user.password){
             if(this.state.newPassword === this.state.currentPassword){
                 Alert.alert("Sizzle","Please provide a new password");
@@ -46,6 +47,11 @@ class Password extends Component{
     }
 
     async handleChangePassword(){
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            return;
+        }
+
         await update({link: "users/"+this.props.state.user.key, data: {password: this.state.newPassword} })
         .then(()=>{
             getUser().reauthenticateAndRetrieveDataWithCredential(getEmailAuthProvider().credential(this.props.state.user.email,this.props.state.user.password))

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Alert, Keyboard } from 'react-native';
-import { Form, Item, Input, Label, Button, Icon, Root } from 'native-base';
+import { StyleSheet, Text, View, Alert, Keyboard, NetInfo } from 'react-native';
+import { Form, Item, Input, Label, Button, Icon, Root, Spinner } from 'native-base';
 import { signInWithEmail, searchSingle, snapshotToArray, validateEmail, signInAnonmyous, storeData } from '../Service/Firebase';
 import { Font, AppLoading } from 'expo';
 import { connect } from 'react-redux';
@@ -18,6 +18,8 @@ class Title extends Component {
             showPassword: true,
             loading:false,
             user: null,
+            LoggingIn: false,
+            LoggingInGuest: false,
         }
         autoBind(this);
     }
@@ -34,7 +36,13 @@ class Title extends Component {
             Alert.alert("Sizzle","Please provide a passowrd.");
             return;
         }
+        
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            return;
+        }
 
+        this.setState({LoggingIn: true})
         if(validateEmail(this.state.username)){
             signInWthEmail(this.state.username,this.state.password)
             .then(async (user)=>{
@@ -43,10 +51,12 @@ class Title extends Component {
                     await this.props.dispatch(login(await snapshotToArray(snapshot)[0]))
                     await storeData("downloads",JSON.stringify([]));
                     this.props.navigation.navigate('App');
+                    this.setState({LoggingIn: false});
                 }.bind(this))
             })
             .catch((error)=>{
-                Alert.alert("Sizzle",error.message)
+                Alert.alert("Sizzle",error.message);
+                this.setState({LoggingIn: false});
             })
         }
         else{
@@ -58,10 +68,12 @@ class Title extends Component {
                         await signInWithEmail(user.email,user.password);
                         await this.props.dispatch(login(user))
                         await storeData("downloads",JSON.stringify([]));
+                        this.setState({LoggingIn: false});
                         this.props.navigation.navigate('App');
                         return;
                     }
                 }
+                this.setState({LoggingIn: false});
                 Alert.alert("Sizzle","Incorrect username/password.");
             }.bind(this))
         }
@@ -76,9 +88,11 @@ class Title extends Component {
     }
 
     handleGuest(){
+        this.setState({LoggingInGuest: true});
         signInAnonmyous()
         .then(()=>{
             this.props.dispatch(guestLogin());
+            this.setState({LoggingInGuest: false});
             this.props.navigation.navigate('Guest');
         })
     }
@@ -133,13 +147,17 @@ class Title extends Component {
                         </Button>
                     </Item>
                 </Form>
-                <Button default block rounded style={styles.button} onPress={()=>this.handleLogin()}>
-                    <Text style={styles.buttonText}>LOGIN</Text>
-                </Button>
-                <Button warning rounded style={styles.guestButton} onPress={()=>this.handleGuest()}>
+                {   !this.state.LoggingIn ?
+                    <Button default block rounded disabled={this.state.LoggingInGuest} style={styles.button} onPress={()=>this.handleLogin()}>
+                        <Text style={styles.buttonText}>LOGIN</Text>
+                    </Button>
+                    : 
+                    <Spinner style={{marginTop: 5, alignSelf: "center"}} color="white"/>
+                }
+                <Button warning rounded disabled={this.state.LoggingIn || this.state.LoggingInGuest} style={styles.guestButton} onPress={()=>this.handleGuest()}>
                     <Text style={styles.buttonText}>LOGIN AS GUEST</Text>
                 </Button>
-                <Button transparent style={styles.lineButton} onPress={()=>this.handleCreate()}>
+                <Button transparent disabled={this.state.LoggingIn || this.state.LoggingInGuest} style={styles.lineButton} onPress={()=>this.handleCreate()}>
                     <Text style={styles.createText}>Create Account</Text>
                 </Button>
             </View>

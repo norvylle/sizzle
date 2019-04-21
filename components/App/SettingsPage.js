@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Linking } from 'react-native';
+import { View, StyleSheet, Linking, Alert } from 'react-native';
 import { Text, Button, H3 } from 'native-base';
 import { connect } from 'react-redux';
 import { logout } from '../Service/Reducer';
@@ -18,6 +18,7 @@ class Settings extends Component {
         .then(async()=>{
             await this.props.navigation.popToTop();
             await this.props.navigation.navigate('Auth');
+            Alert.alert("Love Sizzle?","Please take a moment to rate this app.",[{ text: 'NOT NOW',style: 'cancel',},{text: 'RATE', onPress: () => Linking.openURL("https://docs.google.com/forms/d/e/1FAIpQLSf6ONwcZ5rxyUE0aDv9Ipym9V--pCcsFk2lv_ZJ_KdODca_HA/viewform")},]);
             this.props.dispatch(logout())
         })
     }

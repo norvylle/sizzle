@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, StyleSheet,Text, Alert } from 'react-native';
-import { Form, Item, Input, Label, Button, Icon, DatePicker, Radio } from 'native-base';
+import { View, StyleSheet,Text, Alert, NetInfo } from 'react-native';
+import { Form, Item, Input, Label, Button, Icon, DatePicker, Radio, Spinner } from 'native-base';
 import { insert, searchSingle, registerEmail, validateEmail } from '../Service/Firebase';
 import { login } from '../Service/Reducer'
 import { connect } from 'react-redux';
@@ -20,6 +20,7 @@ class Create extends Component {
             password:"",
             showPassword: true,
             sex: "",
+            submitting: false,
           }
         autoBind(this);
     }
@@ -28,22 +29,31 @@ class Create extends Component {
         this.setState({ showPassword: !this.state.showPassword })
     }
 
-    async handleCreate(){
-        
+    async handleCreate(){        
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            return;
+        }
+
+        this.setState({submitting: true});
         let clone = JSON.parse(JSON.stringify(this.state));
         delete clone["showPassword"]
+        
         if(clone["password"].length < 6){
             Alert.alert("Sizzle", "Password should be at least 6 characters.")
+            this.setState({submitting: false});
             return
         }
         if(!validateEmail(clone["email"])){
             Alert.alert("Sizzle", "Invalid email format.")
+            this.setState({submitting: false});
             return
         }
         
         for(data in clone){
             if(clone[data] === ""){
                 Alert.alert("Sizzle", "Please complete the required field/s.")
+                this.setState({submitting: false});
                 return
             }
         }
@@ -52,6 +62,7 @@ class Create extends Component {
         .once("value" ,(snapshot) =>{ 
             if(snapshot.exists()){
                 Alert.alert("Sizzle","Username already exists.");
+                this.setState({submitting: false});
             }else{
                 registerEmail(clone.email,clone.password)
                 .then(async (user)=>{
@@ -61,14 +72,17 @@ class Create extends Component {
                         this.props.dispatch(login({...snapshot.val(),key: snapshot.key}))
                     })
                     .then(async ()=>{
-                        this.props.navigation.navigate('Avatar',{sex: clone.sex});
+                        this.setState({submitting: false});
+                        this.props.navigation.navigate('Avatar',{sex: clone.sex});                        
                     })
                     .catch((error)=>{
                         Alert.alert("Sizzle",error.message);
+                        this.setState({submitting: false});
                     })
                 })
                 .catch((error)=>{
                     Alert.alert("Sizzle",error.message);
+                    this.setState({submitting: false});
                 })
             }
         })        
@@ -128,9 +142,13 @@ class Create extends Component {
                         </Button>
                     </Item>
                 </Form>
-                <Button default block rounded style={styles.button} onPress={this.handleCreate}>
-                    <Text style={styles.buttonText}>SUBMIT</Text>
-                </Button>
+                {   !this.state.submitting ?
+                    <Button default block rounded style={styles.button} onPress={this.handleCreate}>
+                        <Text style={styles.buttonText}>SUBMIT</Text>
+                    </Button>
+                    :
+                    <Spinner style={{marginTop: 5, alignSelf: "center"}} color="white"/>
+                }
             </View>
         );
     }

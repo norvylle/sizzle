@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ScrollView, StyleSheet, Image, Alert, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, Image, Alert, TouchableOpacity, NetInfo, RefreshControl } from 'react-native';
 import { Text, Button, Tabs, Tab, Icon, Card, CardItem, Left, Right, Body, H3, Spinner, Thumbnail} from 'native-base';
 import ActionButton from 'react-native-action-button'
 import { connect } from 'react-redux';
@@ -17,6 +17,7 @@ class Profile extends Component {
             renderMeals: false,
             renderStarred: false,
             noErrors: true,
+            isConnected: false,
             recipes: [],
             meals: [],
             starred: [],
@@ -44,6 +45,11 @@ class Profile extends Component {
     }
 
     async handleDeleteRecipe(index, recipe){
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            return;
+        }
+
         await remove({link: "recipes/"+recipe.key})
         .then(()=>{console.log("DB REMOVE success")})
         await deletePicture(recipe.url)
@@ -58,6 +64,10 @@ class Profile extends Component {
     }
 
     async handleStar(recipe){
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            return;
+        }
         if(this.props.state.user.starred.includes(recipe.key)){ //unstar
             this.props.state.user.starred.splice(this.props.state.user.starred.indexOf(recipe.key),1);
             
@@ -68,17 +78,17 @@ class Profile extends Component {
                     return stars-1;
                 },(error, committed, snapshot)=>{
                     if(error){
-                        Alert.alert("Sizzle","An error occurred. Try again later.");
+                        Alert.alert("Sizzle","An error occurred.");
                     }else if(!committed){
-                        Alert.alert("Sizzle","An error occurred. Try again later.");
+                        Alert.alert("Sizzle","An error occurred.");
                     }else{
                         console.log(snapshot.val());
                     }
                 }).catch((error)=>{
-                    Alert.alert("Sizzle","An error occurred. Try again later.");
+                    Alert.alert("Sizzle","An error occurred.");
                 })
             }).catch((error)=>{
-                Alert.alert("Sizzle","An error occurred. Try again later.");
+                Alert.alert("Sizzle","An error occurred.");
             })
 
         }else{ //star
@@ -91,17 +101,17 @@ class Profile extends Component {
                     return stars+1;
                 },function(error, committed, snapshot){
                     if(error){
-                        Alert.alert("Sizzle","An error occurred. Try again later.");
+                        Alert.alert("Sizzle","An error occurred.");
                     }else if(!committed){
-                        Alert.alert("Sizzle","An error occurred. Try again later.");
+                        Alert.alert("Sizzle","An error occurred.");
                     }else{
                         console.log(snapshot.val());
                     }
                 }).catch((error)=>{
-                    Alert.alert("Sizzle","An error occurred. Try again later.");
+                    Alert.alert("Sizzle","An error occurred.");
                 })
             }).catch((error)=>{
-                Alert.alert("Sizzle","An error occurred. Try again later.");
+                Alert.alert("Sizzle","An error occurred.");
             })
 
         }
@@ -117,28 +127,36 @@ class Profile extends Component {
     }
 
     async componentWillMount(){
+        this.setState({renderStarred: false, renderMeals: false, renderRecipes: false});
+
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            this.setState({renderStarred: true, renderMeals: true, renderRecipes: true});
+            return;
+        }
+
         searchMulti({link: "recipes", child: "username", search: this.props.state.user.username})
         .on("value",function(snapshot){
-           this.setState({recipes: snapshotToArray(snapshot), renderRecipes: true})
+            this.setState({recipes: snapshotToArray(snapshot), renderRecipes: true})
         }.bind(this))
 
         searchMulti({link: "meals", child: "username", search: this.props.state.user.username})
         .on("value",function(snapshot){
-         this.setState({meals: snapshotToArray(snapshot), renderMeals: true})
+            this.setState({meals: snapshotToArray(snapshot), renderMeals: true})
         }.bind(this))
 
         await this.props.state.user.starred.filter((item)=>item !== "dummy")
-        .forEach((key,index)=>{
-            retrieveByChild({link: "recipes/"+key})
-            .once('value',function(snapshot){
-                if(snapshot.exists()){
-                    if(!this.state.starred.includes({...snapshot.val(), key})) this.state.starred.push({...snapshot.val(), key});
-                }
+            .forEach((key,index)=>{
+                retrieveByChild({link: "recipes/"+key})
+                .once('value',function(snapshot){
+                    if(snapshot.exists()){
+                        if(!this.state.starred.includes({...snapshot.val(), key})) this.state.starred.push({...snapshot.val(), key});
+                    }
             }.bind(this))
         })
-
         this.setState({renderStarred: true});
     }
+
 
     handleOpenMealPlan(meal){
         this.props.navigation.navigate('ViewMealPlan',{meal})
@@ -163,18 +181,18 @@ class Profile extends Component {
                     <Text style={styles.bio}>{this.props.state.user.username}</Text>
                 </View>
                 <View style={{width: "20%"}}>
-                    <Button bordered rounded large dark onPress={()=>this.handleSettings()} style={styles.settings}>
-                        <Icon type='MaterialCommunityIcons' name='settings'/>
+                    <Button rounded transparent onPress={()=>this.handleSettings()} style={styles.settings}>
+                        <Icon type='Feather' name='settings' style={{fontSize: 20, color:'black'}}/>
                     </Button>
                 </View>
             </View>
             <View style={styles.scroll}>
                 <Tabs>
                     <Tab heading="My Recipes" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
-                        <ScrollView snapToEnd={false}>
+                        <ScrollView refreshControl={<RefreshControl refreshing={!this.state.renderRecipes} onRefresh={()=>{this.componentWillMount()}} colors={["darkorchid"]}/>}>
                             {
                                 !this.state.renderRecipes ?
-                                (this.state.noErrors ? <Spinner color="blue" style={{paddingTop: 50}}/> : null) :
+                                null :
                                 this.state.recipes.map((recipe,index)=>{
                                     return(<Card key={recipe.key} style={styles.card}>
                                         <CardItem>
@@ -218,10 +236,10 @@ class Profile extends Component {
                         </ScrollView>
                     </Tab>
                     <Tab heading="My Meals" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
-                        <ScrollView>
+                        <ScrollView refreshControl={<RefreshControl refreshing={!this.state.renderMeals} onRefresh={()=>{this.componentWillMount()}} colors={["darkorchid"]}/>}>
                             {
                                 !this.state.renderMeals ?
-                                (this.state.noErrors ? <Spinner color="blue" style={{paddingTop: 50}}/> : null) :
+                                null :
                                 this.state.meals.map((meal,index)=>{
                                     return(
                                         <Card key={index} style={styles.card}>
@@ -250,10 +268,10 @@ class Profile extends Component {
                         </ScrollView>
                     </Tab>
                     <Tab heading="Starred" tabStyle={styles.tabs} textStyle={styles.tabsText} activeTabStyle={styles.activeTabs} activeTextStyle={styles.activeTabsText}>
-                        <ScrollView>
+                        <ScrollView refreshControl={<RefreshControl refreshing={!this.state.renderStarred} onRefresh={()=>{this.componentWillMount()}} colors={["darkorchid"]}/>}>
                             {
                                 !this.state.renderStarred ?
-                                (this.state.noErrors ? <Spinner color="blue" style={{paddingTop: 50}}/> : null) :
+                                null :
                                 this.state.starred.map((recipe,index)=>{
                                     return(<Card key={index} style={styles.card}>
                                         <CardItem>
@@ -336,7 +354,7 @@ const styles = StyleSheet.create({
     },
     settings:{
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },  
     image:{
         height: 200, 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, ListView, Alert, ScrollView, Keyboard } from 'react-native';
+import { StyleSheet, ListView, Alert, ScrollView, Keyboard, NetInfo } from 'react-native';
 import { View, Form, Input, Label, Item, List, ListItem, Text, Button, Icon, H2, Spinner, Picker, Thumbnail } from 'native-base';
 import { Overlay } from 'react-native-elements';
 import { connect } from 'react-redux';
@@ -52,6 +52,12 @@ class NewMealPlan extends Component{
     async handleSearch(){
         await this.setState({searching: true, renderData0: false, renderData1: false, renderData2: false});
         Keyboard.dismiss();
+
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            this.setState({searching: false});
+            return;
+        }
 
         if(this.state.selected === 0){
             await axios.get(yummly.search,
@@ -162,6 +168,12 @@ class NewMealPlan extends Component{
         }
 
         this.setState({loading: true});
+
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            this.setState({loading: false});
+            return;
+        }
 
         let totals = { "Energy": 0, "Protein": 0, "Total lipid (fat)": 0, "Fiber, total dietary": 0, "Sugars, total": 0, "Sodium, Na": 0 }
 

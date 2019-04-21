@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, ScrollView, ListView, Alert, Image } from 'react-native';
+import { StyleSheet, ScrollView, ListView, Alert, Image, NetInfo } from 'react-native';
 import { Text, Form, Item, Label, Input, Button, Icon, List, View, H2, Picker, Spinner, ListItem, Textarea, } from 'native-base';
 import { Overlay } from 'react-native-elements';
 import ColorPalette from 'react-native-color-palette';
@@ -70,6 +70,11 @@ class NewRecipe extends Component{
 
 
     async handleSearch(){
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            return;
+        }
+
         await this.setState({searching: true, searchResults: null});
         await axios.get(usda.search,
             {
@@ -175,6 +180,12 @@ class NewRecipe extends Component{
 
         await this.processIngredients(this.state.ingredients)
         this.setState({loading: true});
+
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            this.setState({loading: false});
+            return;
+        }
 
         if(this.props.state.mode === "EDIT"){
             if(this.state.nonTouched){

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Image, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { Image, ScrollView, StyleSheet, TouchableOpacity, Alert, NetInfo, RefreshControl, Linking } from 'react-native';
 import { Card, CardItem, Toast, Root, Spinner, H3, Text, Thumbnail, Left, Right, Body, Button, Icon} from 'native-base';
 import { connect } from 'react-redux';
 import { computeDate, retrieveMulti, snapshotToArray, transact, update, getUser, signOut, storeData, retrieveData } from '../Service/Firebase';
@@ -13,7 +13,7 @@ class Home extends Component {
         this.state = {
             showToast: false,
             active: false,
-            db: null,
+            db: [],
             renderdb: false,
             noErrors: true,
             guest: false
@@ -26,7 +26,7 @@ class Home extends Component {
         
         if(params.guest === true)
             return{
-                headerRight: <Button bordered rounded light onPress={navigation.getParam('handleGuestLogOut')}><Icon type="Feather" name="log-out"/></Button>
+                headerRight: <Button transparent light onPress={navigation.getParam('handleGuestLogOut')}><Icon type="Feather" name="log-out"/></Button>
             }
     };
 
@@ -35,11 +35,17 @@ class Home extends Component {
         .then(async()=>{
             await this.props.navigation.popToTop();
             await this.props.navigation.navigate('Auth');
+            Alert.alert("Love Sizzle?","Please take a moment to rate this app.",[{ text: 'NOT NOW',style: 'cancel',},{text: 'RATE', onPress: () => Linking.openURL("https://docs.google.com/forms/d/e/1FAIpQLSf6ONwcZ5rxyUE0aDv9Ipym9V--pCcsFk2lv_ZJ_KdODca_HA/viewform")},]);
             this.props.dispatch(logout())
         })
     }
 
     async handleStar(recipe){
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            return;
+        }
+
         if(this.props.state.user.starred.includes(recipe.key)){ //unstar
             this.props.state.user.starred.splice(this.props.state.user.starred.indexOf(recipe.key),1);
             
@@ -131,10 +137,18 @@ class Home extends Component {
     }
 
     async componentWillMount(){
+        this.setState({renderdb: false})
+        
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            this.setState({renderdb: true});
+            return;
+        }
+
         retrieveMulti({link: "recipes", limit: 20}) //fix to get latest
         .on("value",function(snapshot){
-           this.setState({db: snapshotToArray(snapshot).reverse(), renderdb: true})
-        }.bind(this))
+            this.setState({db: snapshotToArray(snapshot).reverse(), renderdb: true})
+        }.bind(this))   
 
         if(getUser().isAnonymous === true){//GUEST
             this.setState({guest: true})
@@ -147,10 +161,10 @@ class Home extends Component {
     render() {
         return(
             <Root>
-                <ScrollView>
+                <ScrollView refreshControl={<RefreshControl refreshing={!this.state.renderdb} onRefresh={()=>{this.componentWillMount()}} colors={["darkorchid"]}/>}>
                     {
                         !this.state.renderdb ?
-                        (this.state.noErrors ? <Spinner color="blue" style={{paddingTop: 50}}/> : null) :
+                        null:
                         this.state.db.map((recipe) =>{
                             return(
                                 <Card key={recipe.key} style={styles.card}>

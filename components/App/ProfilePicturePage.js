@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Alert, Image, StyleSheet } from 'react-native';
+import { Alert, Image, StyleSheet, NetInfo } from 'react-native';
 import { ImagePicker } from 'expo';
 import { View, Text, Spinner, Button, Icon } from 'native-base';
 import { exportPicture, update, searchSingle, snapshotToArray, searchMulti } from '../Service/Firebase'
@@ -39,6 +39,12 @@ class ProfilePicture extends Component{
             let url = null;
             this.setState({loading: true});
             
+            if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+                Alert.alert("Sizzle","You are offline. Try again later.");
+                this.setState({loading: false});
+                return;
+            }
+
             try {
                 url = await exportPicture({link: this.props.state.user.username, child: "profile", uri: this.state.image})
             } catch (error) {

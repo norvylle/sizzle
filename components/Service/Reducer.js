@@ -25,7 +25,7 @@ export function login(user){
     return {type: LOGIN, user}
 }
 export function guestLogin(){
-    return {type: GUEST_LOGIN, user: {username: 'guest'}}
+    return {type: GUEST_LOGIN, user: {username: null, starred: []}}
 }
 
 export function logout(){

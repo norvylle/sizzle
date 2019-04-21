@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Text, Image, Alert } from 'react-native';
+import { View, StyleSheet, Text, Image, Alert, NetInfo } from 'react-native';
 import { Button, Icon,  Spinner } from 'native-base';
 import { connect } from 'react-redux';
 import { ImagePicker } from 'expo';
@@ -59,12 +59,19 @@ class Avatar extends Component {
     }
 
     async realUpdate(){
+        if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+            Alert.alert("Sizzle","You are offline. Try again later.");
+            this.setState({loading: false});
+            return;
+        }
+
         await update({link: "users/"+this.props.state.user.key, data: {image: this.state.url, starred: ["dummy"]} })
         .then(()=>{
             searchSingle({link: "users", child: "username", search: this.props.state.user.username})
             .once("value",async (snapshot)=>{
                 await this.props.dispatch(login(snapshotToArray(snapshot)[0]));
                 Alert.alert("Sizzle","Upload successful.");
+                this.setState({loading: false});
                 this.props.navigation.navigate('Home');
             })
         })
@@ -92,13 +99,16 @@ class Avatar extends Component {
                     <Image source={{uri: this.state.image}} style={styles.image}/>
                     <Button light iconRight disabled={this.state.loading} style={{justifyContent: "center", alignSelf: "center", width: 200}} onPress={()=>this.pickImage()}>
                         <Text>Pick an Image</Text>
-                        <Icon type="EvilIcons" name="image" />
+                        <Icon type="EvilIcons" name="image"/>
                     </Button>
                 </View>
-                <Button style={styles.button} disabled={this.state.loading} onPress={()=>this.handleUpload()}>
-                    <Text style={styles.uploadText}>UPLOAD</Text>
-                </Button>
-                {this.state.loading ? <Spinner color="#ff5733" size="large" style={styles.spin}/> : null }
+                {   !this.state.loading ?  
+                    <Button style={styles.button} onPress={()=>this.handleUpload()}>
+                        <Text style={styles.uploadText}>UPLOAD</Text>
+                    </Button>
+                    : 
+                    <Spinner style={{marginTop: 5, alignSelf: "center"}} color="white"/>
+                }
             </View>
         );
     }
@@ -150,11 +160,6 @@ const styles = StyleSheet.create({
     },
     center:{
         alignSelf: "center"
-    },
-    spin:{
-        position: "absolute",
-        left: "45%",
-        top: "43%"
     }
 });
 

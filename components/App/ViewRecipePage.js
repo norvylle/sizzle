@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Image, Linking, ScrollView, View, Alert } from 'react-native';
+import { StyleSheet, Image, Linking, ScrollView, View, Alert, NetInfo } from 'react-native';
 import { Text, Spinner, H2, List, ListItem, Button, Icon } from 'native-base';
 import { connect } from 'react-redux';
 import { yummly } from '../Service/secret'
@@ -21,6 +21,12 @@ class ViewRecipe extends Component{
 
     async componentWillMount(){
         if(this.props.state.view === "YUMMLY"){
+            if(! await NetInfo.isConnected.fetch().then((isConnected)=>{return isConnected;})){
+                Alert.alert("Sizzle","You are offline. Try again later.");
+                this.props.navigation.pop();
+                return
+            }
+
             await axios.get(yummly.get+this.props.navigation.state.params.id+"?",
                 {
                     params:{
