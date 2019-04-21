@@ -6,7 +6,6 @@ import { Icon } from 'native-base';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 import { reducer } from './components/Service/Reducer';
-import { EventEmitter } from 'events';
 
 const styles = StyleSheet.create({
     icon: {
