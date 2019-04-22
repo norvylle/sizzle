@@ -20,6 +20,7 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
     "react-native-action-button": "^2.8.5",
     "react-native-color-palette": "^2.0.3",
+    "react-native-countdown-circle": "^3.0.0",
     "react-native-elements": "^1.1.0",
     "react-native-loading-spinner-overlay": "^1.0.1",
     "react-native-swiper": "^1.5.14",

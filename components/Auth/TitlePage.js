@@ -13,8 +13,8 @@ class Title extends Component {
         super(props)
         this.state = {
             loaded: false,
-            username: "",
-            password: "",
+            username: "admin",
+            password: "passwordss",
             showPassword: true,
             loading:false,
             user: null,

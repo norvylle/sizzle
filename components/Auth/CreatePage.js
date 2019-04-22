@@ -160,7 +160,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#ff5733',
         alignItems: 'flex-start',
-        justifyContent: "space-evenly",
         paddingBottom: 200
     },
     input:{
@@ -186,6 +185,7 @@ const styles = StyleSheet.create({
     button:{
         width: 200,
         alignSelf: "center",
+        marginTop: 20,
     },
     buttonText:{
         fontFamily:'Roboto_medium',

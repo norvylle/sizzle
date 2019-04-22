@@ -28,7 +28,7 @@ class Profile extends Component {
 
     static navigationOptions = ({navigation})=> {
             return{
-                headerRight: <Button transparent light onPress={navigation.getParam('handleHelp')}><Icon type="Feather" name="help-circle"/></Button>
+                headerRight: <Button transparent onPress={navigation.getParam('handleHelp')}><Icon active={true} type="Feather" name="help-circle"/></Button>
             }
     };
 
